@@ -5,35 +5,45 @@
     padding: 0.5rem;
     /* margin: 0; */
   }
+
   .ico {
     max-width: 100%;
   }
+
   .title {
     justify-content: center;
   }
+
   .title__left-block {
     max-width: 90%;
   }
+
   .title__desc {
     width: 90%;
+    text-align: center;
   }
+
   .skills__card {
     max-width: 100%;
     /* height: ; */
     /* padding: 0; */
     margin: 0.3rem;
   }
+
   .skills__img {
     max-width: 30%;
   }
+
   .empty {
     display: none;
   }
+
   .thumbs-img {
     width: 100%;
     padding: 0;
     margin-bottom: 1rem;
   }
+
   .thumbs-img:last-child {
     margin-bottom: 0;
   }
