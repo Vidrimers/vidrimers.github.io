@@ -1,0 +1,47 @@
+.portfolio {
+
+  &__title {
+    margin-bottom: 4.7rem;
+  }
+
+  &__item {
+    margin-bottom: 10rem;
+box-shadow: 0 .3rem 1rem rgba(192, 192, 192, .1);
+;
+    &:last-child{
+      margin-bottom: 0;
+    }
+  }
+
+  &__link {
+    display: inline-block;
+    margin-bottom: 2.5rem;
+    max-width: 100%;
+    max-height: 52rem;
+
+  }
+
+  &__text--link {
+    display: block;
+    margin-bottom: .5rem;
+    text-decoration: underline;
+
+    transition: color .3s;
+
+    &:hover {
+      color: $color1;
+    }
+  }
+
+  &__description {
+      padding-bottom: 1rem;
+      font-size: 1.5rem;
+    & a{
+      transition: color .3s;
+
+    &:hover {
+      color: $color1;
+    }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+@mixin flex($sb) {
+    display: flex;
+    justify-content: $sb;
+}
+$sb: space-between;
+$sa: space-around;
+$se: space-evenly;
+$ce: center;
+
+
+@mixin pseudo($content: '', $display: block, $pos: absolute) {
+    content: $content;
+    display: $display;
+    position: $pos;
+}
+
+// ШАБЛОНЫ @extend
+%sb {
+    display: flex;
+    justify-content: space-between;
+}

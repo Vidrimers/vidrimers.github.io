@@ -1,0 +1,25 @@
+// WORK PACK
+@import 'work_pack/reset_lite';
+@import 'work_pack/media_queries';
+@import 'work_pack/vars_mixins';
+@import 'work_pack/fonts';
+@import 'work_pack/colors';
+// BLOCKS
+@import 'blocks/global';
+@import 'blocks/header';
+@import 'blocks/hero';
+@import 'blocks/about';
+@import 'blocks/skills';
+@import 'blocks/portfolio';
+@import 'blocks/certificates';
+@import 'blocks/footer';
+
+@import 'blocks/error';
+
+
+@import 'blocks/media';
+
+// vendor libs
+// @import 'vendor/slick';
+// если не нужно слик можно отключить
+

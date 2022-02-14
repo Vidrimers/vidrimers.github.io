@@ -1,0 +1,26 @@
+.header{
+
+  &__inner{
+    padding: 3rem 0 4rem;
+    border-bottom: 1px solid $color2;
+    // header хуедер
+  }
+
+}
+.menu{
+  &__btn{
+    display: none;
+  }
+  &__list{
+    @include flex($sb);
+
+    &-link{
+      transition: color .3s;
+      &:hover{
+        color: $color1;
+      }
+    }
+  }
+
+
+}

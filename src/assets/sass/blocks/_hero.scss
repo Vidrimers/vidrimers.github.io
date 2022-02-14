@@ -1,0 +1,43 @@
+.hero{
+  &__inner{
+    padding: 4rem 0 10rem;
+  }
+
+  &__top{
+    // color: #000;
+    @include flex($sb);
+    align-items: center;
+    margin-bottom: 3rem;
+    & a{
+      color: $color2;
+
+      transition: color .3s;
+      &:hover{
+        color: #000;
+      }
+    }
+  }
+  &__title{
+    max-width: 10rem;
+
+  @include font($f40, $lh54, 900, $color1);
+  }
+  &__text{
+      max-width: 18.5rem;
+  }
+  &__lang{
+    vertical-align: middle;
+      transform: rotate(-90deg) translate(50%, -100%);
+      transform-origin: right top;
+      // right: 0;
+  }
+  &__photo{
+    width: 100%;
+    min-height: 39rem;
+    background: url(/../assets/img/photo.jpg) no-repeat;
+    background-position: center center;
+    background-size: cover;
+
+  }
+
+}

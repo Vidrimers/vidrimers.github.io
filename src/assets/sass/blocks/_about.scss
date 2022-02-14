@@ -1,0 +1,23 @@
+.about {
+
+  &__title {
+    margin-bottom: 2.5rem;
+  }
+
+  &__items {
+    margin: 0 auto;
+    max-width: 60rem;
+
+    & p {
+      margin-bottom: 2rem;
+    }
+
+    & a {
+      transition: color .3s;
+
+      &:hover {
+        color: $color1;
+      }
+    }
+  }
+}

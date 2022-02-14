@@ -1,0 +1,48 @@
+.footer {
+
+  &__title {
+    margin-bottom: 3rem;
+  }
+
+  &__text {
+    margin-bottom: 3rem;
+
+  }
+
+  &__mail {
+    display: inline-block;
+    @include font($f18, $lh20, 700, #fff);
+    background: $color1;
+    padding: 1.2rem 3rem;
+    margin-bottom: 9rem;
+    border-radius: 3rem;
+    transition: background .3s;
+
+    &:hover {
+      background: #ea5241;
+      color: $color1;
+    }
+  }
+&__bottom{
+  color: $color2;
+}
+}
+.social{
+  display: flex;
+justify-content: center;
+  margin-bottom: 5rem;
+
+  &__link{
+    display: block;
+    width: 7rem;
+    // height: 2rem;
+
+    transition: transform .3s;
+&:hover{
+  transform: scale(1.2);
+}
+    &+&{
+      margin-left: 6rem;
+    }
+  }
+}

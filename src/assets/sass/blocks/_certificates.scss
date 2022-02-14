@@ -1,0 +1,16 @@
+.certificates{
+
+  &__title{
+    margin-bottom: 7rem;
+  }
+  &__items{
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 1rem;
+  }
+  
+  .certificates__link{
+box-shadow: 0 .3rem 1rem rgba(192, 192, 192, .2);
+
+  }
+}
