@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "My gulp4 pack",
   "author": "Yaroslav Shiryakov",
-  "homepage": "https://vidrimers.github.io/",
+  "homepage": "https://vidrimers.github.io",
   "scripts": {
     "deploy": "gh-pages -d dist"
   },
