@@ -46,7 +46,7 @@ const path = {
     // fonts:  "dist/assets/fonts"
   },
   src: {
-    html: "src/*.html",
+    html: "src/*.{html,md}",
     js: "src/assets/js/*.js",
     css: "src/assets/sass/style.scss",
     images: "src/assets/img/**/*.{jpg,jpeg,png,svg,ico,webp,webmanifest,xml}"
