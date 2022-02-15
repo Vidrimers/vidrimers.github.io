@@ -1,7 +1,7 @@
 
 
 # Yaroslav Shiryakov
-<img src="https://github.com/Vidrimers/portfolio.oldportfolio/img/photo2.jpg" width=200>
+<img src="https://vidrimers.github.io/portfolio.oldportfolio//img/photo2.jpg" width=200>
 
 ## Junior Frontend Developer
 ---
@@ -86,10 +86,10 @@
 
 ## Certificates
 
-<img src="https://github.com/Vidrimers/portfolio.oldportfolio/img/cert/1.jpg" width="400">
-<img src="https://github.com/Vidrimers/portfolio.oldportfolio/img/cert/2.jpg" width="400">
-<img src="https://github.com/Vidrimers/portfolio.oldportfolio/img/cert/3.jpg" width="400">
-<img src="https://github.com/Vidrimers/portfolio.oldportfolio/img/cert/4.jpg" width="400">
-<img src="https://github.com/Vidrimers/portfolio.oldportfolio/img/cert/5.jpg" width="400">
-<img src="https://github.com/Vidrimers/portfolio.oldportfolio/img/cert/6.jpg" width="400">
-<img src="https://github.com/Vidrimers/portfolio.oldportfolio/img/cert/7.jpg" width="400">
+<img src="https://vidrimers.github.io/portfolio.oldportfolio//img/cert/1.jpg" width="400">
+<img src="https://vidrimers.github.io/portfolio.oldportfolio//img/cert/2.jpg" width="400">
+<img src="https://vidrimers.github.io/portfolio.oldportfolio//img/cert/3.jpg" width="400">
+<img src="https://vidrimers.github.io/portfolio.oldportfolio//img/cert/4.jpg" width="400">
+<img src="https://vidrimers.github.io/portfolio.oldportfolio//img/cert/5.jpg" width="400">
+<img src="https://vidrimers.github.io/portfolio.oldportfolio//img/cert/6.jpg" width="400">
+<img src="https://vidrimers.github.io/portfolio.oldportfolio//img/cert/7.jpg" width="400">
