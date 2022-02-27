@@ -1,43 +1,70 @@
-.hero{
-  &__inner{
+.hero {
+  &__inner {
     padding: 4rem 0 10rem;
+    position: relative;
   }
 
-  &__top{
-    // color: #000;
+  &__top {
     @include flex($sb);
     align-items: center;
     margin-bottom: 3rem;
-    & a{
+
+    & a {
       color: $color2;
 
       transition: color .3s;
-      &:hover{
+
+      &:hover {
         color: #000;
       }
     }
   }
-  &__title{
+
+  &__title {
     max-width: 10rem;
 
-  @include font($f40, $lh54, 900, $color1);
+    @include font($f40, $lh44, 900, $color1);
   }
-  &__text{
-      max-width: 18.5rem;
+
+  &__text {
+    max-width: 18.5rem;
   }
-  &__lang{
+
+  &__lang {
     vertical-align: middle;
-      transform: rotate(-90deg) translate(50%, -100%);
-      transform-origin: right top;
-      // right: 0;
+    transform: rotate(-90deg) translate(50%, -100%);
+    transform-origin: right top;
+
+    &-mobile{
+      // display: none;
+      padding: 0.5rem 0 0.5rem;
+    }
   }
-  &__photo{
+
+  &__menu-mobile {
+    display: none;
+    // position: absolute;
+  }
+
+  &__menu-item{
+    padding: 0.5rem 0 0.5rem;
+  }
+
+  .hero__menu-list-link{
+    font-size: 1.8rem;
+    line-height: 2.8rem;
+  }
+
+  &__photo {
     width: 100%;
     min-height: 39rem;
     background: url(/../assets/img/photo.jpg) no-repeat;
     background-position: center center;
     background-size: cover;
-
   }
 
+  &__menu-list{
+    display: none;
+    // position: relative;
+  }
 }

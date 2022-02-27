@@ -12,11 +12,9 @@
 }
   &__item {
     max-width: 17rem;
-    // overflow: hidden;
     display: flex;
-    
     align-items: center;
-    justify-content: baseline;
+    justify-content: space-between;
     // padding: 0 4rem;
     flex-direction: column;
     margin-bottom: 2rem;

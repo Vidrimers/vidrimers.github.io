@@ -23,6 +23,12 @@
         }
     }
 
+    @else if $point==ssm {
+        @media (max-width: 480px) {
+            @content;
+        }
+    }
+
     @else if $point==xs {
         @media (max-width: 320px) {
             @content;
