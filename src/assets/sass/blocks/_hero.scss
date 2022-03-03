@@ -38,21 +38,27 @@
     &-mobile{
       // display: none;
       padding: 0.5rem 0 0.5rem;
+      position: absolute;
+      right: 1rem;
+      bottom: 0;
     }
   }
 
   &__menu-mobile {
     display: none;
     // position: absolute;
+    // width: 100%;
+    // z-index: 10;
   }
 
   &__menu-item{
-    padding: 0.5rem 0 0.5rem;
+    // padding: 0.5rem 0 0.5rem;
   }
 
   .hero__menu-list-link{
     font-size: 1.8rem;
     line-height: 2.8rem;
+    padding: 2rem 0;
   }
 
   &__photo {
@@ -67,4 +73,12 @@
     display: none;
     // position: relative;
   }
+
+  
+}
+.hero__menu-btn {
+  display: none;
+  position: relative;
+  width: 3.5rem;
+  height: 2.4rem;
 }

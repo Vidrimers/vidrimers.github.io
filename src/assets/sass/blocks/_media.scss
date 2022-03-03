@@ -31,6 +31,7 @@
 
     &__menu-mobile {
       display: block;
+      // width: 100%;
     }
 
     &__photo {
@@ -43,50 +44,110 @@
   }
 
   .hero__menu {
+    // display: block;
     order: 1;
     // position: relative;
+    // width: 100%;
 
     &-btn {
-      position: relative;
       display: block;
-      width: 3.5rem;
-      height: 2.4rem;
-      color: #000;
-      background-color: transparent;
-      border: none;
-      border-top: 2px solid #000000;
-      border-bottom: 2px solid #000000;
+      background: transparent;
+      // position: absolute;
+      // top: 0;
+      right: 1rem;
       cursor: pointer;
+      transform: translateY(-50%);
+      z-index: 2;
 
-      &::before {
-        content: '';
-        position: absolute;
-        width: 3.5rem;
+      &--active {
+        opacity: 0.3;
+      }
+
+      &-line {
+        display: block;
+        width: 100%;
         height: .2rem;
-        background-color: #000000;
+        background: rgb(0, 0, 0);
+        position: absolute;
         left: 0;
-        top: .9rem;
+
+        transition: all .3s linear;
+
+        &--first {
+          top: 0;
+        }
+
+        &--second,
+        &--third {
+          top: 50%;
+          transform: translateY(-50%)
+        }
+
+        &--fourth {
+          bottom: 0;
+          color: rgb(0, 0, 0);
+
+        }
+      }
+
+      &--active &-line--first,
+      &--active &-line--fourth {
+        opacity: 0;
+
+      }
+
+      &--active &-line--second {
+        transform: translateY(-50%) rotate(45deg);
+      }
+
+      &--active &-line--third {
+        transform: translateY(-50%) rotate(-45deg);
       }
     }
+
+    // &-btn {
+    //   position: relative;
+    //   display: block;
+    //   width: 3.5rem;
+    //   height: 2.4rem;
+    //   color: #000;
+    //   background-color: transparent;
+    //   border: none;
+    //   border-top: 2px solid #000000;
+    //   border-bottom: 2px solid #000000;
+    //   cursor: pointer;
+
+    //   &::before {
+    //     content: '';
+    //     position: absolute;
+    //     width: 3.5rem;
+    //     height: .2rem;
+    //     background-color: #000000;
+    //     left: 0;
+    //     top: .9rem;
+    //   }
+    // }
 
     &-list {
       display: block;
       position: absolute;
-      padding: 1rem 0;
+      // padding: 1rem 0;
       text-align: center;
       // top: 10rem;
       // top: -27rem;
       top: 0;
       left: 0;
       right: 0;
+    padding-bottom: 2rem;
+
       background-color: #ffffff;
-      transform: translateY(-30rem);
+      transform: translateY(-45rem);
       transition: all .5s;
 
       &.hero__menu-list--active {
         display: block;
-
-        transform: translateY(10rem);
+        z-index: 1;
+        transform: translateY(0);
       }
 
       &-link {
@@ -95,9 +156,9 @@
     }
   }
 
-  .certificates{
-    &__items{
-      grid-template-columns: repeat(2,1fr);
+  .certificates {
+    &__items {
+      grid-template-columns: repeat(2, 1fr);
       gap: 3rem;
     }
   }
@@ -120,9 +181,9 @@
     }
   }
 
-  .skills{
+  .skills {
 
-    &__items{
+    &__items {
 
       display: flex;
       flex-wrap: wrap;
@@ -130,8 +191,7 @@
       gap: 10rem;
     }
 
-    &__item{
-    }
+    &__item {}
   }
 
 }
@@ -154,27 +214,29 @@
     }
   }
 
-  .certificates{
-    &__items{
+  .certificates {
+    &__items {
       width: 90%;
-      grid-template-columns: repeat(1,1fr);
+      grid-template-columns: repeat(1, 1fr);
       gap: 2rem;
       margin: 0 auto;
     }
   }
 
-  .social{
+  .social {
 
-    &__link{
-  &:hover{
-    transform: none;
-  }
-      &+&{
+    &__link {
+      &:hover {
+        transform: none;
+      }
+
+      &+& {
         margin-left: auto;
       }
     }
   }
-  .footer__bottom{
+
+  .footer__bottom {
     font-size: 1.6rem;
   }
 }
@@ -187,23 +249,23 @@
   .hero {
 
     &__menu-list.hero__menu-list--active {
-      transform: translateY(13rem);
+      // transform: translateY(13rem);
     }
 
-    &__top{
+    &__top {
       flex-wrap: wrap;
     }
 
-    &__title{
+    &__title {
       order: 1;
       margin-bottom: 1rem;
     }
 
-    &__text{
+    &__text {
       order: 3;
     }
 
-    &__menu-mobile{
+    &__menu-mobile {
       order: 2;
     }
 
@@ -212,17 +274,17 @@
     }
   }
 
-  .about{
-    &__items p{
+  .about {
+    &__items p {
       font-size: 1.4rem;
     }
   }
 
-  .certificates{
-    &__items{
+  .certificates {
+    &__items {
       width: 100%;
     }
   }
 
-  
+
 }

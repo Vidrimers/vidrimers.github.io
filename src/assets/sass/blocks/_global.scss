@@ -3,6 +3,9 @@ body {
   @include ff1;
   @include font($f18, $lh22, 400, $color1);
 }
+.lock{
+  overflow: hidden;
+}
 .page{
   position: relative;
   

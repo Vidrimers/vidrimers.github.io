@@ -110,6 +110,10 @@ body {
     color: #000;
 }
 
+.lock {
+    overflow: hidden;
+}
+
 .page {
     position: relative;
 }
@@ -280,19 +284,19 @@ a {
 
 .hero__lang-mobile {
     padding: 0.5rem 0 0.5rem;
+    position: absolute;
+    right: 1rem;
+    bottom: 0;
 }
 
 .hero__menu-mobile {
     display: none;
 }
 
-.hero__menu-item {
-    padding: 0.5rem 0 0.5rem;
-}
-
 .hero .hero__menu-list-link {
     font-size: 1.8rem;
     line-height: 2.8rem;
+    padding: 2rem 0;
 }
 
 .hero__photo {
@@ -305,6 +309,13 @@ a {
 
 .hero__menu-list {
     display: none;
+}
+
+.hero__menu-btn {
+    display: none;
+    position: relative;
+    width: 3.5rem;
+    height: 2.4rem;
 }
 
 .about__title {
@@ -611,40 +622,76 @@ a {
     }
 
     .hero__menu-btn {
-        position: relative;
         display: block;
-        width: 3.5rem;
-        height: 2.4rem;
-        color: #000;
-        background-color: transparent;
-        border: none;
-        border-top: 2px solid #000000;
-        border-bottom: 2px solid #000000;
+        background: transparent;
+        right: 1rem;
         cursor: pointer;
+        -webkit-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
+        z-index: 2;
     }
 
-    .hero__menu-btn::before {
-        content: "";
-        position: absolute;
-        width: 3.5rem;
+    .hero__menu-btn--active {
+        opacity: 0.3;
+    }
+
+    .hero__menu-btn-line {
+        display: block;
+        width: 100%;
         height: 0.2rem;
-        background-color: #000000;
+        background: black;
+        position: absolute;
         left: 0;
-        top: 0.9rem;
+        -webkit-transition: all 0.3s linear;
+        -o-transition: all 0.3s linear;
+        transition: all 0.3s linear;
+    }
+
+    .hero__menu-btn-line--first {
+        top: 0;
+    }
+
+    .hero__menu-btn-line--second, .hero__menu-btn-line--third {
+        top: 50%;
+        -webkit-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
+    }
+
+    .hero__menu-btn-line--fourth {
+        bottom: 0;
+        color: black;
+    }
+
+    .hero__menu-btn--active .hero__menu-btn-line--first, .hero__menu-btn--active .hero__menu-btn-line--fourth {
+        opacity: 0;
+    }
+
+    .hero__menu-btn--active .hero__menu-btn-line--second {
+        -webkit-transform: translateY(-50%) rotate(45deg);
+        -ms-transform: translateY(-50%) rotate(45deg);
+        transform: translateY(-50%) rotate(45deg);
+    }
+
+    .hero__menu-btn--active .hero__menu-btn-line--third {
+        -webkit-transform: translateY(-50%) rotate(-45deg);
+        -ms-transform: translateY(-50%) rotate(-45deg);
+        transform: translateY(-50%) rotate(-45deg);
     }
 
     .hero__menu-list {
         display: block;
         position: absolute;
-        padding: 1rem 0;
         text-align: center;
         top: 0;
         left: 0;
         right: 0;
+        padding-bottom: 2rem;
         background-color: #ffffff;
-        -webkit-transform: translateY(-30rem);
-        -ms-transform: translateY(-30rem);
-        transform: translateY(-30rem);
+        -webkit-transform: translateY(-45rem);
+        -ms-transform: translateY(-45rem);
+        transform: translateY(-45rem);
         -webkit-transition: all 0.5s;
         -o-transition: all 0.5s;
         transition: all 0.5s;
@@ -652,9 +699,10 @@ a {
 
     .hero__menu-list.hero__menu-list--active {
         display: block;
-        -webkit-transform: translateY(10rem);
-        -ms-transform: translateY(10rem);
-        transform: translateY(10rem);
+        z-index: 1;
+        -webkit-transform: translateY(0);
+        -ms-transform: translateY(0);
+        transform: translateY(0);
     }
 
     .hero__menu-list-link {
@@ -722,12 +770,6 @@ a {
 }
 
 @media (max-width: 320px) {
-    .hero__menu-list.hero__menu-list--active {
-        -webkit-transform: translateY(13rem);
-        -ms-transform: translateY(13rem);
-        transform: translateY(13rem);
-    }
-
     .hero__top {
         -ms-flex-wrap: wrap;
         flex-wrap: wrap;
