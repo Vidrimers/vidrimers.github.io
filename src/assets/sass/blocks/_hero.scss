@@ -46,19 +46,10 @@
 
   &__menu-mobile {
     display: none;
-    // position: absolute;
-    // width: 100%;
-    // z-index: 10;
   }
 
   &__menu-item{
-    // padding: 0.5rem 0 0.5rem;
-  }
-
-  .hero__menu-list-link{
-    font-size: 1.8rem;
-    line-height: 2.8rem;
-    padding: 2rem 0;
+    width: 100%;
   }
 
   &__photo {

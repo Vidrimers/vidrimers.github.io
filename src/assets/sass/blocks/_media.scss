@@ -44,19 +44,15 @@
   }
 
   .hero__menu {
-    // display: block;
     order: 1;
-    // position: relative;
-    // width: 100%;
 
     &-btn {
       display: block;
       background: transparent;
-      // position: absolute;
-      // top: 0;
+      position: fixed;
+      top: 2rem;
       right: 1rem;
-      cursor: pointer;
-      transform: translateY(-50%);
+      // transform: translateY(-50%);
       z-index: 2;
 
       &--active {
@@ -105,53 +101,35 @@
       }
     }
 
-    // &-btn {
-    //   position: relative;
-    //   display: block;
-    //   width: 3.5rem;
-    //   height: 2.4rem;
-    //   color: #000;
-    //   background-color: transparent;
-    //   border: none;
-    //   border-top: 2px solid #000000;
-    //   border-bottom: 2px solid #000000;
-    //   cursor: pointer;
-
-    //   &::before {
-    //     content: '';
-    //     position: absolute;
-    //     width: 3.5rem;
-    //     height: .2rem;
-    //     background-color: #000000;
-    //     left: 0;
-    //     top: .9rem;
-    //   }
-    // }
-
     &-list {
-      display: block;
-      position: absolute;
-      // padding: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: fixed;
       text-align: center;
-      // top: 10rem;
-      // top: -27rem;
+      opacity: 0.95;
       top: 0;
       left: 0;
       right: 0;
     padding-bottom: 2rem;
 
       background-color: #ffffff;
-      transform: translateY(-45rem);
+      transform: translatex(80rem);
       transition: all .5s;
 
       &.hero__menu-list--active {
-        display: block;
         z-index: 1;
         transform: translateY(0);
       }
 
       &-link {
         display: block;
+
+    font-size: 1.8rem;
+    line-height: 2.8rem;
+    padding: 2rem 0;
       }
     }
   }
@@ -202,6 +180,15 @@
   // 480(ssm)
 
   .hero {
+    &__top{
+      display: block;
+    }
+    &__title{
+      margin-bottom: 1rem;
+    }
+    &__text {
+      text-align: left;
+    }
     &__photo {
       background-size: 400%;
     }
@@ -257,12 +244,12 @@
     }
 
     &__title {
-      order: 1;
+      // order: 1;
       margin-bottom: 1rem;
     }
 
     &__text {
-      order: 3;
+      // order: 3;
     }
 
     &__menu-mobile {

@@ -293,10 +293,8 @@ a {
     display: none;
 }
 
-.hero .hero__menu-list-link {
-    font-size: 1.8rem;
-    line-height: 2.8rem;
-    padding: 2rem 0;
+.hero__menu-item {
+    width: 100%;
 }
 
 .hero__photo {
@@ -624,11 +622,9 @@ a {
     .hero__menu-btn {
         display: block;
         background: transparent;
+        position: fixed;
+        top: 2rem;
         right: 1rem;
-        cursor: pointer;
-        -webkit-transform: translateY(-50%);
-        -ms-transform: translateY(-50%);
-        transform: translateY(-50%);
         z-index: 2;
     }
 
@@ -681,24 +677,37 @@ a {
     }
 
     .hero__menu-list {
-        display: block;
-        position: absolute;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        height: 100vh;
+        position: fixed;
         text-align: center;
+        opacity: 0.95;
         top: 0;
         left: 0;
         right: 0;
         padding-bottom: 2rem;
         background-color: #ffffff;
-        -webkit-transform: translateY(-45rem);
-        -ms-transform: translateY(-45rem);
-        transform: translateY(-45rem);
+        -webkit-transform: translatex(80rem);
+        -ms-transform: translatex(80rem);
+        transform: translatex(80rem);
         -webkit-transition: all 0.5s;
         -o-transition: all 0.5s;
         transition: all 0.5s;
     }
 
     .hero__menu-list.hero__menu-list--active {
-        display: block;
         z-index: 1;
         -webkit-transform: translateY(0);
         -ms-transform: translateY(0);
@@ -707,6 +716,9 @@ a {
 
     .hero__menu-list-link {
         display: block;
+        font-size: 1.8rem;
+        line-height: 2.8rem;
+        padding: 2rem 0;
     }
 
     .certificates__items {
@@ -739,6 +751,18 @@ a {
 }
 
 @media (max-width: 480px) {
+    .hero__top {
+        display: block;
+    }
+
+    .hero__title {
+        margin-bottom: 1rem;
+    }
+
+    .hero__text {
+        text-align: left;
+    }
+
     .hero__photo {
         background-size: 400%;
     }
@@ -776,16 +800,7 @@ a {
     }
 
     .hero__title {
-        -webkit-box-ordinal-group: 2;
-        -ms-flex-order: 1;
-        order: 1;
         margin-bottom: 1rem;
-    }
-
-    .hero__text {
-        -webkit-box-ordinal-group: 4;
-        -ms-flex-order: 3;
-        order: 3;
     }
 
     .hero__menu-mobile {
