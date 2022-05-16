@@ -75,7 +75,7 @@ function browserSync(done) {
     },
     port: 666,
     // tunnel: true,
-    tunnel: "yaro"
+    // tunnel: "yaro"
   });
 }
 

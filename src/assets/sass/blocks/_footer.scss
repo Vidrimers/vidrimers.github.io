@@ -34,7 +34,10 @@ justify-content: center;
 
   &__link{
     display: block;
-    width: 7rem;
+    width: 5rem;
+    border: .2rem solid #000;
+    padding: 1rem;
+    border-radius: 1rem;
 
     transition: transform .3s;
 &:hover{
