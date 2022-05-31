@@ -2,6 +2,9 @@
 
 @include mq(md) {
   //768(md)
+  .inner{
+    padding: 5rem 0;
+  }
 
   .up {
     display: none;
@@ -24,22 +27,20 @@
     &__lang {
       display: none;
 
-      &-mobile {
-        // display: block;
-      }
     }
 
     &__menu-mobile {
       display: block;
-      // width: 100%;
     }
 
     &__photo {
       width: 100%;
       min-height: 39rem;
-      background: url(/../assets/img/photo.jpg) no-repeat;
+      background: url(../../assets/img/hero-photo--mobile.jpg) no-repeat;
+      background: url(../../assets/img/hero-photo.jpg) no-repeat;
       background-position: 60% 40%;
-      background-size: 250%;
+      background-position: right 25% center;
+      background-size: cover;
     }
   }
 
@@ -52,7 +53,6 @@
       position: fixed;
       top: 2rem;
       right: 1rem;
-      // transform: translateY(-50%);
       z-index: 2;
 
       &--active {
@@ -150,7 +150,7 @@
 
   .hero {
     &__photo {
-      background-size: 300%;
+      // background-size: 300%;
     }
 
     &__title {
@@ -190,7 +190,7 @@
       text-align: left;
     }
     &__photo {
-      background-size: 400%;
+      // background-size: 400%;
     }
   }
 
@@ -218,7 +218,7 @@
       }
 
       &+& {
-        margin-left: auto;
+        // margin-left: auto;
       }
     }
   }
@@ -235,21 +235,12 @@
 
   .hero {
 
-    &__menu-list.hero__menu-list--active {
-      // transform: translateY(13rem);
-    }
-
     &__top {
       flex-wrap: wrap;
     }
 
     &__title {
-      // order: 1;
       margin-bottom: 1rem;
-    }
-
-    &__text {
-      // order: 3;
     }
 
     &__menu-mobile {
@@ -272,6 +263,4 @@
       width: 100%;
     }
   }
-
-
 }

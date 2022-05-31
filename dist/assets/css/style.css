@@ -300,9 +300,11 @@ a {
 .hero__photo {
     width: 100%;
     min-height: 39rem;
-    background: url(/../assets/img/photo.jpg) no-repeat;
-    background-position: center center;
+    background: url(../../assets/img/hero-photo.jpg) no-repeat;
+    background-position: center;
     background-size: cover;
+    -webkit-filter: grayscale(0.8);
+    filter: grayscale(0.8);
 }
 
 .hero__menu-list {
@@ -410,7 +412,7 @@ a {
 
 .portfolio__link.dev:after {
     position: absolute;
-    content: "В РАЗРАБОТКЕ";
+    content: "in work";
     top: 0;
     left: 0;
     font-size: 2rem;
@@ -531,75 +533,11 @@ a {
     margin-left: 6rem;
 }
 
-.error {
-    background: #E0E0E0;
-    background-position: center top;
-    background-size: cover;
-    height: 100vh;
-    position: relative;
-    z-index: 2;
-}
-
-.error__inner {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.error__items {
-    padding: 3rem 4rem;
-    max-width: 50rem;
-    background: #828282;
-    border-radius: 50px;
-    background: #e0e0e0;
-    -webkit-box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
-    box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
-}
-
-.error__text {
-    color: #8f3228;
-    opacity: 0.6;
-    font-size: 2.4rem;
-    margin-bottom: 3rem;
-}
-
-.error__link {
-    background: #E0E0E0;
-    padding: 1rem 2rem;
-    border-radius: 1rem;
-    opacity: 1;
-    color: #8f3228;
-    -webkit-box-shadow: 0 0.7rem 1rem #585858;
-    box-shadow: 0 0.7rem 1rem #585858;
-    -webkit-transition: all 0.3s;
-    -o-transition: all 0.3s;
-    transition: all 0.3s;
-}
-
-.error__link:hover {
-    background: #ed7163;
-    color: #F6F6F6;
-    -webkit-box-shadow: 0 0.2rem 1rem #585858;
-    box-shadow: 0 0.2rem 1rem #585858;
-}
-
-.error__link:active {
-    -webkit-box-shadow: inset 0.3rem 0.3rem 1rem #8f3228;
-    box-shadow: inset 0.3rem 0.3rem 1rem #8f3228;
-}
-
 @media (max-width: 768px) {
+    .inner {
+        padding: 5rem 0;
+    }
+
     .up {
         display: none;
     }
@@ -627,9 +565,11 @@ a {
     .hero__photo {
         width: 100%;
         min-height: 39rem;
-        background: url(/../assets/img/photo.jpg) no-repeat;
+        background: url(../../assets/img/hero-photo--mobile.jpg) no-repeat;
+        background: url(../../assets/img/hero-photo.jpg) no-repeat;
         background-position: 60% 40%;
-        background-size: 250%;
+        background-position: right 25% center;
+        background-size: cover;
     }
 
     .hero__menu {
@@ -747,10 +687,6 @@ a {
 }
 
 @media (max-width: 576px) {
-    .hero__photo {
-        background-size: 300%;
-    }
-
     .hero__title {
         font-size: 3rem;
         line-height: 3.4rem;
@@ -782,10 +718,6 @@ a {
         text-align: left;
     }
 
-    .hero__photo {
-        background-size: 400%;
-    }
-
     .about__items p {
         font-size: 1.6rem;
     }
@@ -801,10 +733,6 @@ a {
         -webkit-transform: none;
         -ms-transform: none;
         transform: none;
-    }
-
-    .social__link + .social__link {
-        margin-left: auto;
     }
 
     .footer__bottom {

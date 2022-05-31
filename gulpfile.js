@@ -67,6 +67,7 @@ const path = {
 /* Tasks */
 function browserSync(done) {
   browsersync.init({
+    browser: "Brave",
     server: {
       baseDir: "./dist/"
     },

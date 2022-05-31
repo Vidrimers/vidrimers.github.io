@@ -54,9 +54,10 @@
   &__photo {
     width: 100%;
     min-height: 39rem;
-    background: url(/../assets/img/photo.jpg) no-repeat;
-    background-position: center center;
+    background: url(../../assets/img/hero-photo.jpg) no-repeat;
+    background-position: center;
     background-size: cover;
+    filter: grayscale(.8);
   }
 
   &__menu-list{
