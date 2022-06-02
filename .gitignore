@@ -29,7 +29,6 @@ node_modules
 # logs
 npm-debug.log
 
-/dist
 /temp
 /Temp
 /!temp
