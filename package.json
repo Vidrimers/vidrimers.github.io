@@ -5,7 +5,7 @@
   "author": "Yaroslav Shiryakov",
   "homepage": "https://vidrimers.github.io",
   "scripts": {
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages-clean gh-pages -d dist"
   },
   "devDependencies": {
     "browser-sync": "^2.27.7",
