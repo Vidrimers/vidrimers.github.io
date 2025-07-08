@@ -1,3 +1,7 @@
+@use "../work/mixins";
+@use "../work/fonts";
+@use "../work/colors";
+@use "media";
 .about {
 
   &__title {
@@ -16,7 +20,7 @@
       transition: color .3s;
 
       &:hover {
-        color: $color1;
+        color: colors.$color1;
       }
     }
   }

@@ -1,15 +1,16 @@
+@use "../work/mixins";
+@use "../work/fonts";
+@use "../work/colors";
 .skills {
-
   &__items {
     display: grid;
-    grid-template-columns: repeat(5,1fr);
+    grid-template-columns: repeat(4, 1fr);
     grid-auto-flow: row;
     gap: 2rem;
-
   }
-&__title{
-  margin-bottom: 7rem;
-}
+  &__title {
+    margin-bottom: 7rem;
+  }
   &__item {
     max-width: 17rem;
     display: flex;
@@ -26,8 +27,7 @@
     }
 
     &--title {
-  @include font($f16, $lh16, 400, $color2);
-
+      @include fonts.font(fonts.$f16, fonts.$lh16, 400, colors.$color2);
     }
 
     &--text {

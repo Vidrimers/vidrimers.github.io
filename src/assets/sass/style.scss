@@ -1,22 +1,25 @@
 // WORK PACK
-@import 'work_pack/reset_lite';
-@import 'work_pack/media_queries';
-@import 'work_pack/vars_mixins';
-@import 'work_pack/fonts';
-@import 'work_pack/colors';
+@use "work/reset_lite";
+@use "work/media_queries";
+@use "work/mixins";
+@use "work/fonts";
+@use "work/colors";
 // BLOCKS
-@import 'blocks/global';
-@import 'blocks/header';
-@import 'blocks/hero';
-@import 'blocks/about';
-@import 'blocks/skills';
-@import 'blocks/portfolio';
-@import 'blocks/certificates';
-@import 'blocks/footer';
+@use "blocks/global";
+@use "blocks/header";
+@use "blocks/hero";
+@use "blocks/about";
+@use "blocks/skills";
+@use "blocks/portfolio";
+@use "blocks/certificates";
+@use "blocks/footer";
 
-@import 'blocks/media';
+@use "blocks/media";
 
 // vendor libs
-// @import 'vendor/slick';
+// @use 'vendor/slick';
 // если не нужно слик можно отключить
 
+// .header,section:not(.portfolio){
+//   display: none;
+// }

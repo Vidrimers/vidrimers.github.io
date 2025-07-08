@@ -1,3 +1,6 @@
+@use "../work/mixins";
+@use "../work/fonts";
+@use "../work/colors";
 .hero {
   &__inner {
     padding: 4rem 0 10rem;
@@ -5,13 +8,13 @@
   }
 
   &__top {
-    @include flex($sb);
+    @include mixins.flex(mixins.$sb);
     align-items: center;
     margin-bottom: 3rem;
 
     & a {
-      color: $color2;
-      transition: color .3s;
+      color: colors.$color2;
+      transition: color 0.3s;
 
       &:hover {
         color: #000;
@@ -22,7 +25,7 @@
   &__title {
     max-width: 10rem;
 
-    @include font($f40, $lh44, 900, $color1);
+    @include fonts.font(fonts.$f40, fonts.$lh44, 900, colors.$color1);
   }
 
   &__text {
@@ -34,7 +37,7 @@
     transform: rotate(-90deg) translate(50%, -100%);
     transform-origin: right top;
 
-    &-mobile{
+    &-mobile {
       // display: none;
       padding: 0.5rem 0 0.5rem;
       position: absolute;
@@ -47,25 +50,24 @@
     display: none;
   }
 
-  &__menu-item{
+  &__menu-item {
     width: 100%;
   }
 
   &__photo {
     width: 100%;
     min-height: 39rem;
-    background: url(../../assets/img/hero-photo.jpg) no-repeat;
+    background: url(../../assets/img/photo.jpg) no-repeat;
     background-position: center;
     background-size: cover;
-    filter: grayscale(.8);
+    filter: grayscale(0.8);
+    border-radius: 1rem;
   }
 
-  &__menu-list{
+  &__menu-list {
     display: none;
     // position: relative;
   }
-
-  
 }
 .hero__menu-btn {
   display: none;

@@ -1,50 +1,51 @@
+@use "../work/mixins";
+@use "../work/fonts";
+@use "../work/colors";
 .footer {
-
   &__title {
     margin-bottom: 3rem;
   }
 
   &__text {
     margin-bottom: 3rem;
-
   }
 
   &__mail {
     display: inline-block;
-    @include font($f18, $lh20, 700, #fff);
-    background: $color1;
+    @include fonts.font(fonts.$f18, fonts.$lh20, 700, #fff);
+    background: colors.$color1;
     padding: 1.2rem 3rem;
     margin-bottom: 9rem;
     border-radius: 3rem;
-    transition: background .3s;
+    transition: background 0.3s;
 
     &:hover {
-      background: #ea5241;
-      color: $color1;
+      background: #fc285b;
+      color: colors.$color1;
     }
   }
-&__bottom{
-  color: $color2;
+  &__bottom {
+    color: colors.$color2;
+  }
 }
-}
-.social{
+.social {
   display: flex;
-justify-content: center;
+  justify-content: center;
   margin-bottom: 5rem;
 
-  &__link{
+  &__link {
     display: block;
     width: 5rem;
-    border: .2rem solid #000;
+    border: 0.1rem solid #000;
     padding: 1rem;
     border-radius: 1rem;
 
-    transition: transform .3s;
-&:hover{
-  transform: scale(1.2);
-}
-    &+&{
-      margin-left: 6rem;
+    transition: transform 0.3s;
+    &:hover {
+      transform: scale(1.2);
+    }
+    & + & {
+      margin-left: 2rem;
     }
   }
 }
