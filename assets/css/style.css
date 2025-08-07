@@ -472,6 +472,11 @@ a {
         padding: 2rem 0 !important;
     }
 
+    .skills__items {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 10rem !important;
+    }
+
     .certificates__items {
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 3rem !important;
@@ -585,7 +590,7 @@ a {
 
 .skills__items {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     grid-auto-flow: row;
     gap: 2rem;
 }
