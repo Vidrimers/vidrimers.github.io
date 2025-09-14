@@ -8,5 +8,6 @@ console.log("created by Shiryakov Yaroslav");
 // //= ../../../node_modules/slick-carousel/slick/slick.js
 
 $(function () {
+//= vendor/jquery.js
 //= components/nav.js
 })

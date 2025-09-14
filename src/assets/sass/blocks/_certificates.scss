@@ -1,3 +1,6 @@
+@use "../work/media_queries";
+@use "media";
+
 .certificates {
   &__title {
     margin-bottom: 7rem;

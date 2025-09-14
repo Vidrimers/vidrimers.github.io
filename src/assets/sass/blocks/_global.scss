@@ -1,13 +1,13 @@
-@use "../work/mixins" as *;
-@use "../work/fonts" as *;
-@use "../work/colors" as *;
-@use "../work/media_queries" as *;
-@use "media" as *;
+@use "../work/mixins";
+@use "../work/fonts";
+@use "../work/colors";
+// @use "media";
+// @use "../work/media_queries";
 
 body {
   background: #fff;
-  @include ff1;
-  @include font($f18, $lh22, 400, $color1);
+  @include fonts.ff1;
+  @include fonts.font(fonts.$f18, fonts.$lh22, 400, colors.$color1);
 }
 .lock {
   overflow: hidden;
@@ -44,14 +44,14 @@ body {
 }
 
 .wrapper {
-  background: $bg-gray;
+  background: colors.$bg-gray;
 }
 .inner {
   padding: 12rem 0;
 }
 
 a {
-  color: $color2;
+  color: colors.$color2;
 }
 
 .container {
@@ -64,22 +64,22 @@ a {
 
 .btn {
   display: inline-block;
-  background: $color2;
+  background: colors.$color2;
   // width: 22rem;
   // height: 5.5rem;
   line-height: 4rem;
-  color: $color3;
+  color: colors.$color3;
   text-align: center;
 
   transition: color 0.3s;
 
   &:hover {
-    color: $color1;
+    color: colors.$color1;
   }
 }
 
 .title {
-  @include font($f34, $lh42, 500, $color1);
+  @include fonts.font(fonts.$f34, fonts.$lh42, 500, colors.$color1);
   line-height: 0.2rem;
   display: inline-block;
   padding: 2rem 2rem 0 2rem;

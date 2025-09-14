@@ -1,7 +1,5 @@
 // WORK PACK
 @use "work/reset_lite";
-@use "work/media_queries";
-@use "work/mixins";
 @use "work/fonts";
 @use "work/colors";
 // BLOCKS
@@ -15,11 +13,18 @@
 @use "blocks/footer";
 
 @use "blocks/media";
+@use "work/media_queries";
+@use "work/mixins";
 
 // vendor libs
 // @use 'vendor/slick';
-// если не нужно слик можно отключить
+// если не нужно, слик можно отключить
 
-// .header,section:not(.portfolio){
-//   display: none;
-// }
+.header,
+.about,
+.certificates,
+.skills,
+.footer,
+.hero {
+  // display: none;
+}

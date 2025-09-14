@@ -10,7 +10,9 @@ const sass = require("gulp-sass")(require("sass"));
 // const sass = require('sass');
 const include = require("gulp-file-include");
 const htmlmin = require("gulp-htmlmin");
-const cssnano = require("gulp-cssnano");
+const cleanCSS = require("gulp-clean-css");
+// const postcss = require("gulp-postcss");
+// const cssnano = require("gulp-cssnano");
 const rigger = require("gulp-rigger");
 const uglify = require("gulp-uglify");
 const sourcemaps = require("gulp-sourcemaps");
@@ -118,8 +120,13 @@ function css() {
       base: "src/assets/sass/",
     })
       .pipe(sourcemaps.init())
-      .pipe(plumber())
-      .pipe(sass().on("error", sass.logError))
+      // .pipe(plumber(cssnano))
+      .pipe(
+        sass({
+          outputStyle: "expanded",
+          includePaths: ["node_modules"],
+        }).on("error", sass.logError)
+      )
       // .pipe(sass())
       .pipe(
         autoprefixer({
@@ -130,12 +137,20 @@ function css() {
       // УДАЛЕНО: .pipe(webpcss({ ... }))
       .pipe(cssbeautify())
       .pipe(dest(path.build.css))
+      // .pipe(postcss([cssnano({ preset: "default", mergeMedia: false })()]))
+      // .pipe(
+      //   cssnano({
+      //     zindex: false,
+      //     discardComments: {
+      //       removeAll: true,
+      //     },
+      //     mergeMedia: false,
+      //   })
+      // )
       .pipe(
-        cssnano({
-          zindex: false,
-          discardComments: {
-            removeAll: true,
-          },
+        cleanCSS({
+          level: 2,
+          mergeMedia: false, // Не перемешивать медиа-запросы
         })
       )
       .pipe(removeComments())
