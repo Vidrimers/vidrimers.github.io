@@ -892,7 +892,3 @@ a {
 .social__link + .social__link {
     margin-left: 2rem;
 }
-
-section:not(.portfolio) {
-    display: none;
-}
