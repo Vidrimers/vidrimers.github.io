@@ -10,4 +10,5 @@ console.log("created by Shiryakov Yaroslav");
 $(function () {
 //= vendor/jquery.js
 //= components/nav.js
+//= components/portfolio-tabs.js
 })

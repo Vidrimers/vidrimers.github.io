@@ -2,8 +2,79 @@
 @use "../work/fonts";
 @use "../work/colors";
 .portfolio {
+  // position: relative;
+  &__tabs {
+    // position: sticky;
+    // top: 0;
+    margin-bottom: 2rem;
+    &-item {
+      position: relative;
+      width: calc(100% / 3);
+      background-color: transparent;
+      padding: 0.5rem 2rem 0 2rem;
+      font-size: 2.1rem;
+      margin: 0;
+      transition: all 0.3s;
+      z-index: 1;
+
+      &:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 0;
+        transition: all 0.3s;
+        transition: transform 0.3s;
+        transform: scaleX(0);
+        z-index: -1;
+      }
+      &:hover::before {
+        background-color: #fc285b;
+        height: 0.2rem;
+        width: 100%;
+        transform: scaleX(1);
+        transform-origin: center;
+      }
+      &--active {
+        color: #000;
+        &::before {
+          content: "";
+          background-color: #fc285b;
+          height: 1.8rem !important;
+          z-index: -1;
+          transform: scaleX(1);
+          transition: height 0.3s !important;
+          width: 100%;
+        }
+        &:hover::before {
+          transform: scaleX(1);
+          transition: none;
+        }
+      }
+    }
+  }
+
   &__title {
     margin-bottom: 4.7rem;
+  }
+
+  &__items {
+    // position: sticky;
+    // top: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    opacity: 0;
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: center;
+    z-index: 0;
+    &--active {
+      opacity: 1;
+      transform: scaleX(1);
+      position: static;
+    }
   }
 
   &__item {
@@ -41,7 +112,7 @@
 
   &__text--link {
     display: inline-block;
-    margin-bottom: .5rem;
+    margin-bottom: 0.5rem;
     // text-decoration: underline;
 
     transition: color 0.3s;
