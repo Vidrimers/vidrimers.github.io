@@ -378,7 +378,7 @@ a {
         position: fixed !important;
         top: 2rem !important;
         right: 1rem !important;
-        z-index: 2 !important;
+        z-index: 3 !important;
     }
 
     .hero__menu-btn--active {
