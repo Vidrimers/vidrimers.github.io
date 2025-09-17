@@ -534,7 +534,7 @@ a {
         -webkit-box-direction: normal;
         -ms-flex-direction: column;
         flex-direction: column;
-        gap: 2rem;
+        gap: 3rem;
         -webkit-box-align: center !important;
         -ms-flex-align: center !important;
         align-items: center !important;
