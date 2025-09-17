@@ -459,7 +459,7 @@ a {
     }
 
     .hero__menu-list.hero__menu-list--active {
-        z-index: 1 !important;
+        z-index: 2 !important;
         -webkit-transform: translateY(0) !important;
         -ms-transform: translateY(0) !important;
         transform: translateY(0) !important;
