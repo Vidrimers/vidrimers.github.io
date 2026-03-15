@@ -43,8 +43,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        // Добавляем глобальные импорты если нужно
-        additionalData: `@import "./assets/sass/work/_colors.scss"; @import "./assets/sass/work/_mixins.scss";`
+        // Sass конфигурация - импорты уже есть в style.scss
       }
     },
     postcss: {
