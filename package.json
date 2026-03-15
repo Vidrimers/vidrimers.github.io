@@ -8,6 +8,7 @@
     "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.27",
     "browser-sync": "3.0.4",
     "del": "^5.1.0",
     "gh-pages": "^6.3.0",
@@ -29,7 +30,10 @@
     "gulp-uglify": "^3.0.2",
     "gulpd": "^0.0.1-predev.1",
     "panini": "^1.7.2",
-    "sass": "1.89.2"
+    "postcss": "^8.5.8",
+    "sass": "1.89.2",
+    "vite": "^8.0.0",
+    "vite-plugin-handlebars": "^2.0.0"
   },
   "dependencies": {
     "slick-carousel": "^1.8.1"
