@@ -11,6 +11,7 @@
     "deploy": "npm run build && gh-pages -d dist"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.4.27",
     "gh-pages": "^6.3.0",
     "postcss": "^8.5.8",
@@ -21,6 +22,8 @@
   },
   "dependencies": {
     "jquery": "^3.7.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "slick-carousel": "^1.8.1"
   }
 }

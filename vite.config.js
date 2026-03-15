@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import handlebars from 'vite-plugin-handlebars';
 import { resolve } from 'path';
 
@@ -11,6 +12,7 @@ export default defineConfig({
   
   // Плагины
   plugins: [
+    react(), // React plugin для JSX поддержки
     handlebars({
       partialDirectory: [
         resolve(__dirname, 'src/templates/parts')
@@ -44,6 +46,9 @@ export default defineConfig({
   
   // CSS конфигурация
   css: {
+    modules: {
+      localsConvention: 'camelCase'
+    },
     preprocessorOptions: {
       scss: {
         // Sass конфигурация - импорты уже есть в style.scss
