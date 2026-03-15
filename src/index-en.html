@@ -1,10 +1,51 @@
----
-layout: default-en
-title: Yaroslav Shiryakov
----
+<!DOCTYPE html>
+<html lang="en">
 
-{{> hero-en}}
-{{> about-en}}
-{{> skills-en}}
-{{> portfolio-en}}
-{{> certificates-en}}
+<head>
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow, noodp" />
+  <meta name="googlebot" content="index, follow" />
+  <meta name="google" content="notranslate" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta
+    name="kaspa:wallet"
+    content="kaspa:qzf8rsqn78xhd2up2lrtmpaxp523pjc0afr0kecn60yynsemmsvpg2v9kgcvu"
+  />
+  <meta name="kaspa:title" content="Приветики" />
+
+  <title>Yaroslav Shiryakov</title>
+
+  <link rel="stylesheet" href="/assets/sass/style.scss" />
+</head>
+<body>
+
+  <div class="page">
+      {{> header-en}}
+      
+      {{> hero-en}}
+      {{> about-en}}
+      {{> skills-en}}
+      {{> portfolio-en}}
+      {{> certificates-en}}
+      
+      {{> footer-en}}
+  </div>
+
+  <div class="up">
+    <a class="up__link" href="#header"><img src="assets/img/ico/arrow-up.png" alt="arrow-up">
+      <p class="up__link-text">up</p>
+    </a>
+  </div>
+
+  <script type="module" src="/assets/js/app.js"></script>
+</body>
+</html>
