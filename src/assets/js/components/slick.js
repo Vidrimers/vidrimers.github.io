@@ -1,5 +1,5 @@
-//= ../../../../node_modules/slick-carousel/slick/slick.js
-// https://github.com/kenwheeler/slick/
+import $ from 'jquery';
+import 'slick-carousel';
 
 console.log("this is slick component");
 
@@ -24,7 +24,7 @@ certificates.slick({
         }
       },
     ]
-})
+});
 
 // $("#portfolio__arrow--prev").on("click", function (event) {
 //   event.preventDefault();

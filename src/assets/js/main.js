@@ -1,14 +1,19 @@
 console.log("created by Shiryakov Yaroslav");
 
+// Импорт jQuery
+import $ from 'jquery';
 
-// //= components/tabs.js
-// //= components/modal.js
+// Делаем jQuery глобальным для совместимости
+window.$ = window.jQuery = $;
 
+// Импорт компонентов
+import './components/nav.js';
+import './components/portfolio-tabs.js';
+import './components/tabs.js';
+import './components/modal.js';
+import './components/slick.js';
 
-// //= ../../../node_modules/slick-carousel/slick/slick.js
-
+// Инициализация после загрузки DOM
 $(function () {
-//= vendor/jquery.js
-//= components/nav.js
-//= components/portfolio-tabs.js
-})
+  console.log("Main JS initialized");
+});

@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 console.log("portfolio-tabs.js is loaded");
 
 $(document).ready(function () {

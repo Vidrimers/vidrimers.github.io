@@ -13,7 +13,9 @@ export default defineConfig({
   // Плагины
   plugins: [
     handlebars({
-      partialDirectory: resolve(__dirname, 'src/templates/parts'),
+      partialDirectory: [
+        resolve(__dirname, 'src/templates/parts')
+      ],
       helpers: {
         // Кастомные helpers можно добавить позже
       },
@@ -22,6 +24,7 @@ export default defineConfig({
         try {
           const siteData = require('./src/templates/data/data.json');
           return {
+            title: 'Yaroslav Shiryakov',
             ...siteData,
             page: {
               path: pagePath
@@ -30,6 +33,7 @@ export default defineConfig({
         } catch (error) {
           console.warn('Could not load data.json, using empty context');
           return {
+            title: 'Yaroslav Shiryakov',
             page: {
               path: pagePath
             }
@@ -45,14 +49,8 @@ export default defineConfig({
       scss: {
         // Sass конфигурация - импорты уже есть в style.scss
       }
-    },
-    postcss: {
-      plugins: [
-        autoprefixer({
-          overrideBrowserslist: ['last 5 versions']
-        })
-      ]
     }
+    // PostCSS конфигурация теперь в postcss.config.js
   },
   
   // Production build конфигурация
