@@ -17,7 +17,7 @@
 @use "work/mixins";
 
 // vendor libs
-// @use 'vendor/slick';
+@use 'vendor/slick';
 // если не нужно, слик можно отключить
 
 .header,
@@ -26,9 +26,9 @@
 .skills,
 .footer,
 .hero {
-  // display: none;
+  display: block;
 }
 
 section:not(.portfolio) {
-  // display: none;
+  display: block;
 }

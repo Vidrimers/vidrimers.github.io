@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite';
 import handlebars from 'vite-plugin-handlebars';
-import autoprefixer from 'autoprefixer';
 import { resolve } from 'path';
 
 export default defineConfig({
