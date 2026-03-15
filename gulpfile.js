@@ -15,7 +15,7 @@ const cleanCSS = require("gulp-clean-css");
 // const cssnano = require("gulp-cssnano");
 const rigger = require("gulp-rigger");
 const uglify = require("gulp-uglify");
-const sourcemaps = require("gulp-sourcemaps");
+// const sourcemaps = require("gulp-sourcemaps");
 const plumber = require("gulp-plumber");
 
 // images
@@ -119,7 +119,6 @@ function css() {
     src(path.src.css, {
       base: "src/assets/sass/",
     })
-      .pipe(sourcemaps.init())
       // .pipe(plumber(cssnano))
       .pipe(
         sass({
@@ -160,7 +159,6 @@ function css() {
           extname: ".css",
         })
       )
-      .pipe(sourcemaps.write("./"))
       .pipe(dest(path.build.css))
       .pipe(browsersync.stream())
   );
