@@ -3,9 +3,9 @@ import { LanguageProvider, LanguageContext } from './context/LanguageContext';
 import Header from './components/Layout/Header/Header';
 import Footer from './components/Layout/Footer/Footer';
 import ScrollToTop from './components/Layout/ScrollToTop/ScrollToTop';
-// import Hero from './components/Hero/Hero';
-// import About from './components/About/About';
-// import Skills from './components/Skills/Skills';
+import Hero from './components/Hero/Hero';
+import About from './components/About/About';
+import Skills from './components/Skills/Skills';
 // import Portfolio from './components/Portfolio/Portfolio';
 // import Certificates from './components/Certificates/Certificates';
 
@@ -57,6 +57,12 @@ const AppContent = () => {
         </div>
       </div>
       
+      {/* Hero Section */}
+      <Hero />
+      
+      {/* About Section */}
+      <About />
+      
       {/* Временная структура для демонстрации с переводами */}
       <section id="home" style={{ minHeight: '100vh', padding: '50px 20px' }}>
         <h2>{translations.hero.title || 'Hero Section'}</h2>
@@ -64,15 +70,8 @@ const AppContent = () => {
         <p>{translations.hero.subtitle}</p>
       </section>
       
-      <section id="about" style={{ minHeight: '100vh', padding: '50px 20px', background: '#f5f5f5' }}>
-        <h2>{translations.about.title}</h2>
-        <p>{translations.about.description}</p>
-      </section>
-      
-      <section id="skills" style={{ minHeight: '100vh', padding: '50px 20px' }}>
-        <h2>{translations.skills.title}</h2>
-        <p>Здесь будет компонент Skills</p>
-      </section>
+      {/* Skills Section */}
+      <Skills />
       
       <section id="portfolio" style={{ minHeight: '100vh', padding: '50px 20px', background: '#f5f5f5' }}>
         <h2>{translations.portfolio.title}</h2>

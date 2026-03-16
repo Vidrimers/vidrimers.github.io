@@ -3,7 +3,7 @@ import { LanguageContext } from '../../../context/LanguageContext';
 import styles from './Header.module.css';
 
 const Header = () => {
-  const { language, translations, changeLanguage } = useContext(LanguageContext);
+  const { translations } = useContext(LanguageContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
 
@@ -54,10 +54,6 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const toggleLanguage = () => {
-    changeLanguage(language === 'ru' ? 'en' : 'ru');
-  };
-
   const navItems = [
     { id: 'home', label: translations.nav.home },
     { id: 'about', label: translations.nav.about },
@@ -104,15 +100,6 @@ const Header = () => {
               ))}
             </ul>
           </nav>
-
-          {/* Переключатель языка */}
-          <button
-            className={styles.langSwitcher}
-            onClick={toggleLanguage}
-            aria-label="Switch language"
-          >
-            {language === 'ru' ? 'EN' : 'RU'}
-          </button>
         </div>
       </div>
     </header>

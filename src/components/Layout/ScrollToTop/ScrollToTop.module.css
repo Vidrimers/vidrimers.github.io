@@ -47,29 +47,19 @@
   color: #ed7163;
   margin-top: 0.5rem;
   transition: visibility 0.3s;
+  font-family: 'Roboto', sans-serif;
 }
 
 /* Адаптивность для планшетов */
 @media (max-width: 768px) {
   .up {
-    right: 2rem;
-    max-width: 2rem;
-  }
-
-  .upLinkText {
-    font-size: 1.2rem;
+    display: none;
   }
 }
 
 /* Адаптивность для мобильных */
 @media (max-width: 480px) {
   .up {
-    right: 1rem;
-    bottom: 1rem;
-    max-width: 1.8rem;
-  }
-
-  .upLinkText {
-    font-size: 1rem;
+    display: none;
   }
 }

@@ -1,76 +1,76 @@
-/* ScrollToTop Component Styles */
-.scroll-to-top {
-  position: fixed;
-  bottom: 1rem;
-  right: 4rem;
-  max-width: 2.5rem;
-  z-index: 1000;
-  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-  opacity: 1;
-  visibility: visible;
+/* Global Styles */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+
+html {
+  scroll-behavior: smooth;
 }
 
-.scroll-to-top-hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.scroll-to-top-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  opacity: 0.4;
-  background: none;
-  border: none;
-  cursor: pointer;
+body {
+  background: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.8rem;
+  line-height: 2.2rem;
+  font-weight: 400;
+  color: #000;
+  margin: 0;
   padding: 0;
-  transition: all 0.3s;
 }
 
-.scroll-to-top-button:hover {
-  opacity: 1;
+.lock {
+  overflow: hidden;
 }
 
-.scroll-to-top-button:hover .scroll-to-top-text {
-  visibility: visible;
+.page {
+  position: relative;
 }
 
-.scroll-to-top-button img {
-  max-width: 100%;
-  height: auto;
+a {
+  color: #828282;
+  text-decoration: none;
 }
 
-.scroll-to-top-text {
-  visibility: hidden;
-  font-size: 1.4rem;
-  color: #ed7163;
-  margin-top: 0.5rem;
-  transition: visibility 0.3s;
+.wrapper {
+  background: #F6F6F6;
 }
 
-/* Адаптивность для планшетов */
+.inner {
+  padding: 12rem 0;
+}
+
+.container {
+  max-width: 94rem;
+  padding: 0 1rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.btn {
+  display: inline-block;
+  background: #828282;
+  line-height: 4rem;
+  color: #F6F6F6;
+  text-align: center;
+  transition: color 0.3s;
+}
+
+.btn:hover {
+  color: #000;
+}
+
+.title {
+  font-size: 3.4rem;
+  line-height: 4.2rem;
+  font-weight: 500;
+  color: #000;
+  line-height: 0.2rem;
+  display: inline-block;
+  padding: 2rem 2rem 0 2rem;
+  background-color: #fc285b;
+}
+
+/* Media Queries */
 @media (max-width: 768px) {
-  .scroll-to-top {
-    right: 2rem;
-    max-width: 2rem;
-  }
-
-  .scroll-to-top-text {
-    font-size: 1.2rem;
-  }
-}
-
-/* Адаптивность для мобильных */
-@media (max-width: 480px) {
-  .scroll-to-top {
-    right: 1rem;
-    bottom: 1rem;
-    max-width: 1.8rem;
-  }
-
-  .scroll-to-top-text {
-    font-size: 1rem;
+  .inner {
+    padding: 5rem 0;
   }
 }
