@@ -57,7 +57,17 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
-    host: true
+    host: true,
+    allowedHosts: [
+      'vidrimers.ru.tuna.am'
+    ],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:1989',
+        changeOrigin: true,
+        secure: false
+      }
+    }
   },
   
   // Preview server конфигурация (для npm run preview)

@@ -25,8 +25,6 @@ const LikeButton = ({ projectId, className = '', showOnHover = false, isParentHo
     
     if (isLoading || isClickDisabled) return;
     
-    console.log(`🖱️ Клик по лайку ${projectId}: isLiked=${isLiked}, likes=${likes}`);
-    
     // Блокируем повторные клики на 1 секунду
     setIsClickDisabled(true);
     setTimeout(() => setIsClickDisabled(false), 1000);

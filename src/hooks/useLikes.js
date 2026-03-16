@@ -120,8 +120,6 @@ export function useLikes(projectId) {
   const toggleLike = useCallback(async () => {
     if (!projectId || isLoading) return;
     
-    console.log(`🔄 toggleLike для ${projectId}: isLiked=${isLiked}, likes=${likes}`);
-    
     // Проверяем доступность API
     try {
       const { checkApiHealth } = await import('../utils/api');
@@ -143,16 +141,11 @@ export function useLikes(projectId) {
     const newIsLiked = !isLiked;
     const optimisticLikes = newIsLiked ? likes + 1 : Math.max(0, likes - 1);
     
-    console.log(`📝 Оптимистичное обновление: newIsLiked=${newIsLiked}, optimisticLikes=${optimisticLikes}`);
-    
     setIsLiked(newIsLiked);
     setLikes(optimisticLikes);
     
     try {
-      console.log(`🔄 Отправляем запрос на переключение лайка для ${projectId}`);
       const result = await apiToggleLike(projectId);
-      
-      console.log(`✅ Ответ сервера: likes=${result.likes}, isLiked=${result.isLiked}`);
       
       // Обновляем реальными данными с сервера
       setLikes(result.likes);
@@ -160,8 +153,6 @@ export function useLikes(projectId) {
       
       // Сохраняем в кэш
       setCachedData(result.likes, result.isLiked);
-      
-      console.log(`💾 Сохранено в кэш: likes=${result.likes}, isLiked=${result.isLiked}`);
       
     } catch (err) {
       console.error('Ошибка переключения лайка:', err);

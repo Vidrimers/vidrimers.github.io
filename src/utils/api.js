@@ -3,9 +3,7 @@
  */
 
 // Базовый URL для API
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? '/api'  // На production используем относительный путь
-  : 'http://localhost:1989/api';  // На development используем полный URL
+const API_BASE_URL = '/api';
 
 /**
  * Базовая функция для выполнения HTTP запросов
@@ -90,7 +88,7 @@ function generateUserId() {
  * @returns {string} - ID пользователя
  */
 export function getUserId() {
-  const USER_ID_KEY = 'watchrebel_user_id';
+  const USER_ID_KEY = 'react_portfolio_user_id';
   
   let userId = localStorage.getItem(USER_ID_KEY);
   

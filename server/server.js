@@ -26,24 +26,28 @@ let db;
 // Middleware
 app.use(express.json());
 
-// CORS настройки для локальной разработки
+// CORS настройки для локальной разработки и devtun
 app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'http://localhost:5173',
-    'http://127.0.0.1:5173'
+    'http://127.0.0.1:5173',
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'https://vidrimers.ru.tuna.am',
+    'http://vidrimers.ru.tuna.am'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Логирование запросов
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-  next();
-});
+// Логирование только ошибок и важных событий
+// app.use((req, res, next) => {
+//   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+//   next();
+// });
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -108,15 +112,12 @@ app.post('/api/likes/:projectId', async (req, res) => {
     
     const result = await toggleUserLike(db, userId, projectId);
     
-    const action = result.isLiked ? 'add' : 'remove';
-    console.log(`${result.isLiked ? '➕' : '➖'} Лайк ${result.isLiked ? 'добавлен' : 'убран'} для ${projectId} пользователем ${userId}, всего: ${result.likes}`);
-    
     res.json({ 
       likes: result.likes,
       isLiked: result.isLiked,
       projectId: projectId,
       userId: userId,
-      action: action
+      action: result.isLiked ? 'add' : 'remove'
     });
     
   } catch (error) {
