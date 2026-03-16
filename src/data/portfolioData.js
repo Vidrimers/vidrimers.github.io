@@ -1,15 +1,5 @@
 /**
  * Данные проектов портфолио
- * 
- * Структура объекта проекта:
- * - id: уникальный идентификатор
- * - title: название проекта (русский)
- * - titleEn: название проекта (английский)
- * - description: описание проекта (русский)
- * - descriptionEn: описание проекта (английский)
- * - image: путь к изображению
- * - link: ссылка на проект
- * - category: категория проекта ('pet' | 'layout')
  */
 
 export const portfolioProjects = [
@@ -22,7 +12,9 @@ export const portfolioProjects = [
     descriptionEn: 'The site is based on the original, but outdated site, which was assembled back in a tabular layout',
     image: '/assets/img/portfolio/npppolet.jpg',
     link: 'https://vidrimers.github.io/portfolio.npppolet/',
-    category: 'pet'
+    category: 'pet',
+    isAi: false,
+    isNew: true
   },
   {
     id: 2,
@@ -32,7 +24,9 @@ export const portfolioProjects = [
     descriptionEn: 'Page created for the amateur soccer club "Creative"',
     image: '/assets/img/portfolio/creativ.jpg',
     link: 'https://vidrimers.github.io/portfolio.creativ/',
-    category: 'pet'
+    category: 'pet',
+    isAi: false,
+    isNew: false
   },
   {
     id: 3,
@@ -42,7 +36,9 @@ export const portfolioProjects = [
     descriptionEn: 'Page with a gallery of colorist work',
     image: '/assets/img/portfolio/darinacolor.jpg',
     link: 'https://vidrimers.github.io/portfolio.darina-color/',
-    category: 'pet'
+    category: 'pet',
+    isAi: false,
+    isNew: false
   },
   
   // Учебные проекты (layout)
@@ -54,7 +50,9 @@ export const portfolioProjects = [
     descriptionEn: 'Final Project at AcademyTOP for the exam "Web Page Development Using HTML5 Markup Language and CSS3 Style Sheets (FrontEnd)"',
     image: '/assets/img/portfolio/furniture.jpg',
     link: 'https://vidrimers.github.io/academy-top-html',
-    category: 'layout'
+    category: 'layout',
+    isAi: false,
+    isNew: false
   },
   {
     id: 5,
@@ -64,14 +62,14 @@ export const portfolioProjects = [
     descriptionEn: 'Website project for selling DJI Mavic 2 Pro drone, made according to the layout from the "From 0 to 1" marathon 2020',
     image: '/assets/img/portfolio/mavic.jpg',
     link: 'https://vidrimers.github.io/portfolio.0to1__2020-marathon--mavic',
-    category: 'layout'
+    category: 'layout',
+    isAi: false,
+    isNew: false
   }
 ];
 
 /**
  * Получить проекты по категории
- * @param {string} category - Категория проекта ('pet' | 'layout' | 'all')
- * @returns {Array} Массив проектов
  */
 export const getProjectsByCategory = (category) => {
   if (category === 'all') {
@@ -82,8 +80,6 @@ export const getProjectsByCategory = (category) => {
 
 /**
  * Получить проект по ID
- * @param {number} id - ID проекта
- * @returns {Object|undefined} Объект проекта или undefined
  */
 export const getProjectById = (id) => {
   return portfolioProjects.find(project => project.id === id);

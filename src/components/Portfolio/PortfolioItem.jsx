@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
+import ProjectBadges from './ProjectBadges';
 import styles from './Portfolio.module.css';
 
 /**
@@ -14,6 +15,8 @@ import styles from './Portfolio.module.css';
  * @param {string} props.project.image - Путь к изображению
  * @param {string} props.project.link - Ссылка на проект
  * @param {string} props.project.category - Категория проекта
+ * @param {boolean} props.project.isAi - Показать AI плашку
+ * @param {boolean} props.project.isNew - Показать NEW плашку
  */
 const PortfolioItem = ({ project }) => {
   const { language } = useContext(LanguageContext);
@@ -24,6 +27,9 @@ const PortfolioItem = ({ project }) => {
   
   return (
     <div className={styles.item}>
+      {/* Плашки AI и NEW */}
+      <ProjectBadges isAi={project.isAi} isNew={project.isNew} />
+      
       {/* Ссылка с изображением */}
       <a 
         className={styles.link}

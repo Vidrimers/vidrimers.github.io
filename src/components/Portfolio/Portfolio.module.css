@@ -104,6 +104,44 @@
   box-shadow: 0 0.3rem 1rem rgba(192, 192, 192, 0.1);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative; /* Для позиционирования плашек */
+}
+
+/* Project Badges */
+.badges {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  z-index: 2;
+}
+
+.badgeAi {
+  background: linear-gradient(135deg, #FF4B4B, #D60036);
+  color: white;
+  padding: 4px 8px;
+  font-weight: bold;
+  border-radius: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.badgeNew {
+  background: linear-gradient(135deg, #FF6B35, #F7931E);
+  color: white;
+  padding: 4px 8px;
+  font-weight: bold;
+  border-radius: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .item:hover {
@@ -203,6 +241,19 @@
   .description {
     font-size: 1.4rem;
   }
+  
+  /* Адаптивные плашки */
+  .badges {
+    top: 6px;
+    left: 6px;
+    gap: 6px;
+  }
+  
+  .badgeAi,
+  .badgeNew {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -219,5 +270,18 @@
   
   .title {
     font-size: 2.4rem;
+  }
+  
+  /* Еще более компактные плашки на маленьких экранах */
+  .badges {
+    top: 4px;
+    left: 4px;
+    gap: 4px;
+  }
+  
+  .badgeAi,
+  .badgeNew {
+    font-size: 9px;
+    padding: 2px 5px;
   }
 }
