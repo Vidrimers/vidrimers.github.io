@@ -17,11 +17,24 @@ const {
   toggleUserLike
 } = require('./database');
 
+// Импортируем Telegram модуль
+const Telegram = require('./telegram');
+
 const app = express();
 const PORT = process.env.PORT || 1989;
 
 // Глобальная переменная для базы данных
 let db;
+
+// Инициализируем Telegram
+let telegram;
+try {
+  telegram = new Telegram();
+  console.log('📱 Telegram модуль инициализирован');
+} catch (error) {
+  console.warn('⚠️  Telegram не настроен:', error.message);
+  telegram = null;
+}
 
 // Middleware
 app.use(express.json());
@@ -112,6 +125,17 @@ app.post('/api/likes/:projectId', async (req, res) => {
     
     const result = await toggleUserLike(db, userId, projectId);
     
+    // Отправляем уведомление в Telegram только при добавлении лайка
+    if (telegram && result.isLiked) {
+      try {
+        await telegram.sendLikeNotification(projectId, result.likes);
+        console.log(`📱 Telegram уведомление отправлено для ${projectId}`);
+      } catch (telegramError) {
+        console.error('❌ Ошибка отправки в Telegram:', telegramError.message);
+        // Не прерываем выполнение, если Telegram недоступен
+      }
+    }
+    
     res.json({ 
       likes: result.likes,
       isLiked: result.isLiked,
@@ -142,6 +166,60 @@ app.get('/api/likes', async (req, res) => {
     console.error('Ошибка получения всех лайков:', error);
     res.status(500).json({ 
       error: 'Ошибка сервера при получении всех лайков' 
+    });
+  }
+});
+
+// Тестовый эндпоинт для Telegram
+app.post('/api/telegram/test', async (req, res) => {
+  try {
+    if (!telegram) {
+      return res.status(503).json({
+        error: 'Telegram не настроен',
+        message: 'Проверьте переменные окружения TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID'
+      });
+    }
+    
+    const success = await telegram.sendTestMessage();
+    
+    if (success) {
+      res.json({
+        success: true,
+        message: 'Тестовое сообщение отправлено в Telegram'
+      });
+    } else {
+      res.status(500).json({
+        error: 'Не удалось отправить тестовое сообщение'
+      });
+    }
+    
+  } catch (error) {
+    console.error('Ошибка тестирования Telegram:', error);
+    res.status(500).json({
+      error: 'Ошибка при тестировании Telegram',
+      message: error.message
+    });
+  }
+});
+
+// Получить информацию о Telegram боте
+app.get('/api/telegram/info', async (req, res) => {
+  try {
+    if (!telegram) {
+      return res.json({
+        enabled: false,
+        error: 'Telegram не настроен'
+      });
+    }
+    
+    const info = await telegram.getBotInfo();
+    res.json(info);
+    
+  } catch (error) {
+    console.error('Ошибка получения информации о боте:', error);
+    res.status(500).json({
+      error: 'Ошибка получения информации о боте',
+      message: error.message
     });
   }
 });
@@ -179,6 +257,9 @@ async function startServer() {
       console.log(`   GET  /api/likes/:projectId - получить лайки`);
       console.log(`   POST /api/likes/:projectId - добавить/убрать лайк`);
       console.log(`   GET  /api/likes - все лайки`);
+      console.log(`📱 Эндпоинты Telegram:`);
+      console.log(`   POST /api/telegram/test - тестовое сообщение`);
+      console.log(`   GET  /api/telegram/info - информация о боте`);
       console.log('');
       console.log('💡 Для остановки нажмите Ctrl+C');
     });
