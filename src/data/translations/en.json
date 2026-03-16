@@ -78,7 +78,12 @@
     }
   },
   "certificates": {
-    "title": "Certificates"
+    "title": "Certificates",
+    "description": "My professional certificates and achievements",
+    "close": "Close",
+    "viewOriginal": "View Original",
+    "total": "Total certificates",
+    "empty": "No certificates found"
   },
   "footer": {
     "title": "Contacts",

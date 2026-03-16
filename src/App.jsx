@@ -7,7 +7,7 @@ import Hero from './components/Hero/Hero';
 import About from './components/About/About';
 import Skills from './components/Skills/Skills';
 import Portfolio from './components/Portfolio/Portfolio';
-// import Certificates from './components/Certificates/Certificates';
+import Certificates from './components/Certificates/Certificates';
 
 // Внутренний компонент приложения
 const AppContent = () => {
@@ -30,10 +30,8 @@ const AppContent = () => {
       {/* Portfolio Section */}
       <Portfolio />
       
-      <section id="certificates" style={{ minHeight: '100vh', padding: '50px 20px' }}>
-        <h2>{translations.certificates.title}</h2>
-        <p>Здесь будет компонент Certificates</p>
-      </section>
+      {/* Certificates Section */}
+      <Certificates />
       
       {/* Footer с контактами */}
       <Footer />
