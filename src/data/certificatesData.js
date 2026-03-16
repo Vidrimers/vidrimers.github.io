@@ -44,12 +44,6 @@ export const certificates = [
     image: '/assets/img/certificates/c6.jpg',
     alt: 'Сертификат 6',
     altEn: 'Certificate 6'
-  },
-  {
-    id: 7,
-    image: '/assets/img/certificates/c7.jpg',
-    alt: 'Сертификат 7',
-    altEn: 'Certificate 7'
   }
 ];
 
