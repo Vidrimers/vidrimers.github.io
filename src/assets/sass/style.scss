@@ -17,8 +17,7 @@
 @use "work/mixins";
 
 // vendor libs
-// @use 'vendor/slick';
-// если не нужно, слик можно отключить
+// slick удален - больше не используется в React приложении
 
 .header,
 .about,
@@ -26,9 +25,9 @@
 .skills,
 .footer,
 .hero {
-  // display: none;
+  display: block;
 }
 
 section:not(.portfolio) {
-  // display: none;
+  display: block;
 }

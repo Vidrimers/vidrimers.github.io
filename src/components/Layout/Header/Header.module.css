@@ -1,0 +1,178 @@
+/* Header Styles */
+.header {
+  background-color: #fff;
+  position: relative;
+  z-index: 10;
+}
+
+.container {
+  max-width: 94rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.headerInner {
+  padding: 3rem 0 4rem;
+  border-bottom: 1px solid #828282;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Menu Styles */
+.menu {
+  flex: 1;
+}
+
+.menuBtn {
+  display: none;
+  width: 3.5rem;
+  height: 2.4rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+}
+
+.menuBtnLine {
+  display: block;
+  width: 100%;
+  height: 0.2rem;
+  background: #000;
+  position: absolute;
+  left: 0;
+  transition: all 0.3s linear;
+}
+
+.menuBtnLineFirst {
+  top: 0;
+}
+
+.menuBtnLineSecond,
+.menuBtnLineThird {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.menuBtnLineFourth {
+  bottom: 0;
+}
+
+.menuBtnActive .menuBtnLineFirst,
+.menuBtnActive .menuBtnLineFourth {
+  opacity: 0;
+}
+
+.menuBtnActive .menuBtnLineSecond {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.menuBtnActive .menuBtnLineThird {
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+.menuList {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 2rem;
+}
+
+.menuItem {
+  perspective: 2rem;
+  transition: all 0.3s;
+}
+
+.menuItem:hover {
+  transform: scale(1.1);
+}
+
+.menuListLink {
+  color: inherit; /* Использует базовые стили body */
+  text-decoration: none;
+  font-family: 'Roboto', sans-serif;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.menuListLink:hover {
+  color: #000; /* colors.$color1 */
+}
+
+.menuListLinkActive {
+  color: #828282;
+  font-weight: 600;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .header {
+    display: block;
+  }
+
+  .headerInner {
+    padding: 2rem 0;
+  }
+
+  .menuBtn {
+    display: block;
+    position: fixed;
+    top: 2rem;
+    right: 1rem;
+    z-index: 3;
+  }
+
+  .menuBtnActive {
+    opacity: 0.3;
+  }
+
+  .menuList {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: fixed;
+    text-align: center;
+    opacity: 0.95;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding-bottom: 2rem;
+    background-color: #ffffff;
+    transform: translateX(80rem);
+    transition: all 0.5s;
+    gap: 0;
+  }
+
+  .menuListActive {
+    z-index: 2;
+    transform: translateX(0);
+  }
+
+  .menuListLink {
+    display: block;
+    font-size: 1.8rem;
+    line-height: 2.8rem;
+    padding: 2rem 0;
+  }
+
+  .menuItem:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .menuListLink {
+    font-size: 2rem;
+    padding: 2.5rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Убрали стили langSwitcher */
+}

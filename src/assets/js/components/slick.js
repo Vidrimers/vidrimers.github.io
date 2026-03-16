@@ -1,10 +1,14 @@
-//= ../../../../node_modules/slick-carousel/slick/slick.js
-// https://github.com/kenwheeler/slick/
+import $ from 'jquery';
+import 'slick-carousel';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 console.log("this is slick component");
 
-let certificates = $(".certificates__slider");
+let certificates = $(".certificates__items");
 
+// Slick для сертификатов отключен - показываем все сразу
+/*
 certificates.slick({
   dots: false,
   arrows: false,
@@ -24,7 +28,8 @@ certificates.slick({
         }
       },
     ]
-})
+});
+*/
 
 // $("#portfolio__arrow--prev").on("click", function (event) {
 //   event.preventDefault();

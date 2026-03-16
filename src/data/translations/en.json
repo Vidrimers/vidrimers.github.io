@@ -1,0 +1,102 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "skills": "Skills",
+    "portfolio": "Portfolio",
+    "certificates": "Certificates",
+    "contacts": "Contacts"
+  },
+  "hero": {
+    "title": "Yaroslav Shiryakov",
+    "subtitle": "Frontend Developer",
+    "greeting": "Hello! I'm Yaroslav",
+    "description": "Frontend Developer",
+    "language": {
+      "ru": "RUS",
+      "en": "ENG"
+    }
+  },
+  "about": {
+    "title": "About Me",
+    "paragraphs": [
+      "Hello! My name is Yaroslav, I'm a frontend developer.",
+      "I learn through online courses, thematic books, YouTube videos, and mobile apps like SoloLearn. I constantly strive to expand my horizons and deepen my knowledge in web development.",
+      "I create landing pages using Gulp build, work with layouts from Photoshop and Pixso. My portfolio includes educational and personal projects based on layouts found online and completed as part of practice.",
+      "I changed my field of activity and fully dedicated myself to IT development. I see this as a path of growth, challenges, and inspiration.",
+      "Basic level of English. I can read technical documentation and logically analyze texts, using a translator when necessary.",
+      "I play football in an amateur league, participate in city competitions. I love good music and concerts — they energize and inspire me.",
+      "I would be happy to collaborate and receive offers from interesting people and companies. I always strive to improve my skills and work on real tasks."
+    ],
+    "links": {
+      "portfolio": "portfolio",
+      "music": "music"
+    }
+  },
+  "skills": {
+    "title": "Skills",
+    "items": {
+      "html": "Html",
+      "css": "Css", 
+      "javascript": "Javascript",
+      "gulp": "Gulp",
+      "sass": "Sass",
+      "bem": "BEM",
+      "photoshop": "Photoshop",
+      "pixso": "Pixso",
+      "vite": "Vite",
+      "tailwind": "tailwindCSS"
+    }
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "tabs": {
+      "pet": "Personal Projects",
+      "layout": "Learning Projects"
+    },
+    "projects": {
+      "npppolet": {
+        "title": "NPP Polet",
+        "description": "Website created based on the original but outdated site that was built with table layout"
+      },
+      "creativ": {
+        "title": "FC \"Creativ\"",
+        "description": "Page created for the amateur football club \"Creativ\""
+      },
+      "darinacolor": {
+        "title": "Colorist Page",
+        "description": "Page with a gallery of colorist's work"
+      },
+      "furniture": {
+        "title": "Final work at AcademyTOP",
+        "description": "Final work at AcademyTOP for the exam \"Web page development in HTML5 markup language using CSS3 cascading style sheets (FrontEnd)\""
+      },
+      "mavic": {
+        "title": "Mavic 2 Pro",
+        "description": "Website project for selling DJI Mavic 2 Pro drone, created based on a layout from the \"From 0 to 1\" marathon 2020"
+      }
+    }
+  },
+  "certificates": {
+    "title": "Certificates",
+    "description": "My professional certificates and achievements",
+    "close": "Close",
+    "viewOriginal": "View Original",
+    "total": "Total certificates",
+    "empty": "No certificates found"
+  },
+  "footer": {
+    "title": "Contacts",
+    "text": "You can contact me through these links",
+    "sendMessage": "Send message",
+    "findMe": "You can find me",
+    "onSocial": "On LinkedIn and Telegram",
+    "thanks": "THANK YOU :-)"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "backToTop": "Back to Top",
+    "openInNewTab": "Open in new tab"
+  }
+}

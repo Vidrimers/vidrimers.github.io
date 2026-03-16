@@ -1,0 +1,290 @@
+/* Certificates Section */
+.certificates {
+  padding: 8rem 0;
+  background-color: var(--bg-color, #fff);
+}
+
+.wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.container {
+  width: 100%;
+}
+
+.title {
+  font-size: 3.4rem;
+  font-weight: 500;
+  color: #000;
+  line-height: 0.2rem;
+  display: inline-block;
+  padding: 2rem 2rem 0 2rem;
+  background-color: #fc285b;
+  margin-bottom: 7rem;
+}
+
+/* Обертка для центрирования title */
+.titleWrapper {
+  text-align: center;
+}
+
+/* Описание секции */
+.description {
+  font-size: 1.6rem;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--text-secondary, #666);
+  margin-bottom: 5rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Certificates Grid */
+.items {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  justify-items: center;
+  margin-bottom: 3rem;
+}
+
+/* Individual Certificate Item */
+.item {
+  width: 100%;
+  max-width: 35rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0.3rem 1rem rgba(192, 192, 192, 0.2);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.item:hover {
+  transform: translateY(-0.5rem);
+  box-shadow: 0 0.8rem 2rem rgba(192, 192, 192, 0.3);
+}
+
+.item:focus {
+  outline: 2px solid var(--accent-color, #fc285b);
+  outline-offset: 2px;
+}
+
+/* Убрали навязчивый значок лупы - пользователи сами поймут что можно кликнуть */
+
+.img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.item:hover .img {
+  transform: scale(1.05);
+}
+
+/* Счетчик сертификатов */
+.counter {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.counterText {
+  font-size: 1.4rem;
+  color: var(--text-secondary, #666);
+  font-weight: 500;
+}
+
+/* Пустое состояние */
+.empty {
+  text-align: center;
+  padding: 4rem 0;
+}
+
+.empty p {
+  font-size: 1.6rem;
+  color: var(--text-secondary, #666);
+}
+
+/* Модальное окно */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.modalContent {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  background: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.3);
+}
+
+.modalClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.modalClose:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.modalImg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Действия в модальном окне */
+.modalActions {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.modalButton {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 1.3rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modalButton:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateY(-0.1rem);
+  box-shadow: 0 0.3rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .items {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .title {
+    font-size: 3rem;
+    margin-bottom: 5rem;
+  }
+  
+  .description {
+    margin-bottom: 4rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .certificates {
+    padding: 6rem 0;
+  }
+  
+  .wrapper {
+    padding: 0 1.5rem;
+  }
+  
+  .items {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .title {
+    font-size: 2.8rem;
+    margin-bottom: 4rem;
+  }
+  
+  .description {
+    font-size: 1.4rem;
+    margin-bottom: 3rem;
+  }
+  
+  .item {
+    max-width: 100%;
+  }
+  
+  .modal {
+    padding: 1rem;
+  }
+  
+  .modalActions {
+    bottom: 1rem;
+  }
+  
+  .modalButton {
+    padding: 0.7rem 1.2rem;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .certificates {
+    padding: 4rem 0;
+  }
+  
+  .wrapper {
+    padding: 0 1rem;
+  }
+  
+  .items {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    width: 100%;
+  }
+  
+  .title {
+    font-size: 2.4rem;
+    margin-bottom: 3rem;
+  }
+  
+  .description {
+    font-size: 1.3rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  .item {
+    max-width: 100%;
+  }
+  
+  .counterText {
+    font-size: 1.3rem;
+  }
+}
