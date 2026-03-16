@@ -91,7 +91,14 @@
     "sendMessage": "Send message",
     "findMe": "You can find me",
     "onSocial": "On LinkedIn and Telegram",
-    "thanks": "THANK YOU :-)"
+    "thanks": "THANK YOU :-)",
+    "donate": "Donate"
+  },
+  "donate": {
+    "title": "Support the Author",
+    "description": "Thank you for supporting the project ❤️",
+    "copyAddress": "Copy Address",
+    "copied": "Address copied!"
   },
   "common": {
     "loading": "Loading...",

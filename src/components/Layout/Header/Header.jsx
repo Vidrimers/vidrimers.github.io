@@ -7,35 +7,14 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
 
-  // Smooth scroll к секции с плавной анимацией
+  // Smooth scroll к секции
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const scrollElement = document.documentElement.scrollTop > 0 ? document.documentElement : document.body;
-      const startPosition = scrollElement.scrollTop;
-      const targetPosition = element.offsetTop - 80; // Отступ от верха
-      const distance = targetPosition - startPosition;
-      const duration = 800; // Длительность анимации
-      let startTime = null;
-
-      const easeInOutQuad = (t) => {
-        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-      };
-
-      const animation = (currentTime) => {
-        if (startTime === null) startTime = currentTime;
-        const timeElapsed = currentTime - startTime;
-        const progress = Math.min(timeElapsed / duration, 1);
-        
-        const ease = easeInOutQuad(progress);
-        scrollElement.scrollTop = startPosition + (distance * ease);
-        
-        if (timeElapsed < duration) {
-          requestAnimationFrame(animation);
-        }
-      };
-
-      requestAnimationFrame(animation);
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
       setIsMenuOpen(false); // Закрываем меню на мобильных после клика
     }
   };

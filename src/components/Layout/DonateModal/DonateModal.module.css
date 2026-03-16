@@ -1,0 +1,322 @@
+/* Donate Modal Styles */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.modal {
+  background: #161b22;
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  color: #e6edf3;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 2.5rem 1rem;
+  border-bottom: 1px solid #30363d;
+}
+
+.title {
+  font-size: 2.4rem;
+  font-weight: 600;
+  margin: 0;
+  color: #e6edf3;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 3rem;
+  color: #8b949e;
+  cursor: pointer;
+  padding: 0;
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background: #30363d;
+  color: #e6edf3;
+}
+
+.content {
+  padding: 2rem 2.5rem 2.5rem;
+}
+
+.description {
+  text-align: center;
+  font-size: 1.6rem;
+  color: #8b949e;
+  margin-bottom: 3rem;
+}
+
+.wallets {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.wallet {
+  background: #1f242d;
+  border-radius: 10px;
+  padding: 1rem 2rem;
+  border: 1px solid #30363d;
+}
+
+.walletHeader {
+  margin-bottom: 1.5rem;
+}
+
+.walletName {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.walletContent {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: start;
+}
+
+.addressSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.addressBox {
+  background: #0d1117;
+  padding: 1.2rem;
+  border-radius: 8px;
+  word-break: break-all;
+  font-family: 'Courier New', monospace;
+  font-size: 1.4rem;
+  border: 1px solid #30363d;
+  color: #e6edf3;
+  line-height: 1.4;
+  min-height: 3.2rem;
+  display: flex;
+  align-items: center;
+}
+
+.copiedMessage {
+  color: #2ea043;
+  font-weight: 600;
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-5px); }
+  20% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-5px); }
+}
+
+.copyButton {
+  background: #238636;
+  border: none;
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-size: 1.4rem;
+  font-weight: 500;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+
+.copyButton:hover {
+  background: #2ea043;
+}
+
+.copyButton:active {
+  background: #1a7f37;
+}
+
+.qrSection {
+  display: flex;
+  justify-content: center;
+}
+
+.qrCode {
+  width: 160px;
+  height: 160px;
+  border-radius: 8px;
+  background: white;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .overlay {
+    padding: 1rem;
+  }
+
+  .modal {
+    max-height: 95vh;
+  }
+
+  .header {
+    padding: 1.5rem 2rem 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .closeButton {
+    font-size: 2.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .content {
+    padding: 1.5rem 2rem 2rem;
+  }
+
+  .description {
+    font-size: 1.4rem;
+    margin-bottom: 2rem;
+  }
+
+  .wallets {
+    gap: 2rem;
+  }
+
+  .wallet {
+    padding: 1.5rem;
+  }
+
+  .walletName {
+    font-size: 1.8rem;
+  }
+
+  .walletContent {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .qrSection {
+    order: -1;
+  }
+
+  .qrCode {
+    width: 140px;
+    height: 140px;
+  }
+
+  .addressBox {
+    font-size: 1.2rem;
+    padding: 1rem;
+  }
+
+  .copyButton {
+    font-size: 1.3rem;
+    padding: 0.8rem 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .overlay {
+    padding: 0.5rem;
+  }
+
+  .header {
+    padding: 1rem 1.5rem 0.5rem;
+  }
+
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .closeButton {
+    font-size: 2rem;
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .content {
+    padding: 1rem 1.5rem 1.5rem;
+  }
+
+  .description {
+    font-size: 1.3rem;
+  }
+
+  .wallet {
+    padding: 1rem;
+  }
+
+  .walletName {
+    font-size: 1.6rem;
+  }
+
+  .qrCode {
+    width: 120px;
+    height: 120px;
+  }
+
+  .addressBox {
+    font-size: 1.1rem;
+    padding: 0.8rem;
+  }
+
+  .copyButton {
+    font-size: 1.2rem;
+    padding: 0.7rem 1rem;
+  }
+}
+
+/* Анимации */
+.overlay {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

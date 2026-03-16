@@ -46,6 +46,15 @@
   margin-bottom: 3rem;
 }
 
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 9rem;
+}
+
 .mail {
   display: inline-block;
   font-size: 1.8rem;
@@ -54,7 +63,6 @@
   color: #fff;
   background: #000;
   padding: 1.2rem 3rem;
-  margin-bottom: 9rem;
   border-radius: 3rem;
   text-decoration: none;
   transition: background 0.3s;
@@ -63,6 +71,55 @@
 .mail:hover {
   background: #fc285b;
   color: #000;
+}
+
+.donateButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 1.8rem;
+  line-height: 2rem;
+  font-weight: 700;
+  color: #333;
+  background: transparent;
+  padding: 1.2rem 3rem;
+  border-radius: 3rem;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.donateButton:hover {
+  color: #fc285b;
+  transform: translateY(-2px);
+}
+
+.donateButton:active {
+  transform: translateY(0);
+}
+
+.donateIcon {
+  font-size: 2rem;
+  animation: heartbeat 2s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.1);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.1);
+  }
+  70% {
+    transform: scale(1);
+  }
 }
 
 .social {
@@ -108,10 +165,16 @@
     font-size: 1.6rem;
   }
 
-  .mail {
+  .actions {
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 6rem;
+  }
+
+  .mail,
+  .donateButton {
     font-size: 1.6rem;
     padding: 1rem 2.5rem;
-    margin-bottom: 6rem;
   }
 
   .social {
@@ -143,10 +206,14 @@
     margin-bottom: 2rem;
   }
 
-  .mail {
+  .actions {
+    margin-bottom: 4rem;
+  }
+
+  .mail,
+  .donateButton {
     font-size: 1.4rem;
     padding: 0.8rem 2rem;
-    margin-bottom: 4rem;
   }
 
   .social {
