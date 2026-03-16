@@ -3,27 +3,40 @@ import { LanguageContext } from '../../../context/LanguageContext';
 import styles from './ScrollToTop.module.css';
 
 const ScrollToTop = () => {
-  const [isVisible, setIsVisible] = useState(true); // Временно всегда видимая
+  const [isVisible, setIsVisible] = useState(false); // Изначально скрыта
   const { language } = useContext(LanguageContext);
 
   useEffect(() => {
     const toggleVisibility = () => {
-      const scrollPosition = window.scrollY;
-      console.log('Scroll position:', scrollPosition);
+      const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
       
-      if (scrollPosition > 300) {
-        console.log('Setting visible TRUE');
+      if (scrollPosition > 200) {
         setIsVisible(true);
       } else {
-        console.log('Setting visible FALSE');
         setIsVisible(false);
       }
     };
 
+    // Проверяем позицию при загрузке
+    toggleVisibility();
+    
+    // Добавляем слушатели на разные элементы
     window.addEventListener('scroll', toggleVisibility);
-    // НЕ вызываем toggleVisibility() сразу!
+    document.addEventListener('scroll', toggleVisibility);
+    
+    const handleScroll = () => {
+      toggleVisibility();
+    };
+    
+    document.body.addEventListener('scroll', handleScroll);
+    document.documentElement.addEventListener('scroll', handleScroll);
 
-    return () => window.removeEventListener('scroll', toggleVisibility);
+    return () => {
+      window.removeEventListener('scroll', toggleVisibility);
+      document.removeEventListener('scroll', toggleVisibility);
+      document.body.removeEventListener('scroll', handleScroll);
+      document.documentElement.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const scrollToTop = () => {

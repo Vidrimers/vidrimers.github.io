@@ -2,7 +2,6 @@
   position: fixed;
   bottom: 1rem;
   right: 4rem;
-  max-width: 2.5rem;
   z-index: 1000;
   transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
   opacity: 1;
@@ -37,8 +36,8 @@
 }
 
 .upLink img {
-  max-width: 100%;
-  height: auto;
+  width: 2rem;
+  height: 2rem;
 }
 
 .upLinkText {
@@ -48,6 +47,9 @@
   margin-top: 0.5rem;
   transition: visibility 0.3s;
   font-family: 'Roboto', sans-serif;
+  white-space: nowrap;
+  min-width: 4rem;
+  text-align: center;
 }
 
 /* Адаптивность для планшетов */
