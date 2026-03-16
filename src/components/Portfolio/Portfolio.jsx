@@ -8,9 +8,26 @@ import styles from './Portfolio.module.css';
 const Portfolio = () => {
   const { translations } = useContext(LanguageContext);
   const [activeCategory, setActiveCategory] = useState('pet');
+  const [isAnimating, setIsAnimating] = useState(false);
   
   // Получаем проекты для активной категории
   const filteredProjects = getProjectsByCategory(activeCategory);
+  
+  // Обработчик смены категории с анимацией
+  const handleCategoryChange = (newCategory) => {
+    if (newCategory === activeCategory) return;
+    
+    setIsAnimating(true);
+    
+    // Через 300ms (время анимации исчезновения) меняем категорию
+    setTimeout(() => {
+      setActiveCategory(newCategory);
+      // Через небольшую задержку показываем новые проекты
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 50);
+    }, 300);
+  };
   
   return (
     <section className={styles.portfolio} id="portfolio">
@@ -23,11 +40,14 @@ const Portfolio = () => {
           {/* Табы для переключения категорий */}
           <PortfolioTabs 
             activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
+            onCategoryChange={handleCategoryChange}
           />
           
           {/* Сетка проектов */}
-          <PortfolioGrid projects={filteredProjects} />
+          <PortfolioGrid 
+            projects={filteredProjects} 
+            isAnimating={isAnimating}
+          />
         </div>
       </div>
     </section>

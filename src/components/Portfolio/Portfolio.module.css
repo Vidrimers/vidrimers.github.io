@@ -83,13 +83,19 @@
   display: grid;
   gap: 4rem;
   opacity: 1;
-  transform: scale(1);
-  transition: all 0.3s ease;
+  transform: scaleX(1);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform-origin: center;
 }
 
 .itemsActive {
   opacity: 1;
-  transform: scale(1);
+  transform: scaleX(1);
+}
+
+.itemsHidden {
+  opacity: 0;
+  transform: scaleX(0.8);
 }
 
 .item {
