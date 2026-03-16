@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useMemo } from 'react';
 import { LanguageContext } from '../../../context/LanguageContext';
 import styles from './Header.module.css';
 
@@ -78,14 +78,15 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const navItems = [
+  // Мемоизируем массив навигационных элементов для оптимизации производительности
+  const navItems = useMemo(() => [
     { id: 'home', label: translations.nav.home },
     { id: 'about', label: translations.nav.about },
     { id: 'skills', label: translations.nav.skills },
     { id: 'portfolio', label: translations.nav.portfolio },
     { id: 'certificates', label: translations.nav.certificates },
     { id: 'contacts', label: translations.nav.contacts }
-  ];
+  ], [translations.nav]);
 
   return (
     <header className={styles.header} id="header">

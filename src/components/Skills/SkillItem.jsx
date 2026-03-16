@@ -1,8 +1,8 @@
-import { useContext } from 'react';
+import { useContext, memo } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import styles from './Skills.module.css';
 
-const SkillItem = ({ skill }) => {
+const SkillItem = memo(({ skill }) => {
   const { language } = useContext(LanguageContext);
   
   // Используем название навыка в зависимости от языка
@@ -14,6 +14,8 @@ const SkillItem = ({ skill }) => {
         src={skill.icon} 
         alt={skillName}
         className={styles.itemImg}
+        loading="lazy"
+        decoding="async"
       />
       <div className={styles.itemText}>
         <h3 className={styles.itemTitle}>
@@ -22,6 +24,8 @@ const SkillItem = ({ skill }) => {
       </div>
     </div>
   );
-};
+});
+
+SkillItem.displayName = 'SkillItem';
 
 export default SkillItem;

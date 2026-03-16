@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, memo } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import ProjectBadges from './ProjectBadges';
 import styles from './Portfolio.module.css';
@@ -19,7 +19,7 @@ import styles from './Portfolio.module.css';
  * @param {boolean} props.project.isNew - Показать NEW плашку
  * @param {boolean} props.project.isInProgress - Показать In Progress плашку
  */
-const PortfolioItem = ({ project }) => {
+const PortfolioItem = memo(({ project }) => {
   const { language } = useContext(LanguageContext);
   
   // Получаем локализованные данные в зависимости от языка
@@ -47,6 +47,8 @@ const PortfolioItem = ({ project }) => {
           src={project.image} 
           alt={title}
           className={styles.image}
+          loading="lazy"
+          decoding="async"
         />
       </a>
       
@@ -67,6 +69,8 @@ const PortfolioItem = ({ project }) => {
       />
     </div>
   );
-};
+});
+
+PortfolioItem.displayName = 'PortfolioItem';
 
 export default PortfolioItem;

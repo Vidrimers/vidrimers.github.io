@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import styles from './Hero.module.css';
 import photoImg from '../../assets/img/photo.jpg';
@@ -9,6 +9,12 @@ const Hero = () => {
   const toggleLanguage = () => {
     changeLanguage(language === 'ru' ? 'en' : 'ru');
   };
+
+  // Мемоизируем стили для языковых ссылок для оптимизации производительности
+  const languageStyles = useMemo(() => ({
+    ru: { color: language === 'ru' ? '#000' : '#828282' },
+    en: { color: language === 'en' ? '#000' : '#828282' }
+  }), [language]);
 
   return (
     <section className={styles.hero} id="home">
@@ -29,7 +35,7 @@ const Hero = () => {
                     e.preventDefault();
                     if (language !== 'ru') toggleLanguage();
                   }}
-                  style={{ color: language === 'ru' ? '#000' : '#828282' }}
+                  style={languageStyles.ru}
                 >
                   РУС
                 </a> 
@@ -40,7 +46,7 @@ const Hero = () => {
                     e.preventDefault();
                     if (language !== 'en') toggleLanguage();
                   }}
-                  style={{ color: language === 'en' ? '#000' : '#828282' }}
+                  style={languageStyles.en}
                 >
                   АНГ
                 </a>

@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useMemo } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import { getProjectsByCategory } from '../../data/portfolioData';
 import PortfolioTabs from './PortfolioTabs';
@@ -10,8 +10,10 @@ const Portfolio = () => {
   const [activeCategory, setActiveCategory] = useState('pet');
   const [isAnimating, setIsAnimating] = useState(false);
   
-  // Получаем проекты для активной категории
-  const filteredProjects = getProjectsByCategory(activeCategory);
+  // Мемоизируем фильтрацию проектов для оптимизации производительности
+  const filteredProjects = useMemo(() => {
+    return getProjectsByCategory(activeCategory);
+  }, [activeCategory]);
   
   // Обработчик смены категории с анимацией
   const handleCategoryChange = (newCategory) => {

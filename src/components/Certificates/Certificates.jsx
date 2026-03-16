@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useMemo } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import { certificates } from '../../data/certificatesData';
 import styles from './Certificates.module.css';
@@ -21,6 +21,35 @@ const Certificates = () => {
   const handleCloseModal = () => {
     setSelectedCertificate(null);
   };
+
+  // Мемоизируем рендеринг сертификатов для оптимизации производительности
+  const certificateItems = useMemo(() => {
+    if (!certificates || certificates.length === 0) return [];
+    
+    return certificates.map((certificate, index) => (
+      <div 
+        key={certificate.id} 
+        className={styles.item}
+        role="gridcell"
+        tabIndex={0}
+        onClick={() => handleCertificateClick(certificate)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleCertificateClick(certificate);
+          }
+        }}
+        aria-label={`Сертификат ${index + 1}`}
+      >
+        <img 
+          className={styles.img}
+          src={certificate.image} 
+          alt={language === 'ru' ? certificate.alt : certificate.altEn}
+          loading="lazy"
+        />
+      </div>
+    ));
+  }, [certificates, language]);
 
   // Проверка наличия данных
   if (!certificates || certificates.length === 0) {
@@ -62,29 +91,7 @@ const Certificates = () => {
           
           {/* Сетка сертификатов */}
           <div className={styles.items} role="grid" aria-label={translations.certificates.title}>
-            {certificates.map((certificate, index) => (
-              <div 
-                key={certificate.id} 
-                className={styles.item}
-                role="gridcell"
-                tabIndex={0}
-                onClick={() => handleCertificateClick(certificate)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleCertificateClick(certificate);
-                  }
-                }}
-                aria-label={`Сертификат ${index + 1}`}
-              >
-                <img 
-                  className={styles.img}
-                  src={certificate.image} 
-                  alt={language === 'ru' ? certificate.alt : certificate.altEn}
-                  loading="lazy"
-                />
-              </div>
-            ))}
+            {certificateItems}
           </div>
           
           {/* Счетчик сертификатов */}

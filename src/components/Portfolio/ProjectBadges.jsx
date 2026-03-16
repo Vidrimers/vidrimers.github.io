@@ -1,19 +1,23 @@
+import { memo } from 'react';
 import styles from './Portfolio.module.css';
 
 // Компонент для AI плашки
-const AiBadge = () => (
+const AiBadge = memo(() => (
   <span className={styles.badgeAi}>AI</span>
-);
+));
+AiBadge.displayName = 'AiBadge';
 
 // Компонент для NEW плашки
-const NewBadge = () => (
+const NewBadge = memo(() => (
   <span className={styles.badgeNew}>NEW</span>
-);
+));
+NewBadge.displayName = 'NewBadge';
 
 // Компонент для In Progress плашки
-const InProgressBadge = () => (
+const InProgressBadge = memo(() => (
   <span className={styles.badgeInProgress}>In Progress</span>
-);
+));
+InProgressBadge.displayName = 'InProgressBadge';
 
 /**
  * Компонент плашек для проектов
@@ -22,7 +26,7 @@ const InProgressBadge = () => (
  * @param {boolean} props.isNew - Показать NEW плашку
  * @param {boolean} props.isInProgress - Показать In Progress плашку
  */
-const ProjectBadges = ({ isAi = false, isNew = false, isInProgress = false }) => {
+const ProjectBadges = memo(({ isAi = false, isNew = false, isInProgress = false }) => {
   // Если нет плашек, не рендерим контейнер
   if (!isAi && !isNew && !isInProgress) {
     return null;
@@ -35,6 +39,8 @@ const ProjectBadges = ({ isAi = false, isNew = false, isInProgress = false }) =>
       {isInProgress && <InProgressBadge />}
     </div>
   );
-};
+});
+
+ProjectBadges.displayName = 'ProjectBadges';
 
 export default ProjectBadges;

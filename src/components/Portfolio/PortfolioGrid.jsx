@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import PortfolioItem from './PortfolioItem';
 import styles from './Portfolio.module.css';
 
@@ -7,7 +8,7 @@ import styles from './Portfolio.module.css';
  * @param {Array} props.projects - Массив проектов для отображения
  * @param {boolean} props.isAnimating - Флаг анимации переключения
  */
-const PortfolioGrid = ({ projects, isAnimating = false }) => {
+const PortfolioGrid = memo(({ projects, isAnimating = false }) => {
   return (
     <div className={`${styles.items} ${!isAnimating ? styles.itemsActive : styles.itemsHidden}`}>
       {projects.map(project => (
@@ -15,6 +16,8 @@ const PortfolioGrid = ({ projects, isAnimating = false }) => {
       ))}
     </div>
   );
-};
+});
+
+PortfolioGrid.displayName = 'PortfolioGrid';
 
 export default PortfolioGrid;

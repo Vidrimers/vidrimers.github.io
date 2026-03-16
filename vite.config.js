@@ -29,7 +29,28 @@ export default defineConfig({
     cssMinify: true,
     // Настройки для assets
     assetsDir: 'assets',
-    copyPublicDir: true
+    copyPublicDir: true,
+    // Оптимизация для лучшего Lighthouse score
+    rollupOptions: {
+      output: {
+        // Разделение кода на chunks для лучшей загрузки
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor';
+            }
+            return 'vendor';
+          }
+        }
+      }
+    },
+    // Настройки Terser для лучшей минификации
+    terserOptions: {
+      compress: {
+        drop_console: true, // Удаляем console.log в production
+        drop_debugger: true
+      }
+    }
   },
   
   // Dev server конфигурация

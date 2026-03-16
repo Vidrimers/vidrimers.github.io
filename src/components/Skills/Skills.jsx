@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import { skills } from '../../data/skillsData';
 import SkillItem from './SkillItem';
@@ -6,6 +6,16 @@ import styles from './Skills.module.css';
 
 const Skills = () => {
   const { translations } = useContext(LanguageContext);
+
+  // Мемоизируем рендеринг навыков для оптимизации производительности
+  const skillItems = useMemo(() => {
+    return skills.map(skill => (
+      <SkillItem 
+        key={skill.id} 
+        skill={skill}
+      />
+    ));
+  }, [skills]);
 
   return (
     <section className={styles.skills} id="skills">
@@ -17,12 +27,7 @@ const Skills = () => {
             </h2>
           </div>
           <div className={styles.items}>
-            {skills.map(skill => (
-              <SkillItem 
-                key={skill.id} 
-                skill={skill}
-              />
-            ))}
+            {skillItems}
           </div>
         </div>
       </div>

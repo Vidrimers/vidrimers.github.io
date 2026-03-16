@@ -1,10 +1,26 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { LanguageContext } from '../../../context/LanguageContext';
 import styles from './Footer.module.css';
 
 const Footer = () => {
   const { translations } = useContext(LanguageContext);
   const { footer } = translations;
+
+  // Мемоизируем массив социальных ссылок для оптимизации производительности
+  const socialLinks = useMemo(() => [
+    {
+      href: "https://www.linkedin.com/in/yaroslav-shiryakov-79a426183/",
+      label: "LinkedIn",
+      icon: "/assets/img/ico/social/linkedin.png",
+      alt: "LinkedIn"
+    },
+    {
+      href: "https://t.me/Vidrimers",
+      label: "Telegram", 
+      icon: "/assets/img/ico/social/telegram.png",
+      alt: "Telegram"
+    }
+  ], []);
 
   return (
     <footer className={styles.footer} id="contacts">
@@ -23,25 +39,18 @@ const Footer = () => {
             </a>
 
             <div className={styles.social}>
-              <a
-                className={styles.socialLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://www.linkedin.com/in/yaroslav-shiryakov-79a426183/"
-                aria-label="LinkedIn"
-              >
-                <img src="/assets/img/ico/social/linkedin.png" alt="LinkedIn" />
-              </a>
-
-              <a
-                className={styles.socialLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://t.me/Vidrimers"
-                aria-label="Telegram"
-              >
-                <img src="/assets/img/ico/social/telegram.png" alt="Telegram" />
-              </a>
+              {socialLinks.map((link, index) => (
+                <a
+                  key={index}
+                  className={styles.socialLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={link.href}
+                  aria-label={link.label}
+                >
+                  <img src={link.icon} alt={link.alt} />
+                </a>
+              ))}
             </div>
 
             <p className={styles.bottom}>{footer.findMe}</p>
