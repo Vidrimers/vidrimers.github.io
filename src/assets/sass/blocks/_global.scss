@@ -4,6 +4,10 @@
 // @use "media";
 // @use "../work/media_queries";
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: #fff;
   @include fonts.ff1;
