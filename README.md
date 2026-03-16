@@ -1,7 +1,7 @@
 
 # Yaroslav Shiryakov
 
-<img src="https://vidrimers.site/assets/img/photo.jpg" width=600>
+<img src="https://vidrimers.github.io/assets/img/photo.jpg" width=600>
 
 Современное портфолио-приложение, построенное на React и Vite с компонентной архитектурой и поддержкой мультиязычности.
 
