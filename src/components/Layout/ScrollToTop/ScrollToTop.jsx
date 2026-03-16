@@ -40,10 +40,30 @@ const ScrollToTop = () => {
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    const scrollElement = document.documentElement.scrollTop > 0 ? document.documentElement : document.body;
+    const startPosition = scrollElement.scrollTop;
+    const distance = startPosition;
+    const duration = 800; // Длительность анимации в миллисекундах
+    let startTime = null;
+
+    const easeInOutQuad = (t) => {
+      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    };
+
+    const animation = (currentTime) => {
+      if (startTime === null) startTime = currentTime;
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+      
+      const ease = easeInOutQuad(progress);
+      scrollElement.scrollTop = startPosition - (distance * ease);
+      
+      if (timeElapsed < duration) {
+        requestAnimationFrame(animation);
+      }
+    };
+
+    requestAnimationFrame(animation);
   };
 
   return (
