@@ -1,0 +1,41 @@
+{
+  "nav": {
+    "home": "Главная",
+    "about": "Обо мне",
+    "skills": "Навыки",
+    "portfolio": "Портфолио",
+    "certificates": "Сертификаты",
+    "contacts": "Контакты"
+  },
+  "hero": {
+    "greeting": "Привет! Я Ярослав",
+    "subtitle": "Frontend-разработчик",
+    "description": "Создаю современные веб-приложения с использованием React, JavaScript и других современных технологий"
+  },
+  "about": {
+    "title": "Обо мне",
+    "description": "Я frontend-разработчик с опытом создания современных веб-приложений. Специализируюсь на React, JavaScript, HTML5, CSS3 и адаптивной верстке."
+  },
+  "skills": {
+    "title": "Навыки"
+  },
+  "portfolio": {
+    "title": "Портфолио",
+    "tabs": {
+      "pet": "Собственные проекты",
+      "layout": "Учебные проекты"
+    }
+  },
+  "certificates": {
+    "title": "Сертификаты"
+  },
+  "footer": {
+    "contact": "Контакты",
+    "social": "Социальные сети"
+  },
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Произошла ошибка",
+    "backToTop": "Наверх"
+  }
+}

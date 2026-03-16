@@ -1,7 +1,7 @@
 {
-  "name": "gulp4pack",
+  "name": "react-portfolio",
   "version": "2.0.0",
-  "description": "My gulp4 pack",
+  "description": "React Portfolio Website - Modern portfolio built with React and Vite",
   "author": "Yaroslav Shiryakov",
   "homepage": "https://vidrimers.github.io",
   "scripts": {

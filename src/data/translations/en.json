@@ -1,0 +1,41 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "skills": "Skills",
+    "portfolio": "Portfolio",
+    "certificates": "Certificates",
+    "contacts": "Contacts"
+  },
+  "hero": {
+    "greeting": "Hello! I'm Yaroslav",
+    "subtitle": "Frontend Developer",
+    "description": "I create modern web applications using React, JavaScript and other modern technologies"
+  },
+  "about": {
+    "title": "About Me",
+    "description": "I'm a frontend developer with experience in creating modern web applications. I specialize in React, JavaScript, HTML5, CSS3 and responsive design."
+  },
+  "skills": {
+    "title": "Skills"
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "tabs": {
+      "pet": "Personal Projects",
+      "layout": "Learning Projects"
+    }
+  },
+  "certificates": {
+    "title": "Certificates"
+  },
+  "footer": {
+    "contact": "Contact",
+    "social": "Social Media"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "backToTop": "Back to Top"
+  }
+}
