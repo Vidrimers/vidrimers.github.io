@@ -1,17 +1,26 @@
 /* Global Styles */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
+:root {
+  --bg-color: #fff;
+  --text-color: #333;
+  --text-secondary: #666;
+  --accent-color: #fc285b;
+  --border-color: #e0e0e0;
+}
+
 html {
   scroll-behavior: smooth;
+  font-size: 62.5%; /* 1rem = 10px */
 }
 
 body {
-  background: #fff;
+  background: var(--bg-color);
   font-family: 'Roboto', sans-serif;
   font-size: 1.8rem;
   line-height: 2.2rem;
   font-weight: 400;
-  color: #000;
+  color: var(--text-color);
   margin: 0;
   padding: 0;
 }

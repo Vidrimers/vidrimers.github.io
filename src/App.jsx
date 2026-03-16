@@ -6,7 +6,7 @@ import ScrollToTop from './components/Layout/ScrollToTop/ScrollToTop';
 import Hero from './components/Hero/Hero';
 import About from './components/About/About';
 import Skills from './components/Skills/Skills';
-// import Portfolio from './components/Portfolio/Portfolio';
+import Portfolio from './components/Portfolio/Portfolio';
 // import Certificates from './components/Certificates/Certificates';
 
 // Внутренний компонент для демонстрации работы LanguageContext
@@ -73,10 +73,8 @@ const AppContent = () => {
       {/* Skills Section */}
       <Skills />
       
-      <section id="portfolio" style={{ minHeight: '100vh', padding: '50px 20px', background: '#f5f5f5' }}>
-        <h2>{translations.portfolio.title}</h2>
-        <p>Категории: {translations.portfolio.tabs.pet} | {translations.portfolio.tabs.layout}</p>
-      </section>
+      {/* Portfolio Section */}
+      <Portfolio />
       
       <section id="certificates" style={{ minHeight: '100vh', padding: '50px 20px' }}>
         <h2>{translations.certificates.title}</h2>
