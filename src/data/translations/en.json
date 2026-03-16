@@ -31,8 +31,12 @@
     "title": "Certificates"
   },
   "footer": {
-    "contact": "Contact",
-    "social": "Social Media"
+    "title": "Contacts",
+    "text": "You can contact me at these links",
+    "sendMessage": "Send message",
+    "findMe": "I can be found and added",
+    "onSocial": "On LinkedIn and Telegram",
+    "thanks": "Thnx :-)"
   },
   "common": {
     "loading": "Loading...",

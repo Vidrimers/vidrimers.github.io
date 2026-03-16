@@ -1,0 +1,76 @@
+/* ScrollToTop Component Styles */
+.scroll-to-top {
+  position: fixed;
+  bottom: 1rem;
+  right: 4rem;
+  max-width: 2.5rem;
+  z-index: 1000;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  opacity: 1;
+  visibility: visible;
+}
+
+.scroll-to-top-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.scroll-to-top-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  opacity: 0.4;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s;
+}
+
+.scroll-to-top-button:hover {
+  opacity: 1;
+}
+
+.scroll-to-top-button:hover .scroll-to-top-text {
+  visibility: visible;
+}
+
+.scroll-to-top-button img {
+  max-width: 100%;
+  height: auto;
+}
+
+.scroll-to-top-text {
+  visibility: hidden;
+  font-size: 1.4rem;
+  color: #ed7163;
+  margin-top: 0.5rem;
+  transition: visibility 0.3s;
+}
+
+/* Адаптивность для планшетов */
+@media (max-width: 768px) {
+  .scroll-to-top {
+    right: 2rem;
+    max-width: 2rem;
+  }
+
+  .scroll-to-top-text {
+    font-size: 1.2rem;
+  }
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 480px) {
+  .scroll-to-top {
+    right: 1rem;
+    bottom: 1rem;
+    max-width: 1.8rem;
+  }
+
+  .scroll-to-top-text {
+    font-size: 1rem;
+  }
+}

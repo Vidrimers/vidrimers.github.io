@@ -1,13 +1,13 @@
 import React, { useContext } from 'react';
 import { LanguageProvider, LanguageContext } from './context/LanguageContext';
 import Header from './components/Layout/Header/Header';
+import Footer from './components/Layout/Footer/Footer';
+import ScrollToTop from './components/Layout/ScrollToTop/ScrollToTop';
 // import Hero from './components/Hero/Hero';
 // import About from './components/About/About';
 // import Skills from './components/Skills/Skills';
 // import Portfolio from './components/Portfolio/Portfolio';
 // import Certificates from './components/Certificates/Certificates';
-// import Footer from './components/Layout/Footer/Footer';
-// import ScrollToTop from './components/Layout/ScrollToTop/ScrollToTop';
 
 // Внутренний компонент для демонстрации работы LanguageContext
 const AppContent = () => {
@@ -84,10 +84,11 @@ const AppContent = () => {
         <p>Здесь будет компонент Certificates</p>
       </section>
       
-      <section id="contacts" style={{ minHeight: '100vh', padding: '50px 20px', background: '#f5f5f5' }}>
-        <h2>{translations.footer.contact}</h2>
-        <p>Здесь будет секция контактов</p>
-      </section>
+      {/* Footer с контактами */}
+      <Footer />
+      
+      {/* Кнопка "Вверх" */}
+      <ScrollToTop />
     </div>
   );
 };

@@ -6,14 +6,14 @@
 }
 
 .container {
-  max-width: 117rem;
+  max-width: 94rem;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
 }
 
 .headerInner {
   padding: 3rem 0 4rem;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #828282;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -94,25 +94,27 @@
 .menuListLink {
   color: #000;
   text-decoration: none;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
+  line-height: 2.2rem;
+  font-weight: 400;
   transition: all 0.3s;
   position: relative;
 }
 
 .menuListLink:hover {
-  color: #4a90e2;
+  color: #828282;
 }
 
 .menuListLinkActive {
-  color: #4a90e2;
+  color: #828282;
   font-weight: 600;
 }
 
 /* Language Switcher */
 .langSwitcher {
   background: transparent;
-  border: 2px solid #4a90e2;
-  color: #4a90e2;
+  border: 2px solid #828282;
+  color: #828282;
   padding: 0.5rem 1.5rem;
   font-size: 1.4rem;
   font-weight: 600;
@@ -123,7 +125,7 @@
 }
 
 .langSwitcher:hover {
-  background: #4a90e2;
+  background: #828282;
   color: #fff;
 }
 
