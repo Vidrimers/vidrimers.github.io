@@ -60,3 +60,10 @@ docs/
 temp/
 Temp/
 .kiro/
+
+# Backend database files
+database/
+logs/
+
+# PM2 files
+.pm2/
