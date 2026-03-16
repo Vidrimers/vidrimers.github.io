@@ -1,6 +1,7 @@
-import { useContext, memo } from 'react';
+import { useContext, memo, useState } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import ProjectBadges from './ProjectBadges';
+import LikeButton from './LikeButton';
 import styles from './Portfolio.module.css';
 
 /**
@@ -21,19 +22,33 @@ import styles from './Portfolio.module.css';
  */
 const PortfolioItem = memo(({ project }) => {
   const { language } = useContext(LanguageContext);
+  const [isHovered, setIsHovered] = useState(false);
   
   // Получаем локализованные данные в зависимости от языка
   const title = language === 'ru' ? project.title : project.titleEn;
   const description = language === 'ru' ? project.description : project.descriptionEn;
   
   return (
-    <div className={styles.item}>
+    <div 
+      className={styles.item}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Плашки AI, NEW и In Progress */}
       <ProjectBadges 
         isAi={project.isAi} 
         isNew={project.isNew} 
         isInProgress={project.isInProgress} 
       />
+      
+      {/* Кнопка лайка */}
+      <div className={styles.likeButtonContainer}>
+        <LikeButton 
+          projectId={project.id} 
+          showOnHover={true}
+          isParentHovered={isHovered}
+        />
+      </div>
       
       {/* Ссылка с изображением */}
       <a 

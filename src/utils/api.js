@@ -78,33 +78,56 @@ export async function apiPost(endpoint, data) {
 }
 
 /**
- * Получить количество лайков для проекта
+ * Генерировать уникальный ID пользователя
+ * @returns {string} - Уникальный ID пользователя
+ */
+function generateUserId() {
+  return 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+}
+
+/**
+ * Получить ID пользователя из localStorage или создать новый
+ * @returns {string} - ID пользователя
+ */
+export function getUserId() {
+  const USER_ID_KEY = 'watchrebel_user_id';
+  
+  let userId = localStorage.getItem(USER_ID_KEY);
+  
+  if (!userId) {
+    userId = generateUserId();
+    localStorage.setItem(USER_ID_KEY, userId);
+  }
+  
+  return userId;
+}
+
+/**
+ * Получить количество лайков и состояние лайка для проекта
  * @param {string} projectId - ID проекта (например, 'pet-1')
- * @returns {Promise<number>} - Количество лайков
+ * @returns {Promise<{likes: number, isLiked: boolean}>} - Количество лайков и состояние
  */
 export async function getLikes(projectId) {
-  const response = await apiGet(`/likes/${projectId}`);
-  return response.likes;
+  const userId = getUserId();
+  const response = await apiGet(`/likes/${projectId}?userId=${userId}`);
+  return {
+    likes: response.likes,
+    isLiked: response.isLiked
+  };
 }
 
 /**
- * Добавить лайк проекту
+ * Переключить лайк пользователя (добавить или убрать)
  * @param {string} projectId - ID проекта
- * @returns {Promise<number>} - Новое количество лайков
+ * @returns {Promise<{likes: number, isLiked: boolean}>} - Новое состояние лайков
  */
-export async function addLike(projectId) {
-  const response = await apiPost(`/likes/${projectId}`, { action: 'add' });
-  return response.likes;
-}
-
-/**
- * Убрать лайк у проекта
- * @param {string} projectId - ID проекта
- * @returns {Promise<number>} - Новое количество лайков
- */
-export async function removeLike(projectId) {
-  const response = await apiPost(`/likes/${projectId}`, { action: 'remove' });
-  return response.likes;
+export async function toggleLike(projectId) {
+  const userId = getUserId();
+  const response = await apiPost(`/likes/${projectId}`, { userId });
+  return {
+    likes: response.likes,
+    isLiked: response.isLiked
+  };
 }
 
 /**

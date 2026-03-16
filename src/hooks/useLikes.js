@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getLikes as apiGetLikes, addLike, removeLike } from '../utils/api';
+import { getLikes as apiGetLikes, toggleLike as apiToggleLike } from '../utils/api';
 
 /**
  * Кастомный хук для работы с лайками проектов
@@ -78,13 +78,26 @@ export function useLikes(projectId) {
     setError(null);
     
     try {
-      const likesCount = await apiGetLikes(projectId);
-      setLikes(likesCount);
+      // Проверяем доступность API
+      const { checkApiHealth } = await import('../utils/api');
+      const isApiAvailable = await checkApiHealth();
       
-      // Сохраняем в кэш (состояние лайка не меняем, только количество)
-      const cachedData = getCachedData();
-      const currentLikedState = cachedData ? cachedData.isLiked : isLiked;
-      setCachedData(likesCount, currentLikedState);
+      if (!isApiAvailable) {
+        // API недоступен, используем кэшированные данные или 0
+        const cachedData = getCachedData();
+        if (cachedData) {
+          setLikes(cachedData.likes);
+          setIsLiked(cachedData.isLiked);
+        }
+        return;
+      }
+      
+      const result = await apiGetLikes(projectId);
+      setLikes(result.likes);
+      setIsLiked(result.isLiked);
+      
+      // Сохраняем в кэш
+      setCachedData(result.likes, result.isLiked);
       
     } catch (err) {
       console.error('Ошибка загрузки лайков:', err);
@@ -99,13 +112,29 @@ export function useLikes(projectId) {
     } finally {
       setIsLoading(false);
     }
-  }, [projectId, getCachedData, setCachedData, isLiked]);
+  }, [projectId, getCachedData, setCachedData]);
 
   /**
    * Переключить лайк (добавить или убрать)
    */
   const toggleLike = useCallback(async () => {
     if (!projectId || isLoading) return;
+    
+    console.log(`🔄 toggleLike для ${projectId}: isLiked=${isLiked}, likes=${likes}`);
+    
+    // Проверяем доступность API
+    try {
+      const { checkApiHealth } = await import('../utils/api');
+      const isApiAvailable = await checkApiHealth();
+      
+      if (!isApiAvailable) {
+        console.warn('API недоступен. Лайки будут работать после настройки backend.');
+        return;
+      }
+    } catch (err) {
+      console.warn('Не удалось проверить API:', err.message);
+      return;
+    }
     
     setIsLoading(true);
     setError(null);
@@ -114,23 +143,25 @@ export function useLikes(projectId) {
     const newIsLiked = !isLiked;
     const optimisticLikes = newIsLiked ? likes + 1 : Math.max(0, likes - 1);
     
+    console.log(`📝 Оптимистичное обновление: newIsLiked=${newIsLiked}, optimisticLikes=${optimisticLikes}`);
+    
     setIsLiked(newIsLiked);
     setLikes(optimisticLikes);
     
     try {
-      let newLikesCount;
+      console.log(`🔄 Отправляем запрос на переключение лайка для ${projectId}`);
+      const result = await apiToggleLike(projectId);
       
-      if (newIsLiked) {
-        newLikesCount = await addLike(projectId);
-      } else {
-        newLikesCount = await removeLike(projectId);
-      }
+      console.log(`✅ Ответ сервера: likes=${result.likes}, isLiked=${result.isLiked}`);
       
       // Обновляем реальными данными с сервера
-      setLikes(newLikesCount);
+      setLikes(result.likes);
+      setIsLiked(result.isLiked);
       
       // Сохраняем в кэш
-      setCachedData(newLikesCount, newIsLiked);
+      setCachedData(result.likes, result.isLiked);
+      
+      console.log(`💾 Сохранено в кэш: likes=${result.likes}, isLiked=${result.isLiked}`);
       
     } catch (err) {
       console.error('Ошибка переключения лайка:', err);

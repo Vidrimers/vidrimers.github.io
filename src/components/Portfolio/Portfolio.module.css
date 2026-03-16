@@ -126,6 +126,14 @@
   z-index: 2;
 }
 
+/* Like Button Container */
+.likeButtonContainer {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 3;
+}
+
 .badgeAi {
   background: linear-gradient(135deg, #FF4B4B, #D60036);
   color: white;
@@ -269,6 +277,12 @@
     gap: 6px;
   }
   
+  /* Адаптивная кнопка лайка */
+  .likeButtonContainer {
+    bottom: 6px;
+    right: 6px;
+  }
+  
   .badgeAi,
   .badgeNew,
   .badgeInProgress {
@@ -298,6 +312,12 @@
     top: 4px;
     left: 4px;
     gap: 4px;
+  }
+  
+  /* Еще более компактная кнопка лайка на маленьких экранах */
+  .likeButtonContainer {
+    bottom: 4px;
+    right: 4px;
   }
   
   .badgeAi,

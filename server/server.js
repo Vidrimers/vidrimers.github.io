@@ -1,51 +1,43 @@
-require('dotenv').config();
+/**
+ * Express сервер для API лайков
+ */
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const Database = require('./database');
+require('dotenv').config();
+
+const { 
+  initDatabase, 
+  getLikes, 
+  addLike, 
+  removeLike, 
+  getAllLikes,
+  isUserLiked,
+  toggleUserLike
+} = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 1989;
 
-// Инициализация базы данных
-let database;
+// Глобальная переменная для базы данных
+let db;
 
-// CORS настройки
-const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = process.env.ALLOWED_ORIGINS 
-      ? process.env.ALLOWED_ORIGINS.split(',')
-      : ['http://localhost:3000', 'https://vidrimers.site', 'https://www.vidrimers.site'];
-    
-    // Разрешаем запросы без origin (например, мобильные приложения)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Не разрешено CORS политикой'));
-    }
-  },
+// Middleware
+app.use(express.json());
+
+// CORS настройки для локальной разработки
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-};
-
-// Middleware
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Middleware для обработки ошибок парсинга JSON
-app.use((err, req, res, next) => {
-  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    return res.status(400).json({
-      error: 'Некорректный JSON',
-      message: 'Тело запроса содержит некорректный JSON. Ожидается объект с полем "action"'
-    });
-  }
-  next(err);
-});
+}));
 
 // Логирование запросов
 app.use((req, res, next) => {
@@ -53,110 +45,166 @@ app.use((req, res, next) => {
   next();
 });
 
-// Инициализация приложения
-async function initializeApp() {
-  try {
-    // Инициализируем базу данных
-    database = new Database();
-    await database.init();
-    app.set('database', database);
-    
-    // Инициализируем Telegram (опционально)
-    try {
-      const Telegram = require('./telegram');
-      const telegram = new Telegram();
-      app.set('telegram', telegram);
-      console.log('Telegram бот инициализирован');
-    } catch (error) {
-      console.log('Telegram бот не настроен (это нормально для разработки)');
-    }
-    
-    console.log('Приложение инициализировано успешно');
-  } catch (error) {
-    console.error('Ошибка инициализации приложения:', error);
-    process.exit(1);
-  }
-}
-
-// Healthcheck endpoint
+// Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development'
+  res.json({ 
+    status: 'ok', 
+    message: 'API сервер работает',
+    timestamp: new Date().toISOString()
   });
 });
 
-// API маршруты
-app.use('/api/likes', require('./routes/likes'));
+// Получить лайки для конкретного проекта
+app.get('/api/likes/:projectId', async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { userId } = req.query;
+    
+    if (!projectId) {
+      return res.status(400).json({ 
+        error: 'Project ID обязателен' 
+      });
+    }
+    
+    const likesCount = await getLikes(db, projectId);
+    
+    // Если передан userId, проверяем лайкал ли пользователь
+    let isLiked = false;
+    if (userId) {
+      isLiked = await isUserLiked(db, userId, projectId);
+    }
+    
+    res.json({ 
+      likes: likesCount,
+      projectId: projectId,
+      isLiked: isLiked
+    });
+    
+  } catch (error) {
+    console.error('Ошибка получения лайков:', error);
+    res.status(500).json({ 
+      error: 'Ошибка сервера при получении лайков' 
+    });
+  }
+});
 
-// Обработка 404 для API
-app.use('/api', (req, res) => {
-  // Если маршрут не найден, возвращаем 404
-  return res.status(404).json({
-    error: 'Endpoint не найден',
-    message: `API endpoint ${req.path} не существует`
+// Переключить лайк пользователя
+app.post('/api/likes/:projectId', async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { userId } = req.body;
+    
+    if (!projectId) {
+      return res.status(400).json({ 
+        error: 'Project ID обязателен' 
+      });
+    }
+    
+    if (!userId) {
+      return res.status(400).json({ 
+        error: 'User ID обязателен' 
+      });
+    }
+    
+    const result = await toggleUserLike(db, userId, projectId);
+    
+    const action = result.isLiked ? 'add' : 'remove';
+    console.log(`${result.isLiked ? '➕' : '➖'} Лайк ${result.isLiked ? 'добавлен' : 'убран'} для ${projectId} пользователем ${userId}, всего: ${result.likes}`);
+    
+    res.json({ 
+      likes: result.likes,
+      isLiked: result.isLiked,
+      projectId: projectId,
+      userId: userId,
+      action: action
+    });
+    
+  } catch (error) {
+    console.error('Ошибка переключения лайка:', error);
+    res.status(500).json({ 
+      error: 'Ошибка сервера при переключении лайка' 
+    });
+  }
+});
+
+// Получить все лайки
+app.get('/api/likes', async (req, res) => {
+  try {
+    const allLikes = await getAllLikes(db);
+    
+    res.json({ 
+      likes: allLikes,
+      total: Object.keys(allLikes).length
+    });
+    
+  } catch (error) {
+    console.error('Ошибка получения всех лайков:', error);
+    res.status(500).json({ 
+      error: 'Ошибка сервера при получении всех лайков' 
+    });
+  }
+});
+
+// 404 для неизвестных маршрутов
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: 'Маршрут не найден',
+    path: req.originalUrl
   });
 });
 
 // Обработка ошибок
 app.use((error, req, res, next) => {
   console.error('Необработанная ошибка:', error);
-  
-  if (error.message === 'Не разрешено CORS политикой') {
-    return res.status(403).json({
-      error: 'CORS Error',
-      message: 'Запрос заблокирован CORS политикой'
-    });
-  }
-  
-  res.status(500).json({
-    error: 'Внутренняя ошибка сервера',
-    message: process.env.NODE_ENV === 'development' ? error.message : 'Что-то пошло не так'
+  res.status(500).json({ 
+    error: 'Внутренняя ошибка сервера' 
   });
 });
+
+// Инициализация и запуск сервера
+async function startServer() {
+  try {
+    console.log('🚀 Запуск сервера лайков...');
+    
+    // Инициализируем базу данных
+    db = await initDatabase();
+    
+    // Запускаем сервер
+    app.listen(PORT, () => {
+      console.log(`✅ Сервер запущен на http://localhost:${PORT}`);
+      console.log(`📊 API доступен на http://localhost:${PORT}/api`);
+      console.log(`❤️  Эндпоинты лайков:`);
+      console.log(`   GET  /api/health - проверка работы`);
+      console.log(`   GET  /api/likes/:projectId - получить лайки`);
+      console.log(`   POST /api/likes/:projectId - добавить/убрать лайк`);
+      console.log(`   GET  /api/likes - все лайки`);
+      console.log('');
+      console.log('💡 Для остановки нажмите Ctrl+C');
+    });
+    
+  } catch (error) {
+    console.error('❌ Ошибка запуска сервера:', error);
+    process.exit(1);
+  }
+}
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-  console.log('\nПолучен сигнал SIGINT. Закрываем сервер...');
+  console.log('\n🛑 Получен сигнал остановки...');
   
-  if (database) {
-    database.close();
+  if (db) {
+    db.close((err) => {
+      if (err) {
+        console.error('Ошибка закрытия базы данных:', err.message);
+      } else {
+        console.log('✅ База данных закрыта');
+      }
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
   }
-  
-  process.exit(0);
 });
 
-process.on('SIGTERM', () => {
-  console.log('Получен сигнал SIGTERM. Закрываем сервер...');
-  
-  if (database) {
-    database.close();
-  }
-  
-  process.exit(0);
-});
-
-// Запуск сервера
-async function startServer() {
-  await initializeApp();
-  
-  app.listen(PORT, () => {
-    console.log(`🚀 Сервер запущен на порту ${PORT}`);
-    console.log(`📊 API доступен по адресу: http://localhost:${PORT}/api`);
-    console.log(`🏥 Healthcheck: http://localhost:${PORT}/api/health`);
-    console.log(`💾 База данных: ${process.env.DB_PATH || './database/vidrimers.db'}`);
-    console.log(`🌍 Окружение: ${process.env.NODE_ENV || 'development'}`);
-  });
-}
-
-// Запускаем сервер только если файл запущен напрямую
-if (require.main === module) {
-  startServer().catch(error => {
-    console.error('Ошибка запуска сервера:', error);
-    process.exit(1);
-  });
-}
-
-module.exports = app;
+// Запускаем сервер
+startServer();

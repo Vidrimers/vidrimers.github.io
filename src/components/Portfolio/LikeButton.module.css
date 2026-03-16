@@ -1,0 +1,291 @@
+/* Основной контейнер кнопки лайка */
+.likeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  position: relative;
+  overflow: hidden;
+  
+  /* Убираем ВСЕ стандартные стили кнопки */
+  outline: none;
+  text-decoration: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  
+  /* Убираем браузерные стили для кнопок */
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+}
+
+/* Состояние при наведении */
+.likeButton:hover {
+  background: transparent;
+  border: none;
+  color: #ff6987;
+  transform: translateY(-1px);
+  box-shadow: none;
+}
+
+/* Состояние при фокусе (для доступности) */
+.likeButton:focus {
+  outline: none;
+  background: transparent;
+  border: none;
+}
+
+/* Фокус только при навигации с клавиатуры */
+.likeButton:focus-visible {
+  outline: 2px solid rgba(255, 105, 135, 0.5);
+  outline-offset: 2px;
+}
+
+/* Активное состояние (при клике) */
+.likeButton:active {
+  transform: translateY(0);
+  box-shadow: none;
+  border: none;
+  outline: none;
+}
+
+/* Состояние лайкнутой кнопки */
+.likeButton.liked {
+  background: transparent;
+  border: none;
+  color: #ff6987;
+  box-shadow: none;
+}
+
+.likeButton.liked:hover {
+  background: transparent;
+  transform: translateY(-2px);
+  box-shadow: none;
+  color: #ff5577;
+}
+
+/* Состояние загрузки */
+.likeButton.loading {
+  cursor: wait;
+  opacity: 0.8;
+}
+
+.likeButton:disabled,
+.likeButton.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Состояние ошибки */
+.likeButton.error {
+  background: transparent;
+  border: none;
+  color: #cc0000;
+  cursor: not-allowed;
+}
+
+/* Анимация при клике */
+.likeButton.animating {
+  animation: likeButtonPulse 0.3s ease;
+}
+
+@keyframes likeButtonPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Стили для иконки сердечка */
+.heart {
+  font-size: 26px;
+  line-height: 1;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+/* Сердечко в лайкнутом состоянии */
+.heart.heartLiked {
+  color: #ff6987;
+  text-shadow: 0 0 8px rgba(255, 105, 135, 0.3);
+}
+
+/* Анимация сердечка при клике */
+.heart.heartAnimating {
+  animation: heartBeat 0.3s ease;
+}
+
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.2);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+  75% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Стили для счетчика лайков */
+.count {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  min-width: 16px;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+/* Индикатор загрузки */
+.loader {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 2px;
+}
+
+.loaderDot {
+  width: 3px;
+  height: 3px;
+  background: currentColor;
+  border-radius: 50%;
+  animation: loaderPulse 1.4s ease-in-out infinite both;
+}
+
+.loaderDot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loaderDot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes loaderPulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .likeButton {
+    padding: 8px 10px;
+    font-size: 15px;
+    border-radius: 18px;
+    gap: 5px;
+  }
+  
+  .heart {
+    font-size: 17px;
+  }
+  
+  .count {
+    font-size: 14px;
+    min-width: 18px;
+  }
+  
+  /* Увеличиваем область касания на мобильных */
+  .likeButton::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    z-index: -1;
+  }
+}
+
+/* Темная тема (если будет добавлена в будущем) */
+@media (prefers-color-scheme: dark) {
+  .likeButton {
+    background: transparent;
+    border: none;
+    color: #ccc;
+  }
+  
+  .likeButton:hover {
+    background: transparent;
+    color: #ff6987;
+  }
+  
+  .likeButton.error {
+    background: transparent;
+    border: none;
+  }
+}
+
+/* Анимация появления при первой загрузке */
+.likeButton {
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Состояния для высокой контрастности (доступность) */
+@media (prefers-contrast: high) {
+  .likeButton {
+    border: 2px solid currentColor;
+    font-weight: 600;
+  }
+  
+  .likeButton:focus {
+    outline-width: 3px;
+  }
+}
+
+/* Уменьшение анимаций для пользователей с ограниченными возможностями */
+@media (prefers-reduced-motion: reduce) {
+  .likeButton,
+  .heart,
+  .count {
+    transition: none;
+  }
+  
+  .likeButton.animating,
+  .heart.heartAnimating {
+    animation: none;
+  }
+  
+  .loaderDot {
+    animation: none;
+    opacity: 0.6;
+  }
+}
