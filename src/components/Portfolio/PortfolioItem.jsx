@@ -61,9 +61,10 @@ const PortfolioItem = ({ project }) => {
       </a>
       
       {/* Описание проекта */}
-      <p className={styles.description}>
-        {description}
-      </p>
+      <p 
+        className={styles.description}
+        dangerouslySetInnerHTML={{ __html: description }}
+      />
     </div>
   );
 };
