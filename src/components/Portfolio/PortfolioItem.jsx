@@ -17,6 +17,7 @@ import styles from './Portfolio.module.css';
  * @param {string} props.project.category - Категория проекта
  * @param {boolean} props.project.isAi - Показать AI плашку
  * @param {boolean} props.project.isNew - Показать NEW плашку
+ * @param {boolean} props.project.isInProgress - Показать In Progress плашку
  */
 const PortfolioItem = ({ project }) => {
   const { language } = useContext(LanguageContext);
@@ -27,8 +28,12 @@ const PortfolioItem = ({ project }) => {
   
   return (
     <div className={styles.item}>
-      {/* Плашки AI и NEW */}
-      <ProjectBadges isAi={project.isAi} isNew={project.isNew} />
+      {/* Плашки AI, NEW и In Progress */}
+      <ProjectBadges 
+        isAi={project.isAi} 
+        isNew={project.isNew} 
+        isInProgress={project.isInProgress} 
+      />
       
       {/* Ссылка с изображением */}
       <a 

@@ -14,7 +14,8 @@ export const portfolioProjects = [
     link: 'https://vidrimers.github.io/portfolio.npppolet/',
     category: 'pet',
     isAi: false,
-    isNew: true
+    isNew: false,
+    isInProgress: false
   },
   {
     id: 2,
@@ -26,7 +27,8 @@ export const portfolioProjects = [
     link: 'https://vidrimers.github.io/portfolio.creativ/',
     category: 'pet',
     isAi: false,
-    isNew: false
+    isNew: false,
+    isInProgress: false
   },
   {
     id: 3,
@@ -38,7 +40,8 @@ export const portfolioProjects = [
     link: 'https://vidrimers.github.io/portfolio.darina-color/',
     category: 'pet',
     isAi: false,
-    isNew: false
+    isNew: false,
+    isInProgress: false
   },
   
   // Учебные проекты (layout)
@@ -52,7 +55,8 @@ export const portfolioProjects = [
     link: 'https://vidrimers.github.io/academy-top-html',
     category: 'layout',
     isAi: false,
-    isNew: false
+    isNew: false,
+    isInProgress: false
   },
   {
     id: 5,
@@ -64,7 +68,8 @@ export const portfolioProjects = [
     link: 'https://vidrimers.github.io/portfolio.0to1__2020-marathon--mavic',
     category: 'layout',
     isAi: false,
-    isNew: false
+    isNew: false,
+    isInProgress: false
   }
 ];
 

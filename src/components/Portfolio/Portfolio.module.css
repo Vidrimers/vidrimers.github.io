@@ -144,6 +144,19 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+.badgeInProgress {
+  background: linear-gradient(135deg, #4A90E2, #357ABD);
+  color: white;
+  padding: 4px 8px;
+  font-weight: bold;
+  border-radius: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
 .item:hover {
   transform: translateY(-5px);
   box-shadow: 0 0.5rem 2rem rgba(192, 192, 192, 0.2);
@@ -250,7 +263,8 @@
   }
   
   .badgeAi,
-  .badgeNew {
+  .badgeNew,
+  .badgeInProgress {
     font-size: 10px;
     padding: 3px 6px;
   }
@@ -280,7 +294,8 @@
   }
   
   .badgeAi,
-  .badgeNew {
+  .badgeNew,
+  .badgeInProgress {
     font-size: 9px;
     padding: 2px 5px;
   }
