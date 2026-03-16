@@ -15,11 +15,19 @@
 }
 
 .title {
-  font-size: 4rem;
-  font-weight: 700;
+  font-size: 3.4rem;
+  font-weight: 500;
+  color: #000;
+  line-height: 0.2rem;
+  display: inline-block;
+  padding: 2rem 2rem 0 2rem;
+  background-color: #fc285b;
+  margin-bottom: 7rem;
+}
+
+/* Обертка для центрирования title */
+.titleWrapper {
   text-align: center;
-  margin-bottom: 2rem;
-  color: var(--text-color, #333);
 }
 
 /* Описание секции */
@@ -196,8 +204,8 @@
   }
   
   .title {
-    font-size: 3.5rem;
-    margin-bottom: 1.5rem;
+    font-size: 3rem;
+    margin-bottom: 5rem;
   }
   
   .description {
@@ -220,8 +228,8 @@
   }
   
   .title {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
+    font-size: 2.8rem;
+    margin-bottom: 4rem;
   }
   
   .description {
@@ -263,8 +271,8 @@
   }
   
   .title {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+    font-size: 2.4rem;
+    margin-bottom: 3rem;
   }
   
   .description {

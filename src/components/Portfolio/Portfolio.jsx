@@ -33,9 +33,11 @@ const Portfolio = () => {
     <section className={styles.portfolio} id="portfolio">
       <div className={styles.wrapper}>
         <div className={styles.container}>
-          <h2 className={styles.title}>
-            {translations.portfolio.title}
-          </h2>
+          <div className={styles.titleWrapper}>
+            <h2 className={styles.title}>
+              {translations.portfolio.title}
+            </h2>
+          </div>
           
           {/* Табы для переключения категорий */}
           <PortfolioTabs 

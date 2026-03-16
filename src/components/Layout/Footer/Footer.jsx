@@ -11,7 +11,9 @@ const Footer = () => {
       <div className={styles.wrapper}>
         <div className={styles.container}>
           <div className={styles.inner}>
-            <h2 className={styles.title}>{footer.title}</h2>
+            <div className={styles.titleWrapper}>
+              <h2 className={styles.title}>{footer.title}</h2>
+            </div>
             <p className={styles.text}>{footer.text}</p>
             <a 
               className={styles.mail} 

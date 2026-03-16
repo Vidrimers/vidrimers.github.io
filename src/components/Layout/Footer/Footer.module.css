@@ -24,11 +24,19 @@
 }
 
 .title {
-  font-size: 3.6rem;
-  line-height: 1.2;
-  font-weight: 700;
+  font-size: 3.4rem;
+  font-weight: 500;
   color: #000;
+  line-height: 0.2rem;
+  display: inline-block;
+  padding: 2rem 2rem 0 2rem;
+  background-color: #fc285b;
   margin-bottom: 3rem;
+}
+
+/* Обертка для центрирования title */
+.titleWrapper {
+  text-align: center;
 }
 
 .text {
@@ -44,17 +52,17 @@
   line-height: 2rem;
   font-weight: 700;
   color: #fff;
-  background: #ff0054;
+  background: #000;
   padding: 1.2rem 3rem;
   margin-bottom: 9rem;
   border-radius: 3rem;
   text-decoration: none;
-  transition: background 0.3s, color 0.3s;
+  transition: background 0.3s;
 }
 
 .mail:hover {
   background: #fc285b;
-  color: #ff0054;
+  color: #000;
 }
 
 .social {
@@ -86,7 +94,7 @@
 .bottom {
   font-size: 1.6rem;
   line-height: 1.5;
-  color: #666;
+  color: #828282;
   margin: 0.5rem 0;
 }
 

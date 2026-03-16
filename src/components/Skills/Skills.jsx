@@ -11,9 +11,11 @@ const Skills = () => {
     <section className={styles.skills} id="skills">
       <div className={styles.wrapper}>
         <div className={styles.container}>
-          <h2 className={styles.title}>
-            {translations.skills.title}
-          </h2>
+          <div className={styles.titleWrapper}>
+            <h2 className={styles.title}>
+              {translations.skills.title}
+            </h2>
+          </div>
           <div className={styles.items}>
             {skills.map(skill => (
               <SkillItem 

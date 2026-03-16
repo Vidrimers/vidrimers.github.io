@@ -68,7 +68,14 @@ export const skills = [
     name: 'tailwindCSS',
     nameEn: 'tailwindCSS',
     icon: '/assets/img/ico/skills/tailwind.png'
+  },
+  {
+    id: 10,
+    name: 'React',
+    nameEn: 'React',
+    icon: 'https://reactdev.ru/react.svg'
   }
+
 ];
 
 /**

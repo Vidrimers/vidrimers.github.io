@@ -28,9 +28,11 @@ const Certificates = () => {
       <section className={styles.certificates} id="certificates" data-testid="certificates-section">
         <div className={styles.wrapper}>
           <div className={styles.container}>
-            <h2 className={styles.title}>
-              {translations.certificates.title}
-            </h2>
+            <div className={styles.titleWrapper}>
+              <h2 className={styles.title}>
+                {translations.certificates.title}
+              </h2>
+            </div>
             <div className={styles.empty}>
               <p>{translations.certificates.empty || 'Сертификаты не найдены'}</p>
             </div>
@@ -45,9 +47,11 @@ const Certificates = () => {
       <div className={styles.wrapper}>
         <div className={styles.container}>
           {/* Заголовок секции */}
-          <h2 className={styles.title}>
-            {translations.certificates.title}
-          </h2>
+          <div className={styles.titleWrapper}>
+            <h2 className={styles.title}>
+              {translations.certificates.title}
+            </h2>
+          </div>
           
           {/* Описание секции */}
           {translations.certificates.description && (
