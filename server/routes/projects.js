@@ -4,6 +4,7 @@
 
 const express = require('express');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
+const { validateProject, sanitizeProject } = require('../middleware/validation');
 const { getDbService, getTelegramService } = require('../services');
 
 const router = express.Router();
@@ -118,7 +119,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
  * POST /api/projects
  * Создает новый проект (только для админа)
  */
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', requireAuth, sanitizeProject, validateProject, async (req, res) => {
   try {
     const {
       id,
@@ -234,7 +235,7 @@ router.post('/', requireAuth, async (req, res) => {
  * PUT /api/projects/:id
  * Обновляет проект (только для админа)
  */
-router.put('/:id', requireAuth, async (req, res) => {
+router.put('/:id', requireAuth, sanitizeProject, validateProject, async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;

@@ -4,6 +4,7 @@
 
 const express = require('express');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
+const { validateCategory, sanitizeCategory } = require('../middleware/validation');
 const { getDbService, getTelegramService } = require('../services');
 
 const router = express.Router();
@@ -105,7 +106,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
  * POST /api/categories
  * Создает новую категорию (только для админа)
  */
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', requireAuth, sanitizeCategory, validateCategory, async (req, res) => {
   try {
     const {
       id,
@@ -193,7 +194,7 @@ router.post('/', requireAuth, async (req, res) => {
  * PUT /api/categories/:id
  * Обновляет категорию (только для админа)
  */
-router.put('/:id', requireAuth, async (req, res) => {
+router.put('/:id', requireAuth, sanitizeCategory, validateCategory, async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;

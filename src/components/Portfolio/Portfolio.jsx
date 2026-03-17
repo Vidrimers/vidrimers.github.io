@@ -4,12 +4,14 @@ import { getProjectsByCategory } from '../../data/portfolioData';
 import PortfolioTabs from './PortfolioTabs';
 import PortfolioGrid from './PortfolioGrid';
 import AdminIndicator from '../Admin/AdminIndicator';
+import PortfolioAdmin from '../Admin/PortfolioAdmin';
 import styles from './Portfolio.module.css';
 
 const Portfolio = () => {
   const { translations } = useContext(LanguageContext);
   const [activeCategory, setActiveCategory] = useState('pet');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showPortfolioAdmin, setShowPortfolioAdmin] = useState(false);
   
   // Мемоизируем фильтрацию проектов для оптимизации производительности
   const filteredProjects = useMemo(() => {
@@ -31,6 +33,16 @@ const Portfolio = () => {
       }, 50);
     }, 300);
   };
+
+  // Обработчик открытия админской панели портфолио
+  const handleOpenPortfolioAdmin = () => {
+    setShowPortfolioAdmin(true);
+  };
+
+  // Обработчик закрытия админской панели портфолио
+  const handleClosePortfolioAdmin = () => {
+    setShowPortfolioAdmin(false);
+  };
   
   return (
     <section className={styles.portfolio} id="portfolio">
@@ -41,7 +53,7 @@ const Portfolio = () => {
               {translations.portfolio.title}
               <AdminIndicator 
                 section="Портфолио"
-                onClick={() => console.log('Открыть управление разделом "Портфолио"')}
+                onClick={handleOpenPortfolioAdmin}
               />
             </h2>
           </div>
@@ -59,6 +71,12 @@ const Portfolio = () => {
           />
         </div>
       </div>
+
+      {/* Админская панель управления портфолио */}
+      <PortfolioAdmin 
+        isOpen={showPortfolioAdmin}
+        onClose={handleClosePortfolioAdmin}
+      />
     </section>
   );
 };

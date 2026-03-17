@@ -33,6 +33,7 @@ const skillsRoutes = require('./routes/skills');
 const certificatesRoutes = require('./routes/certificates');
 const aboutRoutes = require('./routes/about');
 const contactsRoutes = require('./routes/contacts');
+const filesRoutes = require('./routes/files');
 
 const app = express();
 const PORT = process.env.PORT || 1989;
@@ -55,6 +56,9 @@ try {
 
 // Middleware
 app.use(express.json());
+
+// Статическая раздача загруженных файлов
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // CORS настройки для локальной разработки и devtun
 app.use(cors({
@@ -104,6 +108,7 @@ app.use('/api/skills', skillsRoutes);
 app.use('/api/certificates', certificatesRoutes);
 app.use('/api/about', aboutRoutes);
 app.use('/api/contacts', contactsRoutes);
+app.use('/api/files', filesRoutes);
 
 // Получить лайки для конкретного проекта
 app.get('/api/likes/:projectId', async (req, res) => {

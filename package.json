@@ -1,9 +1,9 @@
 {
-  "name": "react-portfolio",
-  "version": "2.0.0",
-  "description": "React Portfolio Website - Modern portfolio built with React and Vite",
+  "name": "react-cms-portfolio",
+  "version": "3.0.0",
+  "description": "React Portfolio Website - Modern portfolio built with React and Vite and CMS",
   "author": "Yaroslav Shiryakov",
-  "homepage": "https://vidrimers.github.io",
+  "homepage": "https://vidrimers.site",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"vite\"",
     "dev:frontend": "vite",
@@ -41,10 +41,14 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "isomorphic-dompurify": "^3.3.0",
+    "multer": "^2.1.1",
     "node-fetch": "^3.3.2",
     "node-telegram-bot-api": "^0.67.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "sqlite3": "^6.0.1"
+    "sharp": "^0.34.5",
+    "sqlite3": "^6.0.1",
+    "validator": "^13.15.26"
   }
 }
