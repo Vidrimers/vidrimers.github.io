@@ -1,5 +1,6 @@
 import { useContext, useMemo } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
+import AdminIndicator from '../Admin/AdminIndicator';
 import styles from './About.module.css';
 
 const About = () => {
@@ -60,7 +61,13 @@ const About = () => {
       <div className={styles.wrapper}>
         <div className={styles.container}>
           <div className={styles.inner}>
-            <h2 className={styles.title}>{about.title}</h2>
+            <h2 className={styles.title}>
+              {about.title}
+              <AdminIndicator 
+                section="Обо мне"
+                onClick={() => console.log('Открыть управление разделом "Обо мне"')}
+              />
+            </h2>
             <div className={styles.items}>
               {processedParagraphs}
             </div>

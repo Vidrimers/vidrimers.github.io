@@ -3,6 +3,7 @@ import { LanguageContext } from '../../context/LanguageContext';
 import { getProjectsByCategory } from '../../data/portfolioData';
 import PortfolioTabs from './PortfolioTabs';
 import PortfolioGrid from './PortfolioGrid';
+import AdminIndicator from '../Admin/AdminIndicator';
 import styles from './Portfolio.module.css';
 
 const Portfolio = () => {
@@ -38,6 +39,10 @@ const Portfolio = () => {
           <div className={styles.titleWrapper}>
             <h2 className={styles.title}>
               {translations.portfolio.title}
+              <AdminIndicator 
+                section="Портфолио"
+                onClick={() => console.log('Открыть управление разделом "Портфолио"')}
+              />
             </h2>
           </div>
           

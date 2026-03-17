@@ -2,6 +2,7 @@ import { useContext, useMemo } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import { skills } from '../../data/skillsData';
 import SkillItem from './SkillItem';
+import AdminIndicator from '../Admin/AdminIndicator';
 import styles from './Skills.module.css';
 
 const Skills = () => {
@@ -24,6 +25,10 @@ const Skills = () => {
           <div className={styles.titleWrapper}>
             <h2 className={styles.title}>
               {translations.skills.title}
+              <AdminIndicator 
+                section="Навыки"
+                onClick={() => console.log('Открыть управление разделом "Навыки"')}
+              />
             </h2>
           </div>
           <div className={styles.items}>

@@ -1,6 +1,7 @@
 import { useContext, useMemo, useState } from 'react';
 import { LanguageContext } from '../../../context/LanguageContext';
 import DonateModal from '../DonateModal/DonateModal';
+import AdminIndicator from '../../Admin/AdminIndicator';
 import { sendDonateModalNotification } from '../../../utils/telegramNotifications';
 import styles from './Footer.module.css';
 
@@ -39,7 +40,13 @@ const Footer = () => {
           <div className={styles.container}>
             <div className={styles.inner}>
               <div className={styles.titleWrapper}>
-                <h2 className={styles.title}>{footer.title}</h2>
+                <h2 className={styles.title}>
+                  {footer.title}
+                  <AdminIndicator 
+                    section="Контакты"
+                    onClick={() => console.log('Открыть управление разделом "Контакты"')}
+                  />
+                </h2>
               </div>
               <p className={styles.text}>{footer.text}</p>
               

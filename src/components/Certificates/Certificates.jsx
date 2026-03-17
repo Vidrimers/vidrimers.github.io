@@ -1,6 +1,7 @@
 import { useContext, useState, useMemo } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import { certificates } from '../../data/certificatesData';
+import AdminIndicator from '../Admin/AdminIndicator';
 import styles from './Certificates.module.css';
 
 /**
@@ -60,6 +61,10 @@ const Certificates = () => {
             <div className={styles.titleWrapper}>
               <h2 className={styles.title}>
                 {translations.certificates.title}
+                <AdminIndicator 
+                  section="Сертификаты"
+                  onClick={() => console.log('Открыть управление разделом "Сертификаты"')}
+                />
               </h2>
             </div>
             <div className={styles.empty}>

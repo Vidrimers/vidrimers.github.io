@@ -1,0 +1,162 @@
+/* Стили для модального окна аутентификации */
+
+.authContent {
+  text-align: center;
+}
+
+.description {
+  margin: 0 0 24px 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Шаг запроса кода */
+.requestStep {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.requestButton {
+  background: #fc285b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.requestButton:hover:not(:disabled) {
+  background: #e02451;
+  transform: translateY(-1px);
+}
+
+.requestButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Шаг верификации кода */
+.verifyStep {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.codeForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.codeInput {
+  width: 100%;
+  padding: 16px;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  border: 2px solid #e5e5e5;
+  border-radius: 8px;
+  letter-spacing: 8px;
+  transition: border-color 0.2s ease;
+}
+
+.codeInput:focus {
+  outline: none;
+  border-color: #fc285b;
+}
+
+.codeInput:disabled {
+  background: #f5f5f5;
+  color: #999;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.verifyButton {
+  background: #fc285b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.verifyButton:hover:not(:disabled) {
+  background: #e02451;
+  transform: translateY(-1px);
+}
+
+.verifyButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.backButton {
+  background: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover:not(:disabled) {
+  background: #f5f5f5;
+  border-color: #bbb;
+}
+
+.backButton:disabled {
+  color: #ccc;
+  border-color: #eee;
+  cursor: not-allowed;
+}
+
+/* Обратный отсчет */
+.countdown {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Ошибки */
+.error {
+  background: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #fcc;
+  font-size: 14px;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .codeInput {
+    font-size: 20px;
+    letter-spacing: 4px;
+    padding: 14px;
+  }
+  
+  .actions {
+    gap: 10px;
+  }
+  
+  .verifyButton,
+  .requestButton {
+    padding: 14px 20px;
+  }
+}

@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { LanguageProvider, LanguageContext } from './context/LanguageContext';
+import { AdminProvider } from './components/Admin/AdminProvider';
 import Header from './components/Layout/Header/Header';
 import Footer from './components/Layout/Footer/Footer';
 import ScrollToTop from './components/Layout/ScrollToTop/ScrollToTop';
@@ -45,7 +46,9 @@ const AppContent = () => {
 function App() {
   return (
     <LanguageProvider>
-      <AppContent />
+      <AdminProvider>
+        <AppContent />
+      </AdminProvider>
     </LanguageProvider>
   );
 }
