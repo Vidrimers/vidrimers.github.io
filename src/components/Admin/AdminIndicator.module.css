@@ -1,24 +1,26 @@
 /* Стили для админских индикаторов (+ иконки) */
 
 .indicator {
-  background: #fc285b;
-  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  margin-left: 8px;
+  position: absolute;
+  top: 8px;
+  right: -5px;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(252, 40, 91, 0.3);
+  backdrop-filter: blur(10px);
 }
 
 .indicator:hover {
-  background: #e02451;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: scale(1.1);
-  box-shadow: 0 4px 8px rgba(252, 40, 91, 0.4);
 }
 
 .indicator:active {
@@ -27,7 +29,7 @@
 
 .icon {
   color: white;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   line-height: 1;
 }

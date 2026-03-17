@@ -84,6 +84,10 @@ const Certificates = () => {
           <div className={styles.titleWrapper}>
             <h2 className={styles.title}>
               {translations.certificates.title}
+              <AdminIndicator 
+                section="Сертификаты"
+                onClick={() => console.log('Открыть управление разделом "Сертификаты"')}
+              />
             </h2>
           </div>
           

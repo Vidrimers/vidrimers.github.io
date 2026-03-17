@@ -29,6 +29,7 @@
   padding: 2rem 2rem 0 2rem;
   background-color: #fc285b;
   margin-bottom: 2.5rem;
+  position: relative;
 }
 
 .items {

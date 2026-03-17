@@ -10,15 +10,20 @@ const AuthModal = ({ isOpen, onClose }) => {
   const [code, setCode] = useState('');
   const [countdown, setCountdown] = useState(0);
 
-  // Сброс состояния при открытии модального окна
+  const [wasOpen, setWasOpen] = useState(false);
+
+  // Сброс состояния при первом открытии модального окна
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !wasOpen) {
       setStep('request');
       setCode('');
       setCountdown(0);
       clearError();
+      setWasOpen(true);
+    } else if (!isOpen) {
+      setWasOpen(false);
     }
-  }, [isOpen, clearError]);
+  }, [isOpen, wasOpen, clearError]);
 
   // Обратный отсчет для повторной отправки кода
   useEffect(() => {
