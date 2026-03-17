@@ -65,5 +65,8 @@ Temp/
 database/
 logs/
 
+# CMS uploads directory
+uploads/
+
 # PM2 files
 .pm2/

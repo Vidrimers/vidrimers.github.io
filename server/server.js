@@ -20,11 +20,23 @@ const {
 // Импортируем Telegram модуль
 const Telegram = require('./telegram');
 
+// Импортируем CMS сервисы
+const { initializeServices, closeServices } = require('./services');
+const { requireAuth, optionalAuth } = require('./middleware/auth');
+
+// Импортируем роуты
+const authRoutes = require('./routes/auth');
+const projectsRoutes = require('./routes/projects');
+const categoriesRoutes = require('./routes/categories');
+
 const app = express();
 const PORT = process.env.PORT || 1989;
 
 // Глобальная переменная для базы данных
 let db;
+
+// Глобальная переменная для CMS базы данных
+let cmsDb;
 
 // Инициализируем Telegram
 let telegram;
@@ -67,9 +79,21 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     message: 'API сервер работает',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    services: {
+      likes: db ? 'connected' : 'disconnected',
+      cms: cmsDb ? 'connected' : 'disconnected',
+      telegram: telegram ? 'enabled' : 'disabled'
+    }
   });
 });
+
+// Подключаем роуты аутентификации
+app.use('/api/auth', authRoutes);
+
+// Подключаем роуты управления контентом
+app.use('/api/projects', projectsRoutes);
+app.use('/api/categories', categoriesRoutes);
 
 // Получить лайки для конкретного проекта
 app.get('/api/likes/:projectId', async (req, res) => {
@@ -354,8 +378,26 @@ async function startServer() {
   try {
     console.log('🚀 Запуск сервера лайков...');
     
-    // Инициализируем базу данных
+    // Инициализируем базу данных лайков
     db = await initDatabase();
+    
+    // Инициализируем CMS сервисы
+    const { dbService } = await initializeServices();
+    cmsDb = dbService.db;
+    
+    // Проверяем, нужна ли миграция данных
+    const MigrationService = require('./services/migrationService');
+    const migrationService = new MigrationService();
+    const needsMigration = await migrationService.needsMigration();
+    
+    if (needsMigration) {
+      console.log('🔄 Обнаружена пустая база данных, запускаем миграцию...');
+      await migrationService.migrateAllData();
+    } else {
+      console.log('✅ База данных уже содержит данные, миграция не требуется');
+    }
+    
+    await migrationService.close();
     
     // Запускаем сервер
     app.listen(PORT, () => {
@@ -366,6 +408,20 @@ async function startServer() {
       console.log(`   GET  /api/likes/:projectId - получить лайки`);
       console.log(`   POST /api/likes/:projectId - добавить/убрать лайк`);
       console.log(`   GET  /api/likes - все лайки`);
+      console.log(`🔐 Эндпоинты аутентификации:`);
+      console.log(`   POST /api/auth/request-code - запросить код подтверждения`);
+      console.log(`   POST /api/auth/verify-code - проверить код и создать сессию`);
+      console.log(`   POST /api/auth/validate-session - проверить сессию`);
+      console.log(`   GET  /api/auth/stats - статистика (только dev)`);
+      console.log(`📂 Эндпоинты управления контентом:`);
+      console.log(`   GET  /api/categories - получить категории`);
+      console.log(`   POST /api/categories - создать категорию (админ)`);
+      console.log(`   PUT  /api/categories/:id - обновить категорию (админ)`);
+      console.log(`   DELETE /api/categories/:id - удалить категорию (админ)`);
+      console.log(`   GET  /api/projects - получить проекты`);
+      console.log(`   POST /api/projects - создать проект (админ)`);
+      console.log(`   PUT  /api/projects/:id - обновить проект (админ)`);
+      console.log(`   DELETE /api/projects/:id - удалить проект (админ)`);
       console.log(`📱 Эндпоинты Telegram:`);
       console.log(`   POST /api/telegram/test - тестовое сообщение`);
       console.log(`   GET  /api/telegram/info - информация о боте`);
@@ -383,21 +439,37 @@ async function startServer() {
 }
 
 // Graceful shutdown
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('\n🛑 Получен сигнал остановки...');
   
+  const closePromises = [];
+  
   if (db) {
-    db.close((err) => {
-      if (err) {
-        console.error('Ошибка закрытия базы данных:', err.message);
-      } else {
-        console.log('✅ База данных закрыта');
-      }
-      process.exit(0);
-    });
-  } else {
-    process.exit(0);
+    closePromises.push(new Promise((resolve) => {
+      db.close((err) => {
+        if (err) {
+          console.error('Ошибка закрытия базы данных лайков:', err.message);
+        } else {
+          console.log('✅ База данных лайков закрыта');
+        }
+        resolve();
+      });
+    }));
   }
+  
+  if (cmsDb) {
+    closePromises.push(closeServices().catch(err => {
+      console.error('Ошибка закрытия CMS сервисов:', err.message);
+    }));
+  }
+  
+  try {
+    await Promise.all(closePromises);
+  } catch (error) {
+    console.error('Ошибка при закрытии сервисов:', error);
+  }
+  
+  process.exit(0);
 });
 
 // Запускаем сервер
