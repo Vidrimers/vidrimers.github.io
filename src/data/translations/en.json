@@ -54,6 +54,11 @@
       "pet": "Personal Projects",
       "layout": "Learning Projects"
     },
+    "badges": {
+      "ai": "AI",
+      "new": "NEW", 
+      "inProgress": "In Progress"
+    },
     "projects": {
       "npppolet": {
         "title": "NPP Polet",

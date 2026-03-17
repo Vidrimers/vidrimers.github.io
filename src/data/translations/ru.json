@@ -54,6 +54,11 @@
       "pet": "Собственные проекты",
       "layout": "Учебные проекты"
     },
+    "badges": {
+      "ai": "AI",
+      "new": "NEW",
+      "inProgress": "В разработке"
+    },
     "projects": {
       "npppolet": {
         "title": "НПП Полет",

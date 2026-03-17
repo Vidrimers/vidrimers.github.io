@@ -41,7 +41,7 @@ export const portfolioProjects = [
     category: 'pet',
     isAi: false,
     isNew: false,
-    isInProgress: false
+    isInProgress: true
   },
   
   // Учебные проекты (layout)
