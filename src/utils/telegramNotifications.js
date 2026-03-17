@@ -59,15 +59,16 @@ export const sendDonateAddressCopyNotification = async (walletName) => {
 /**
  * Отправить уведомление о клике по проекту в портфолио
  * @param {string} projectId - ID проекта
+ * @param {string} projectTitle - Название проекта
  */
-export const sendPortfolioClickNotification = async (projectId) => {
+export const sendPortfolioClickNotification = async (projectId, projectTitle) => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/telegram/portfolio-click`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ projectId }),
+      body: JSON.stringify({ projectId, projectTitle }),
     });
 
     if (!response.ok) {

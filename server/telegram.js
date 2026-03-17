@@ -158,18 +158,20 @@ class Telegram {
   /**
    * Отправить уведомление о клике по проекту в портфолио
    * @param {string} projectId - ID проекта
+   * @param {string} projectTitle - Название проекта
    * @returns {Promise<boolean>} - Успешность отправки
    */
-  async sendPortfolioClickNotification(projectId) {
+  async sendPortfolioClickNotification(projectId, projectTitle) {
     if (!this.isEnabled) {
       console.log(`[Telegram отключен] Клик по проекту ${projectId}`);
       return false;
     }
 
     try {
-      const projectTitle = this.getProjectTitle(projectId);
+      // Используем переданное название или fallback к старому методу
+      const title = projectTitle || this.getProjectTitle(projectId);
       const message = `🔗 Переход к проекту!\n\n` +
-                     `Проект: ${projectTitle}\n` +
+                     `Проект: ${title}\n` +
                      `Кто-то заинтересовался работой! 👀\n\n` +
                      `#портфолио #переход #vidrimers`;
       

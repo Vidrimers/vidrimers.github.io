@@ -31,8 +31,8 @@ const PortfolioItem = memo(({ project }) => {
   
   // Обработчик клика по проекту
   const handleProjectClick = async () => {
-    // Отправляем уведомление в Telegram
-    await sendPortfolioClickNotification(project.id);
+    // Отправляем уведомление в Telegram с названием проекта
+    await sendPortfolioClickNotification(project.id, title);
   };
   
   return (

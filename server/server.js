@@ -275,7 +275,7 @@ app.post('/api/telegram/donate-copy', async (req, res) => {
 // Уведомление о клике по проекту в портфолио
 app.post('/api/telegram/portfolio-click', async (req, res) => {
   try {
-    const { projectId } = req.body;
+    const { projectId, projectTitle } = req.body;
     
     if (!projectId) {
       return res.status(400).json({
@@ -289,7 +289,7 @@ app.post('/api/telegram/portfolio-click', async (req, res) => {
       });
     }
     
-    const success = await telegram.sendPortfolioClickNotification(projectId);
+    const success = await telegram.sendPortfolioClickNotification(projectId, projectTitle);
     
     if (success) {
       res.json({
