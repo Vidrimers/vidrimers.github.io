@@ -2,6 +2,7 @@ import { useContext, memo, useState } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import ProjectBadges from './ProjectBadges';
 import LikeButton from './LikeButton';
+import { sendPortfolioClickNotification } from '../../utils/telegramNotifications';
 import styles from './Portfolio.module.css';
 
 /**
@@ -27,6 +28,12 @@ const PortfolioItem = memo(({ project }) => {
   // Получаем локализованные данные в зависимости от языка
   const title = language === 'ru' ? project.title : project.titleEn;
   const description = language === 'ru' ? project.description : project.descriptionEn;
+  
+  // Обработчик клика по проекту
+  const handleProjectClick = async () => {
+    // Отправляем уведомление в Telegram
+    await sendPortfolioClickNotification(project.id);
+  };
   
   return (
     <div 
@@ -57,6 +64,7 @@ const PortfolioItem = memo(({ project }) => {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Открыть проект ${title}`}
+        onClick={handleProjectClick}
       >
         <img 
           src={project.image} 
@@ -73,6 +81,7 @@ const PortfolioItem = memo(({ project }) => {
         href={project.link}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={handleProjectClick}
       >
         {title}
       </a>

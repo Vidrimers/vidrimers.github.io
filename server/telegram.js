@@ -96,6 +96,98 @@ class Telegram {
   }
 
   /**
+   * Отправить уведомление об открытии модалки донатов
+   * @returns {Promise<boolean>} - Успешность отправки
+   */
+  async sendDonateModalNotification() {
+    if (!this.isEnabled) {
+      console.log(`[Telegram отключен] Открыта модалка донатов`);
+      return false;
+    }
+
+    try {
+      const message = `💰 Открыта модалка донатов!\n\n` +
+                     `Кто-то заинтересовался поддержкой проекта ❤️\n\n` +
+                     `#донаты #поддержка #vidrimers`;
+      
+      await this.bot.sendMessage(this.chatId, message, {
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+      });
+      
+      console.log(`[Telegram] Уведомление о донатах отправлено`);
+      return true;
+      
+    } catch (error) {
+      console.error('[Telegram] Ошибка отправки уведомления о донатах:', error.message);
+      return false;
+    }
+  }
+
+  /**
+   * Отправить уведомление о копировании адреса доната
+   * @param {string} walletName - Название кошелька
+   * @returns {Promise<boolean>} - Успешность отправки
+   */
+  async sendDonateAddressCopyNotification(walletName) {
+    if (!this.isEnabled) {
+      console.log(`[Telegram отключен] Скопирован адрес ${walletName}`);
+      return false;
+    }
+
+    try {
+      const message = `💳 Скопирован адрес кошелька!\n\n` +
+                     `Кошелёк: ${walletName}\n` +
+                     `Возможно, готовятся к донату! 🎉\n\n` +
+                     `#донаты #копирование #vidrimers`;
+      
+      await this.bot.sendMessage(this.chatId, message, {
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+      });
+      
+      console.log(`[Telegram] Уведомление о копировании ${walletName} отправлено`);
+      return true;
+      
+    } catch (error) {
+      console.error('[Telegram] Ошибка отправки уведомления о копировании:', error.message);
+      return false;
+    }
+  }
+
+  /**
+   * Отправить уведомление о клике по проекту в портфолио
+   * @param {string} projectId - ID проекта
+   * @returns {Promise<boolean>} - Успешность отправки
+   */
+  async sendPortfolioClickNotification(projectId) {
+    if (!this.isEnabled) {
+      console.log(`[Telegram отключен] Клик по проекту ${projectId}`);
+      return false;
+    }
+
+    try {
+      const projectTitle = this.getProjectTitle(projectId);
+      const message = `🔗 Переход к проекту!\n\n` +
+                     `Проект: ${projectTitle}\n` +
+                     `Кто-то заинтересовался работой! 👀\n\n` +
+                     `#портфолио #переход #vidrimers`;
+      
+      await this.bot.sendMessage(this.chatId, message, {
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+      });
+      
+      console.log(`[Telegram] Уведомление о клике по ${projectId} отправлено`);
+      return true;
+      
+    } catch (error) {
+      console.error('[Telegram] Ошибка отправки уведомления о клике:', error.message);
+      return false;
+    }
+  }
+
+  /**
    * Отправить тестовое сообщение
    * @returns {Promise<boolean>} - Успешность отправки
    */

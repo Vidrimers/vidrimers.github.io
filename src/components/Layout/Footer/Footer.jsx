@@ -1,6 +1,7 @@
 import { useContext, useMemo, useState } from 'react';
 import { LanguageContext } from '../../../context/LanguageContext';
 import DonateModal from '../DonateModal/DonateModal';
+import { sendDonateModalNotification } from '../../../utils/telegramNotifications';
 import styles from './Footer.module.css';
 
 const Footer = () => {
@@ -24,7 +25,11 @@ const Footer = () => {
     }
   ], []);
 
-  const openDonateModal = () => setIsDonateModalOpen(true);
+  const openDonateModal = async () => {
+    setIsDonateModalOpen(true);
+    // Отправляем уведомление в Telegram
+    await sendDonateModalNotification();
+  };
   const closeDonateModal = () => setIsDonateModalOpen(false);
 
   return (

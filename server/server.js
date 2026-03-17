@@ -202,6 +202,115 @@ app.post('/api/telegram/test', async (req, res) => {
   }
 });
 
+// Уведомление об открытии модалки донатов
+app.post('/api/telegram/donate-modal', async (req, res) => {
+  try {
+    if (!telegram) {
+      return res.status(503).json({
+        error: 'Telegram не настроен'
+      });
+    }
+    
+    const success = await telegram.sendDonateModalNotification();
+    
+    if (success) {
+      res.json({
+        success: true,
+        message: 'Уведомление о донатах отправлено'
+      });
+    } else {
+      res.status(500).json({
+        error: 'Не удалось отправить уведомление о донатах'
+      });
+    }
+    
+  } catch (error) {
+    console.error('Ошибка отправки уведомления о донатах:', error);
+    res.status(500).json({
+      error: 'Ошибка отправки уведомления о донатах',
+      message: error.message
+    });
+  }
+});
+
+// Уведомление о копировании адреса доната
+app.post('/api/telegram/donate-copy', async (req, res) => {
+  try {
+    const { walletName } = req.body;
+    
+    if (!walletName) {
+      return res.status(400).json({
+        error: 'Название кошелька обязательно'
+      });
+    }
+    
+    if (!telegram) {
+      return res.status(503).json({
+        error: 'Telegram не настроен'
+      });
+    }
+    
+    const success = await telegram.sendDonateAddressCopyNotification(walletName);
+    
+    if (success) {
+      res.json({
+        success: true,
+        message: 'Уведомление о копировании отправлено'
+      });
+    } else {
+      res.status(500).json({
+        error: 'Не удалось отправить уведомление о копировании'
+      });
+    }
+    
+  } catch (error) {
+    console.error('Ошибка отправки уведомления о копировании:', error);
+    res.status(500).json({
+      error: 'Ошибка отправки уведомления о копировании',
+      message: error.message
+    });
+  }
+});
+
+// Уведомление о клике по проекту в портфолио
+app.post('/api/telegram/portfolio-click', async (req, res) => {
+  try {
+    const { projectId } = req.body;
+    
+    if (!projectId) {
+      return res.status(400).json({
+        error: 'ID проекта обязателен'
+      });
+    }
+    
+    if (!telegram) {
+      return res.status(503).json({
+        error: 'Telegram не настроен'
+      });
+    }
+    
+    const success = await telegram.sendPortfolioClickNotification(projectId);
+    
+    if (success) {
+      res.json({
+        success: true,
+        message: 'Уведомление о клике отправлено'
+      });
+    } else {
+      res.status(500).json({
+        error: 'Не удалось отправить уведомление о клике'
+      });
+    }
+    
+  } catch (error) {
+    console.error('Ошибка отправки уведомления о клике:', error);
+    res.status(500).json({
+      error: 'Ошибка отправки уведомления о клике',
+      message: error.message
+    });
+  }
+});
+
 // Получить информацию о Telegram боте
 app.get('/api/telegram/info', async (req, res) => {
   try {
@@ -260,6 +369,9 @@ async function startServer() {
       console.log(`📱 Эндпоинты Telegram:`);
       console.log(`   POST /api/telegram/test - тестовое сообщение`);
       console.log(`   GET  /api/telegram/info - информация о боте`);
+      console.log(`   POST /api/telegram/donate-modal - уведомление об открытии донатов`);
+      console.log(`   POST /api/telegram/donate-copy - уведомление о копировании адреса`);
+      console.log(`   POST /api/telegram/portfolio-click - уведомление о клике по проекту`);
       console.log('');
       console.log('💡 Для остановки нажмите Ctrl+C');
     });

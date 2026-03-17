@@ -1,5 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { LanguageContext } from '../../../context/LanguageContext';
+import { sendDonateAddressCopyNotification } from '../../../utils/telegramNotifications';
 import styles from './DonateModal.module.css';
 
 const DonateModal = ({ isOpen, onClose }) => {
@@ -42,12 +43,15 @@ const DonateModal = ({ isOpen, onClose }) => {
   };
 
   // Копирование адреса в буфер обмена
-  const copyAddress = async (address) => {
+  const copyAddress = async (address, walletName) => {
     try {
       await navigator.clipboard.writeText(address);
       setCopiedAddress(address);
       // Убираем сообщение через 2 секунды
       setTimeout(() => setCopiedAddress(null), 2000);
+      
+      // Отправляем уведомление в Telegram
+      await sendDonateAddressCopyNotification(walletName);
     } catch (err) {
       console.error('Ошибка копирования:', err);
       // Fallback для старых браузеров
@@ -59,6 +63,9 @@ const DonateModal = ({ isOpen, onClose }) => {
       document.body.removeChild(textArea);
       setCopiedAddress(address);
       setTimeout(() => setCopiedAddress(null), 2000);
+      
+      // Отправляем уведомление в Telegram
+      await sendDonateAddressCopyNotification(walletName);
     }
   };
 
@@ -137,7 +144,7 @@ const DonateModal = ({ isOpen, onClose }) => {
                     </div>
                     <button 
                       className={styles.copyButton}
-                      onClick={() => copyAddress(wallet.address)}
+                      onClick={() => copyAddress(wallet.address, wallet.name)}
                     >
                       {donate?.copyAddress || 'Скопировать адрес'}
                     </button>
