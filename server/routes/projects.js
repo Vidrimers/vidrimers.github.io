@@ -71,6 +71,8 @@ router.get('/:id', optionalAuth, async (req, res) => {
     const { id } = req.params;
     const isAdmin = req.user && req.user.role === 'admin';
 
+    const dbService = getDbService();
+
     let sql = `
       SELECT p.*, c.name_ru as category_name_ru, c.name_en as category_name_en
       FROM projects p
@@ -135,6 +137,9 @@ router.post('/', requireAuth, sanitizeProject, validateProject, async (req, res)
       isInProgress = false,
       sortOrder = 0
     } = req.body;
+
+    const dbService = getDbService();
+    const telegramService = getTelegramService();
 
     // Валидация обязательных полей
     if (!id || !titleRu || !titleEn || !descriptionRu || !descriptionEn || !categoryId) {
@@ -235,10 +240,19 @@ router.post('/', requireAuth, sanitizeProject, validateProject, async (req, res)
  * PUT /api/projects/:id
  * Обновляет проект (только для админа)
  */
-router.put('/:id', requireAuth, sanitizeProject, validateProject, async (req, res) => {
+router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
+
+    console.log('PUT /api/projects/:id - начало обработки:', {
+      projectId: id,
+      updates: updates,
+      user: req.user
+    });
+
+    const dbService = getDbService();
+    const telegramService = getTelegramService();
 
     // Проверяем, что проект существует
     const existingProject = await dbService.getQuery('SELECT * FROM projects WHERE id = ?', [id]);
@@ -248,6 +262,78 @@ router.put('/:id', requireAuth, sanitizeProject, validateProject, async (req, re
         error: {
           code: 'PROJECT_NOT_FOUND',
           message: 'Проект не найден'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Валидация только для обновляемых полей
+    const errors = [];
+
+    // Если обновляется название на русском
+    if (updates.titleRu !== undefined) {
+      if (!updates.titleRu || typeof updates.titleRu !== 'string' || !updates.titleRu.trim()) {
+        errors.push('Название на русском языке обязательно');
+      } else {
+        const trimmed = updates.titleRu.trim();
+        if (trimmed.length < 2) {
+          errors.push('Название на русском должно содержать минимум 2 символа');
+        } else if (trimmed.length > 100) {
+          errors.push('Название на русском не должно превышать 100 символов');
+        }
+      }
+    }
+
+    // Если обновляется название на английском
+    if (updates.titleEn !== undefined) {
+      if (!updates.titleEn || typeof updates.titleEn !== 'string' || !updates.titleEn.trim()) {
+        errors.push('Название на английском языке обязательно');
+      } else {
+        const trimmed = updates.titleEn.trim();
+        if (trimmed.length < 2) {
+          errors.push('Название на английском должно содержать минимум 2 символа');
+        } else if (trimmed.length > 100) {
+          errors.push('Название на английском не должно превышать 100 символов');
+        }
+      }
+    }
+
+    // Если обновляется описание на русском
+    if (updates.descriptionRu !== undefined) {
+      if (!updates.descriptionRu || typeof updates.descriptionRu !== 'string' || !updates.descriptionRu.trim()) {
+        errors.push('Описание на русском языке обязательно');
+      } else {
+        const trimmed = updates.descriptionRu.trim();
+        if (trimmed.length < 10) {
+          errors.push('Описание на русском должно содержать минимум 10 символов');
+        } else if (trimmed.length > 1000) {
+          errors.push('Описание на русском не должно превышать 1000 символов');
+        }
+      }
+    }
+
+    // Если обновляется описание на английском
+    if (updates.descriptionEn !== undefined) {
+      if (!updates.descriptionEn || typeof updates.descriptionEn !== 'string' || !updates.descriptionEn.trim()) {
+        errors.push('Описание на английском языке обязательно');
+      } else {
+        const trimmed = updates.descriptionEn.trim();
+        if (trimmed.length < 10) {
+          errors.push('Описание на английском должно содержать минимум 10 символов');
+        } else if (trimmed.length > 1000) {
+          errors.push('Описание на английском не должно превышать 1000 символов');
+        }
+      }
+    }
+
+    // Если есть ошибки валидации
+    if (errors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Ошибки валидации данных',
+          details: errors
         },
         timestamp: new Date().toISOString()
       });
@@ -339,6 +425,7 @@ router.put('/:id', requireAuth, sanitizeProject, validateProject, async (req, re
 
   } catch (error) {
     console.error('Ошибка обновления проекта:', error);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({
       success: false,
       error: {
@@ -357,6 +444,9 @@ router.put('/:id', requireAuth, sanitizeProject, validateProject, async (req, re
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
+
+    const dbService = getDbService();
+    const telegramService = getTelegramService();
 
     // Проверяем, что проект существует
     const existingProject = await dbService.getQuery('SELECT * FROM projects WHERE id = ?', [id]);

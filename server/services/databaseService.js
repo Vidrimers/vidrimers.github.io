@@ -147,6 +147,26 @@ class DatabaseService {
   }
 
   /**
+   * Получить все записи (алиас для getAll)
+   * @param {string} sql - SQL запрос
+   * @param {Array} params - Параметры запроса
+   * @returns {Promise<Array>}
+   */
+  allQuery(sql, params = []) {
+    return this.getAll(sql, params);
+  }
+
+  /**
+   * Получить одну запись (алиас для getOne)
+   * @param {string} sql - SQL запрос
+   * @param {Array} params - Параметры запроса
+   * @returns {Promise<Object|null>}
+   */
+  getQuery(sql, params = []) {
+    return this.getOne(sql, params);
+  }
+
+  /**
    * Выполнить транзакцию
    * @param {Function} callback - Функция с операциями транзакции
    * @returns {Promise<any>}
@@ -165,6 +185,38 @@ class DatabaseService {
       }
     } catch (error) {
       throw error;
+    }
+  }
+
+  /**
+   * Логирование активности пользователя
+   * @param {string} userId - ID пользователя
+   * @param {string} action - Действие
+   * @param {string} entityType - Тип сущности
+   * @param {string} entityId - ID сущности
+   * @param {Object} details - Детали действия
+   * @param {string} ipAddress - IP адрес
+   * @param {string} userAgent - User Agent
+   * @returns {Promise<void>}
+   */
+  async logActivity(userId, action, entityType, entityId, details = {}, ipAddress = null, userAgent = null) {
+    try {
+      await this.runQuery(`
+        INSERT INTO activity_logs (
+          user_id, action, entity_type, entity_id, details, ip_address, user_agent
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+      `, [
+        userId,
+        action,
+        entityType,
+        entityId,
+        JSON.stringify(details),
+        ipAddress,
+        userAgent
+      ]);
+    } catch (error) {
+      console.error('Ошибка логирования активности:', error);
+      // Не прерываем основной процесс из-за ошибки логирования
     }
   }
 }
