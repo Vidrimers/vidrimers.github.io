@@ -42,15 +42,16 @@ class Telegram {
    * Форматировать сообщение о лайке
    * @param {string} projectId - ID проекта
    * @param {number} likesCount - Количество лайков
+   * @param {string} projectTitle - Название проекта (опционально)
    * @returns {string} - Отформатированное сообщение
    */
-  formatLikeMessage(projectId, likesCount) {
-    const projectTitle = this.getProjectTitle(projectId);
+  formatLikeMessage(projectId, likesCount, projectTitle) {
+    const title = projectTitle || this.getProjectTitle(projectId);
     const heartEmoji = '❤️';
     const projectEmoji = '🚀';
     
     let message = `${projectEmoji} Новый лайк!\n\n`;
-    message += `Проект: ${projectTitle}\n`;
+    message += `Проект: ${title}\n`;
     message += `${heartEmoji} Всего лайков: ${likesCount}\n\n`;
     message += `#портфолио #лайк #vidrimers`;
     
@@ -61,16 +62,19 @@ class Telegram {
    * Отправить уведомление о лайке в Telegram
    * @param {string} projectId - ID проекта
    * @param {number} likesCount - Количество лайков
+   * @param {string} projectTitle - Название проекта (опционально)
    * @returns {Promise<boolean>} - Успешность отправки
    */
-  async sendLikeNotification(projectId, likesCount) {
+  async sendLikeNotification(projectId, likesCount, projectTitle) {
     if (!this.isEnabled) {
       console.log(`[Telegram отключен] Проект ${projectId} получил лайк! Всего лайков: ${likesCount}`);
       return false;
     }
 
     try {
-      const message = this.formatLikeMessage(projectId, likesCount);
+      // Используем переданное название или fallback к старому методу
+      const title = projectTitle || this.getProjectTitle(projectId);
+      const message = this.formatLikeMessage(projectId, likesCount, title);
       
       await this.bot.sendMessage(this.chatId, message, {
         parse_mode: 'HTML',

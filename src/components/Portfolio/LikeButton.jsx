@@ -6,13 +6,14 @@ import styles from './LikeButton.module.css';
  * Компонент кнопки лайка для проектов портфолио
  * @param {Object} props - Пропсы компонента
  * @param {string} props.projectId - ID проекта (например, 'pet-1')
+ * @param {string} props.projectTitle - Название проекта (опционально)
  * @param {string} props.className - Дополнительные CSS классы
  * @param {boolean} props.showOnHover - Показывать кнопку только при hover (если нет лайков)
  * @param {boolean} props.isParentHovered - Состояние hover родительского элемента
  * @returns {JSX.Element} - Компонент кнопки лайка
  */
-const LikeButton = ({ projectId, className = '', showOnHover = false, isParentHovered = false }) => {
-  const { likes, isLiked, isLoading, error, toggleLike } = useLikes(projectId);
+const LikeButton = ({ projectId, projectTitle, className = '', showOnHover = false, isParentHovered = false }) => {
+  const { likes, isLiked, isLoading, error, toggleLike } = useLikes(projectId, projectTitle);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isClickDisabled, setIsClickDisabled] = useState(false);
 

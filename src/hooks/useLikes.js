@@ -4,9 +4,10 @@ import { getLikes as apiGetLikes, toggleLike as apiToggleLike } from '../utils/a
 /**
  * Кастомный хук для работы с лайками проектов
  * @param {string} projectId - ID проекта (например, 'pet-1')
+ * @param {string} projectTitle - Название проекта (опционально)
  * @returns {Object} - Объект с данными и функциями для работы с лайками
  */
-export function useLikes(projectId) {
+export function useLikes(projectId, projectTitle) {
   const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -145,7 +146,7 @@ export function useLikes(projectId) {
     setLikes(optimisticLikes);
     
     try {
-      const result = await apiToggleLike(projectId);
+      const result = await apiToggleLike(projectId, projectTitle);
       
       // Обновляем реальными данными с сервера
       setLikes(result.likes);

@@ -52,6 +52,7 @@ const PortfolioItem = memo(({ project }) => {
       <div className={styles.likeButtonContainer}>
         <LikeButton 
           projectId={project.id} 
+          projectTitle={title}
           showOnHover={true}
           isParentHovered={isHovered}
         />

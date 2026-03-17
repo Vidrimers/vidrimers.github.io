@@ -109,7 +109,7 @@ app.get('/api/likes/:projectId', async (req, res) => {
 app.post('/api/likes/:projectId', async (req, res) => {
   try {
     const { projectId } = req.params;
-    const { userId } = req.body;
+    const { userId, projectTitle } = req.body;
     
     if (!projectId) {
       return res.status(400).json({ 
@@ -128,7 +128,7 @@ app.post('/api/likes/:projectId', async (req, res) => {
     // Отправляем уведомление в Telegram только при добавлении лайка
     if (telegram && result.isLiked) {
       try {
-        await telegram.sendLikeNotification(projectId, result.likes);
+        await telegram.sendLikeNotification(projectId, result.likes, projectTitle);
         console.log(`📱 Telegram уведомление отправлено для ${projectId}`);
       } catch (telegramError) {
         console.error('❌ Ошибка отправки в Telegram:', telegramError.message);

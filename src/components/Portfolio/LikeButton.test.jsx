@@ -136,7 +136,7 @@ describe('LikeButton', () => {
   it('передает правильный projectId в хук useLikes', () => {
     render(<LikeButton projectId="my-project-123" />);
     
-    expect(useLikes).toHaveBeenCalledWith('my-project-123');
+    expect(useLikes).toHaveBeenCalledWith('my-project-123', undefined);
   });
 
   it('имеет корректные aria-атрибуты для доступности', () => {

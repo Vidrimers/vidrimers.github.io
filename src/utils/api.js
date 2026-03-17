@@ -117,11 +117,19 @@ export async function getLikes(projectId) {
 /**
  * Переключить лайк пользователя (добавить или убрать)
  * @param {string} projectId - ID проекта
+ * @param {string} projectTitle - Название проекта (опционально)
  * @returns {Promise<{likes: number, isLiked: boolean}>} - Новое состояние лайков
  */
-export async function toggleLike(projectId) {
+export async function toggleLike(projectId, projectTitle) {
   const userId = getUserId();
-  const response = await apiPost(`/likes/${projectId}`, { userId });
+  const requestBody = { userId };
+  
+  // Добавляем название проекта если передано
+  if (projectTitle) {
+    requestBody.projectTitle = projectTitle;
+  }
+  
+  const response = await apiPost(`/likes/${projectId}`, requestBody);
   return {
     likes: response.likes,
     isLiked: response.isLiked
