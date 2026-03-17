@@ -30,12 +30,12 @@ export const AdminProvider = ({ children }) => {
   // Функция валидации токена
   const validateToken = async (token) => {
     try {
-      const response = await fetch('/api/auth/validate', {
+      const response = await fetch('/api/auth/validate-session', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ token })
       });
 
       if (response.ok) {
