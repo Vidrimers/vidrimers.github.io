@@ -106,6 +106,35 @@ class TelegramService {
   }
 
   /**
+   * Отправляет уведомление о выходе из админ-панели
+   * @param {object} sessionInfo - Информация о сессии
+   * @returns {Promise<boolean>} Результат отправки
+   */
+  async sendLogoutNotification(sessionInfo = {}) {
+    try {
+      const timestamp = new Date().toLocaleString('ru-RU', {
+        timeZone: 'Europe/Moscow'
+      });
+
+      const message = `🚪 Выход из админ-панели\n\n` +
+                     `🕐 Время: ${timestamp}\n` +
+                     `🌐 IP: ${sessionInfo.ip || 'неизвестен'}\n` +
+                     `🖥️ User-Agent: ${sessionInfo.userAgent ? sessionInfo.userAgent.substring(0, 50) + '...' : 'неизвестен'}\n` +
+                     `🔗 Сайт: vidrimers.site`;
+
+      await this.bot.sendMessage(this.adminChatId, message, {
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Ошибка отправки уведомления о выходе:', error);
+      return false;
+    }
+  }
+
+  /**
    * Отправляет уведомление об активности в админ-панели
    * @param {string} action - Выполненное действие
    * @param {object} details - Детали действия

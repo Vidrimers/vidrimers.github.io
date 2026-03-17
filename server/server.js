@@ -412,6 +412,7 @@ async function startServer() {
       console.log(`   POST /api/auth/request-code - запросить код подтверждения`);
       console.log(`   POST /api/auth/verify-code - проверить код и создать сессию`);
       console.log(`   POST /api/auth/validate-session - проверить сессию`);
+      console.log(`   POST /api/auth/logout - выход из системы`);
       console.log(`   GET  /api/auth/stats - статистика (только dev)`);
       console.log(`📂 Эндпоинты управления контентом:`);
       console.log(`   GET  /api/categories - получить категории`);

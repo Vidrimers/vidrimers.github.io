@@ -212,6 +212,50 @@ router.post('/validate-session', (req, res) => {
 });
 
 /**
+ * POST /api/auth/logout
+ * Выход из системы (инвалидация токена на клиенте)
+ */
+router.post('/logout', (req, res) => {
+  try {
+    // В JWT нет возможности инвалидировать токен на сервере без blacklist
+    // Поэтому просто возвращаем успешный ответ
+    // Клиент должен удалить токен из localStorage/sessionStorage
+    
+    const clientInfo = {
+      ip: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('User-Agent'),
+      timestamp: new Date().toISOString()
+    };
+
+    console.log('🚪 Выход из админ-панели:', clientInfo);
+
+    // Отправляем уведомление о выходе в Telegram
+    if (telegramService) {
+      telegramService.sendLogoutNotification(clientInfo);
+    }
+
+    res.json({
+      success: true,
+      data: {
+        message: 'Выход выполнен успешно'
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Ошибка выхода:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'LOGOUT_ERROR',
+        message: 'Ошибка выхода из системы'
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
  * GET /api/auth/stats
  * Получает статистику аутентификации (только для разработки)
  */
