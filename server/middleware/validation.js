@@ -301,12 +301,14 @@ const sanitizeProject = (req, res, next) => {
   }
 
   if (data.categoryId) {
-    data.categoryId = data.categoryId.trim();
+    data.categoryId = data.categoryId.trim().toLowerCase();
   }
 
   // Приведение типов
   if (data.sortOrder !== undefined && data.sortOrder !== null) {
     data.sortOrder = Number(data.sortOrder) || 0;
+  } else {
+    data.sortOrder = 0;
   }
 
   data.isAi = Boolean(data.isAi);
@@ -343,6 +345,8 @@ const sanitizeCategory = (req, res, next) => {
   // Приведение типов
   if (data.sortOrder !== undefined && data.sortOrder !== null) {
     data.sortOrder = Number(data.sortOrder) || 0;
+  } else {
+    data.sortOrder = 0;
   }
 
   data.isHidden = Boolean(data.isHidden);
