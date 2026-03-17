@@ -9,6 +9,7 @@ require('dotenv').config();
 
 const { 
   initDatabase, 
+  projectExists,
   getLikes, 
   addLike, 
   removeLike, 
@@ -28,6 +29,10 @@ const { requireAuth, optionalAuth } = require('./middleware/auth');
 const authRoutes = require('./routes/auth');
 const projectsRoutes = require('./routes/projects');
 const categoriesRoutes = require('./routes/categories');
+const skillsRoutes = require('./routes/skills');
+const certificatesRoutes = require('./routes/certificates');
+const aboutRoutes = require('./routes/about');
+const contactsRoutes = require('./routes/contacts');
 
 const app = express();
 const PORT = process.env.PORT || 1989;
@@ -77,7 +82,8 @@ app.use(cors({
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
-    status: 'ok', 
+    status: 'OK', 
+    port: PORT.toString(),
     message: 'API сервер работает',
     timestamp: new Date().toISOString(),
     services: {
@@ -94,6 +100,10 @@ app.use('/api/auth', authRoutes);
 // Подключаем роуты управления контентом
 app.use('/api/projects', projectsRoutes);
 app.use('/api/categories', categoriesRoutes);
+app.use('/api/skills', skillsRoutes);
+app.use('/api/certificates', certificatesRoutes);
+app.use('/api/about', aboutRoutes);
+app.use('/api/contacts', contactsRoutes);
 
 // Получить лайки для конкретного проекта
 app.get('/api/likes/:projectId', async (req, res) => {
@@ -103,7 +113,26 @@ app.get('/api/likes/:projectId', async (req, res) => {
     
     if (!projectId) {
       return res.status(400).json({ 
+        success: false,
         error: 'Project ID обязателен' 
+      });
+    }
+    
+    // Валидация формата projectId
+    const validIdPattern = /^(pet|layout)-\d+$/;
+    if (!validIdPattern.test(projectId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Некорректный формат Project ID'
+      });
+    }
+    
+    // Проверяем существует ли проект
+    const exists = await projectExists(db, projectId);
+    if (!exists) {
+      return res.status(404).json({
+        success: false,
+        error: 'Проект не найден'
       });
     }
     
@@ -116,6 +145,7 @@ app.get('/api/likes/:projectId', async (req, res) => {
     }
     
     res.json({ 
+      success: true,
       likes: likesCount,
       projectId: projectId,
       isLiked: isLiked
@@ -124,6 +154,7 @@ app.get('/api/likes/:projectId', async (req, res) => {
   } catch (error) {
     console.error('Ошибка получения лайков:', error);
     res.status(500).json({ 
+      success: false,
       error: 'Ошибка сервера при получении лайков' 
     });
   }
@@ -133,44 +164,99 @@ app.get('/api/likes/:projectId', async (req, res) => {
 app.post('/api/likes/:projectId', async (req, res) => {
   try {
     const { projectId } = req.params;
-    const { userId, projectTitle } = req.body;
+    const { userId, projectTitle, action } = req.body;
     
     if (!projectId) {
       return res.status(400).json({ 
+        success: false,
         error: 'Project ID обязателен' 
       });
     }
     
-    if (!userId) {
-      return res.status(400).json({ 
-        error: 'User ID обязателен' 
+    // Валидация формата projectId
+    const validIdPattern = /^(pet|layout)-\d+$/;
+    if (!validIdPattern.test(projectId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Некорректный формат Project ID'
       });
     }
     
-    const result = await toggleUserLike(db, userId, projectId);
-    
-    // Отправляем уведомление в Telegram только при добавлении лайка
-    if (telegram && result.isLiked) {
-      try {
-        await telegram.sendLikeNotification(projectId, result.likes, projectTitle);
-        console.log(`📱 Telegram уведомление отправлено для ${projectId}`);
-      } catch (telegramError) {
-        console.error('❌ Ошибка отправки в Telegram:', telegramError.message);
-        // Не прерываем выполнение, если Telegram недоступен
-      }
+    // Проверяем существует ли проект
+    const exists = await projectExists(db, projectId);
+    if (!exists) {
+      return res.status(404).json({
+        success: false,
+        error: 'Проект не найден'
+      });
     }
     
-    res.json({ 
-      likes: result.likes,
-      isLiked: result.isLiked,
-      projectId: projectId,
-      userId: userId,
-      action: result.isLiked ? 'add' : 'remove'
-    });
+    // Поддерживаем два формата: старый (с userId) и новый (с action)
+    if (action) {
+      // Новый формат для тестов
+      if (!action || typeof action !== 'string') {
+        return res.status(400).json({
+          success: false,
+          error: 'Action обязателен и должен быть строкой'
+        });
+      }
+      
+      if (action !== 'add' && action !== 'remove') {
+        return res.status(400).json({
+          success: false,
+          error: 'Action должен быть "add" или "remove"'
+        });
+      }
+      
+      let newLikes;
+      if (action === 'add') {
+        newLikes = await addLike(db, projectId);
+      } else {
+        newLikes = await removeLike(db, projectId);
+      }
+      
+      res.json({
+        success: true,
+        likes: newLikes,
+        projectId: projectId,
+        action: action
+      });
+      
+    } else if (userId) {
+      // Старый формат с userId
+      const result = await toggleUserLike(db, userId, projectId);
+      
+      // Отправляем уведомление в Telegram только при добавлении лайка
+      if (telegram && result.isLiked) {
+        try {
+          await telegram.sendLikeNotification(projectId, result.likes, projectTitle);
+          console.log(`📱 Telegram уведомление отправлено для ${projectId}`);
+        } catch (telegramError) {
+          console.error('❌ Ошибка отправки в Telegram:', telegramError.message);
+          // Не прерываем выполнение, если Telegram недоступен
+        }
+      }
+      
+      res.json({ 
+        success: true,
+        likes: result.likes,
+        isLiked: result.isLiked,
+        projectId: projectId,
+        userId: userId,
+        action: result.isLiked ? 'add' : 'remove'
+      });
+      
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: 'Требуется userId или action'
+      });
+    }
     
   } catch (error) {
     console.error('Ошибка переключения лайка:', error);
     res.status(500).json({ 
+      success: false,
       error: 'Ошибка сервера при переключении лайка' 
     });
   }
@@ -182,6 +268,7 @@ app.get('/api/likes', async (req, res) => {
     const allLikes = await getAllLikes(db);
     
     res.json({ 
+      success: true,
       likes: allLikes,
       total: Object.keys(allLikes).length
     });
@@ -388,6 +475,8 @@ async function startServer() {
     // Проверяем, нужна ли миграция данных
     const MigrationService = require('./services/migrationService');
     const migrationService = new MigrationService();
+    await migrationService.initialize();
+    
     const needsMigration = await migrationService.needsMigration();
     
     if (needsMigration) {
@@ -423,6 +512,12 @@ async function startServer() {
       console.log(`   POST /api/projects - создать проект (админ)`);
       console.log(`   PUT  /api/projects/:id - обновить проект (админ)`);
       console.log(`   DELETE /api/projects/:id - удалить проект (админ)`);
+      console.log(`   GET  /api/skills - получить навыки`);
+      console.log(`   GET  /api/skills/:id - получить навык по ID`);
+      console.log(`   GET  /api/certificates - получить сертификаты`);
+      console.log(`   GET  /api/certificates/:id - получить сертификат по ID`);
+      console.log(`   GET  /api/about - получить контент "Обо мне"`);
+      console.log(`   GET  /api/contacts - получить контактную информацию`);
       console.log(`📱 Эндпоинты Telegram:`);
       console.log(`   POST /api/telegram/test - тестовое сообщение`);
       console.log(`   GET  /api/telegram/info - информация о боте`);

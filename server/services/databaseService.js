@@ -1,327 +1,339 @@
 /**
- * Сервис для работы с базой данных CMS
- * Инициализация, миграции и базовые операции
+ * Сервис для работы с CMS базой данных SQLite
  */
 
 const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs').promises;
 const path = require('path');
+const fs = require('fs');
+
+// Путь к файлу базы данных CMS (используем основную базу данных)
+const CMS_DB_PATH = path.join(__dirname, '..', '..', 'database', 'vidrimers.db');
+const SCHEMA_PATH = path.join(__dirname, '..', '..', 'database', 'schema.sql');
 
 class DatabaseService {
   constructor() {
     this.db = null;
-    this.dbPath = path.join(__dirname, '../database/cms.db');
-    this.schemaPath = path.join(__dirname, '../database/schema.sql');
   }
 
   /**
-   * Инициализирует базу данных
-   * @returns {Promise<sqlite3.Database>} Экземпляр базы данных
+   * Инициализация CMS базы данных
+   * @returns {Promise<void>}
    */
   async initialize() {
-    try {
-      // Создаем директорию для базы данных если её нет
-      const dbDir = path.dirname(this.dbPath);
-      await fs.mkdir(dbDir, { recursive: true });
-
-      // Подключаемся к базе данных
-      this.db = new sqlite3.Database(this.dbPath, (err) => {
-        if (err) {
-          console.error('Ошибка подключения к базе данных CMS:', err);
-          throw err;
-        }
-        console.log('✅ Подключение к базе данных CMS установлено');
-      });
-
-      // Включаем поддержку внешних ключей
-      await this.runQuery('PRAGMA foreign_keys = ON');
-
-      // Создаем таблицы из схемы
-      await this.createTables();
-
-      console.log('✅ База данных CMS инициализирована');
-      return this.db;
-
-    } catch (error) {
-      console.error('❌ Ошибка инициализации базы данных CMS:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Создает таблицы из файла схемы
-   * @private
-   */
-  async createTables() {
-    try {
-      const schema = await fs.readFile(this.schemaPath, 'utf8');
-      
-      // Разделяем SQL команды по точке с запятой и фильтруем пустые
-      const statements = schema
-        .split(';')
-        .map(stmt => stmt.trim())
-        .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
-
-      // Выполняем каждую команду отдельно
-      for (const statement of statements) {
-        if (statement.trim()) {
-          try {
-            await this.runQuery(statement);
-          } catch (error) {
-            // Игнорируем ошибки "уже существует" для CREATE IF NOT EXISTS
-            if (!error.message.includes('already exists')) {
-              console.warn('Предупреждение при выполнении SQL:', statement.substring(0, 50) + '...', error.message);
-            }
-          }
-        }
+    return new Promise((resolve, reject) => {
+      // Создаем папку database если её нет
+      const dbDir = path.dirname(CMS_DB_PATH);
+      if (!fs.existsSync(dbDir)) {
+        fs.mkdirSync(dbDir, { recursive: true });
       }
 
-      console.log('✅ Таблицы CMS созданы/обновлены');
-    } catch (error) {
-      console.error('❌ Ошибка создания таблиц:', error);
-      throw error;
-    }
+      this.db = new sqlite3.Database(CMS_DB_PATH, (err) => {
+        if (err) {
+          console.error('Ошибка подключения к CMS базе данных:', err.message);
+          reject(err);
+          return;
+        }
+        
+        console.log('✅ Подключение к CMS SQLite базе данных установлено');
+        
+        // Читаем и выполняем схему базы данных
+        if (fs.existsSync(SCHEMA_PATH)) {
+          const schema = fs.readFileSync(SCHEMA_PATH, 'utf8');
+          
+          this.db.exec(schema, (err) => {
+            if (err) {
+              console.error('Ошибка создания схемы базы данных:', err.message);
+              reject(err);
+              return;
+            }
+            
+            console.log('✅ Схема CMS базы данных создана успешно');
+            resolve();
+          });
+        } else {
+          console.error('Файл схемы базы данных не найден:', SCHEMA_PATH);
+          reject(new Error('Schema file not found'));
+        }
+      });
+    });
   }
 
   /**
-   * Выполняет SQL запрос
+   * Закрыть соединение с базой данных
+   * @returns {Promise<void>}
+   */
+  async close() {
+    if (!this.db) return;
+    
+    return new Promise((resolve, reject) => {
+      this.db.close((err) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        this.db = null;
+        resolve();
+      });
+    });
+  }
+
+  /**
+   * Выполнить SQL запрос с параметрами
    * @param {string} sql - SQL запрос
    * @param {Array} params - Параметры запроса
-   * @returns {Promise<object>} Результат запроса
+   * @returns {Promise<any>}
    */
   runQuery(sql, params = []) {
     return new Promise((resolve, reject) => {
+      if (!this.db) {
+        reject(new Error('Database not initialized'));
+        return;
+      }
+      
       this.db.run(sql, params, function(err) {
         if (err) {
           reject(err);
-        } else {
-          resolve({
-            lastID: this.lastID,
-            changes: this.changes
-          });
+          return;
         }
+        resolve({ lastID: this.lastID, changes: this.changes });
       });
     });
   }
 
   /**
-   * Выполняет SELECT запрос и возвращает одну строку
+   * Получить одну запись
    * @param {string} sql - SQL запрос
    * @param {Array} params - Параметры запроса
-   * @returns {Promise<object|null>} Строка результата или null
+   * @returns {Promise<Object|null>}
    */
-  getQuery(sql, params = []) {
+  getOne(sql, params = []) {
     return new Promise((resolve, reject) => {
+      if (!this.db) {
+        reject(new Error('Database not initialized'));
+        return;
+      }
+      
       this.db.get(sql, params, (err, row) => {
         if (err) {
           reject(err);
-        } else {
-          resolve(row || null);
+          return;
         }
+        resolve(row || null);
       });
     });
   }
 
   /**
-   * Выполняет SELECT запрос и возвращает все строки
+   * Получить все записи
    * @param {string} sql - SQL запрос
    * @param {Array} params - Параметры запроса
-   * @returns {Promise<Array>} Массив строк результата
+   * @returns {Promise<Array>}
    */
-  allQuery(sql, params = []) {
+  getAll(sql, params = []) {
     return new Promise((resolve, reject) => {
+      if (!this.db) {
+        reject(new Error('Database not initialized'));
+        return;
+      }
+      
       this.db.all(sql, params, (err, rows) => {
         if (err) {
           reject(err);
-        } else {
-          resolve(rows || []);
+          return;
         }
+        resolve(rows || []);
       });
     });
   }
 
   /**
-   * Выполняет транзакцию
+   * Выполнить транзакцию
    * @param {Function} callback - Функция с операциями транзакции
-   * @returns {Promise<any>} Результат транзакции
+   * @returns {Promise<any>}
    */
   async transaction(callback) {
-    await this.runQuery('BEGIN TRANSACTION');
-    
     try {
-      const result = await callback(this);
-      await this.runQuery('COMMIT');
-      return result;
-    } catch (error) {
-      await this.runQuery('ROLLBACK');
-      throw error;
-    }
-  }
-
-  /**
-   * Логирует активность пользователя
-   * @param {string} userId - ID пользователя
-   * @param {string} action - Выполненное действие
-   * @param {string} entityType - Тип сущности
-   * @param {string} entityId - ID сущности
-   * @param {object} details - Дополнительные детали
-   * @param {string} ipAddress - IP адрес
-   * @param {string} userAgent - User Agent
-   * @returns {Promise<number>} ID созданной записи лога
-   */
-  async logActivity(userId, action, entityType, entityId = null, details = {}, ipAddress = null, userAgent = null) {
-    try {
-      const result = await this.runQuery(`
-        INSERT INTO activity_logs (
-          user_id, action, entity_type, entity_id, 
-          details, ip_address, user_agent
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
-      `, [
-        userId,
-        action,
-        entityType,
-        entityId,
-        JSON.stringify(details),
-        ipAddress,
-        userAgent
-      ]);
-
-      return result.lastID;
-    } catch (error) {
-      console.error('Ошибка логирования активности:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Получает логи активности с фильтрацией
-   * @param {object} filters - Фильтры для поиска
-   * @param {number} limit - Лимит записей
-   * @param {number} offset - Смещение
-   * @returns {Promise<Array>} Массив логов
-   */
-  async getActivityLogs(filters = {}, limit = 100, offset = 0) {
-    try {
-      let sql = 'SELECT * FROM activity_logs WHERE 1=1';
-      const params = [];
-
-      if (filters.userId) {
-        sql += ' AND user_id = ?';
-        params.push(filters.userId);
-      }
-
-      if (filters.action) {
-        sql += ' AND action = ?';
-        params.push(filters.action);
-      }
-
-      if (filters.entityType) {
-        sql += ' AND entity_type = ?';
-        params.push(filters.entityType);
-      }
-
-      if (filters.dateFrom) {
-        sql += ' AND created_at >= ?';
-        params.push(filters.dateFrom);
-      }
-
-      if (filters.dateTo) {
-        sql += ' AND created_at <= ?';
-        params.push(filters.dateTo);
-      }
-
-      sql += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
-      params.push(limit, offset);
-
-      const logs = await this.allQuery(sql, params);
+      await this.runQuery('BEGIN TRANSACTION');
       
-      // Парсим JSON детали
-      return logs.map(log => ({
-        ...log,
-        details: log.details ? JSON.parse(log.details) : {}
-      }));
-
-    } catch (error) {
-      console.error('Ошибка получения логов:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Очищает старые логи (старше указанного количества дней)
-   * @param {number} daysToKeep - Количество дней для хранения
-   * @returns {Promise<number>} Количество удаленных записей
-   */
-  async cleanupOldLogs(daysToKeep = 90) {
-    try {
-      const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
-
-      const result = await this.runQuery(
-        'DELETE FROM activity_logs WHERE created_at < ?',
-        [cutoffDate.toISOString()]
-      );
-
-      console.log(`🧹 Удалено ${result.changes} старых записей логов`);
-      return result.changes;
-
-    } catch (error) {
-      console.error('Ошибка очистки логов:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Получает статистику базы данных
-   * @returns {Promise<object>} Статистика
-   */
-  async getStats() {
-    try {
-      const stats = {};
-
-      // Считаем записи в каждой таблице
-      const tables = ['projects', 'categories', 'skills', 'certificates', 'activity_logs'];
-      
-      for (const table of tables) {
-        const result = await this.getQuery(`SELECT COUNT(*) as count FROM ${table}`);
-        stats[table] = result.count;
-      }
-
-      // Размер базы данных
       try {
-        const dbStats = await fs.stat(this.dbPath);
-        stats.databaseSize = dbStats.size;
+        const result = await callback(this);
+        await this.runQuery('COMMIT');
+        return result;
       } catch (error) {
-        stats.databaseSize = 0;
+        await this.runQuery('ROLLBACK');
+        throw error;
       }
-
-      return stats;
     } catch (error) {
-      console.error('Ошибка получения статистики:', error);
       throw error;
     }
-  }
-
-  /**
-   * Закрывает соединение с базой данных
-   * @returns {Promise<void>}
-   */
-  close() {
-    return new Promise((resolve, reject) => {
-      if (this.db) {
-        this.db.close((err) => {
-          if (err) {
-            reject(err);
-          } else {
-            console.log('✅ Соединение с базой данных CMS закрыто');
-            resolve();
-          }
-        });
-      } else {
-        resolve();
-      }
-    });
   }
 }
 
+/**
+ * Инициализация CMS базы данных (функция для обратной совместимости)
+ * @returns {Promise<sqlite3.Database>} - Экземпляр базы данных
+ */
+function initCMSDatabase() {
+  return new Promise((resolve, reject) => {
+    // Создаем папку database если её нет
+    const dbDir = path.dirname(CMS_DB_PATH);
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+
+    const db = new sqlite3.Database(CMS_DB_PATH, (err) => {
+      if (err) {
+        console.error('Ошибка подключения к CMS базе данных:', err.message);
+        reject(err);
+        return;
+      }
+      
+      console.log('✅ Подключение к CMS SQLite базе данных установлено');
+      
+      // Читаем и выполняем схему базы данных
+      if (fs.existsSync(SCHEMA_PATH)) {
+        const schema = fs.readFileSync(SCHEMA_PATH, 'utf8');
+        
+        db.exec(schema, (err) => {
+          if (err) {
+            console.error('Ошибка создания схемы базы данных:', err.message);
+            reject(err);
+            return;
+          }
+          
+          console.log('✅ Схема CMS базы данных создана успешно');
+          resolve(db);
+        });
+      } else {
+        console.error('Файл схемы базы данных не найден:', SCHEMA_PATH);
+        reject(new Error('Schema file not found'));
+      }
+    });
+  });
+}
+
+/**
+ * Получить экземпляр базы данных (функция для обратной совместимости)
+ * @returns {Promise<sqlite3.Database>}
+ */
+function getDatabase() {
+  return new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(CMS_DB_PATH, (err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(db);
+    });
+  });
+}
+
+/**
+ * Закрыть соединение с базой данных (функция для обратной совместимости)
+ * @param {sqlite3.Database} db - Экземпляр базы данных
+ * @returns {Promise<void>}
+ */
+function closeDatabase(db) {
+  return new Promise((resolve, reject) => {
+    db.close((err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+/**
+ * Выполнить SQL запрос с параметрами (функция для обратной совместимости)
+ * @param {sqlite3.Database} db - Экземпляр базы данных
+ * @param {string} sql - SQL запрос
+ * @param {Array} params - Параметры запроса
+ * @returns {Promise<any>}
+ */
+function runQuery(db, sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params, function(err) {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve({ lastID: this.lastID, changes: this.changes });
+    });
+  });
+}
+
+/**
+ * Получить одну запись (функция для обратной совместимости)
+ * @param {sqlite3.Database} db - Экземпляр базы данных
+ * @param {string} sql - SQL запрос
+ * @param {Array} params - Параметры запроса
+ * @returns {Promise<Object|null>}
+ */
+function getOne(db, sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(row || null);
+    });
+  });
+}
+
+/**
+ * Получить все записи (функция для обратной совместимости)
+ * @param {sqlite3.Database} db - Экземпляр базы данных
+ * @param {string} sql - SQL запрос
+ * @param {Array} params - Параметры запроса
+ * @returns {Promise<Array>}
+ */
+function getAll(db, sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(rows || []);
+    });
+  });
+}
+
+/**
+ * Выполнить транзакцию (функция для обратной совместимости)
+ * @param {sqlite3.Database} db - Экземпляр базы данных
+ * @param {Function} callback - Функция с операциями транзакции
+ * @returns {Promise<any>}
+ */
+function transaction(db, callback) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await runQuery(db, 'BEGIN TRANSACTION');
+      
+      try {
+        const result = await callback(db);
+        await runQuery(db, 'COMMIT');
+        resolve(result);
+      } catch (error) {
+        await runQuery(db, 'ROLLBACK');
+        reject(error);
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
 module.exports = DatabaseService;
+
+// Экспортируем также функции для обратной совместимости
+module.exports.initCMSDatabase = initCMSDatabase;
+module.exports.getDatabase = getDatabase;
+module.exports.closeDatabase = closeDatabase;
+module.exports.runQuery = runQuery;
+module.exports.getOne = getOne;
+module.exports.getAll = getAll;
+module.exports.transaction = transaction;

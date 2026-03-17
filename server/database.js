@@ -6,7 +6,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 // Путь к файлу базы данных
-const DB_PATH = path.join(__dirname, '..', 'database', 'likes.db');
+const DB_PATH = path.join(__dirname, '..', 'database', 'vidrimers.db');
 
 /**
  * Инициализация базы данных
@@ -64,6 +64,28 @@ function initDatabase() {
       });
     });
     });
+  });
+}
+
+/**
+ * Проверить существует ли проект в базе данных
+ * @param {sqlite3.Database} db - Экземпляр базы данных
+ * @param {string} projectId - ID проекта
+ * @returns {Promise<boolean>} - true если проект существует
+ */
+function projectExists(db, projectId) {
+  return new Promise((resolve, reject) => {
+    db.get(
+      'SELECT 1 FROM likes WHERE project_id = ?',
+      [projectId],
+      (err, row) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(!!row);
+      }
+    );
   });
 }
 
@@ -280,6 +302,7 @@ function getAllLikes(db) {
 
 module.exports = {
   initDatabase,
+  projectExists,
   getLikes,
   addLike,
   removeLike,
