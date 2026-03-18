@@ -16,6 +16,12 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
   const [editingProject, setEditingProject] = useState(null);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
+  
+  // Состояние настроек сортировки
+  const [sortSettings, setSortSettings] = useState({
+    portfolioSortOrder: 'sort_order',
+    portfolioSortDirection: 'asc'
+  });
 
   // Состояние формы проекта
   const [projectForm, setProjectForm] = useState({
@@ -75,7 +81,28 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
 
       const categoriesData = await categoriesResponse.json();
 
-      setProjects(projectsData.data || []);
+      // Загружаем настройки сортировки
+      const settingsResponse = await fetch('/api/settings');
+      if (settingsResponse.ok) {
+        const settingsData = await settingsResponse.json();
+        if (settingsData.success) {
+          setSortSettings({
+            portfolioSortOrder: settingsData.data.portfolio_sort_order || 'sort_order',
+            portfolioSortDirection: settingsData.data.portfolio_sort_direction || 'asc'
+          });
+        }
+      }
+
+      // Преобразуем числовые значения в булевы для корректного отображения
+      const transformedProjects = (projectsData.data || []).map(project => ({
+        ...project,
+        is_ai: Boolean(project.is_ai),
+        is_new: Boolean(project.is_new),
+        is_in_progress: Boolean(project.is_in_progress),
+        is_hidden: Boolean(project.is_hidden)
+      }));
+
+      setProjects(transformedProjects);
       setCategories(categoriesData.data || []);
 
     } catch (err) {
@@ -83,6 +110,48 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Сохранение настроек сортировки
+  const handleSortSettingsChange = async (newSortOrder, newSortDirection) => {
+    console.log('Изменение настроек сортировки:', { newSortOrder, newSortDirection });
+    
+    try {
+      const token = localStorage.getItem('admin_token');
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      console.log('Отправляем запрос на сохранение настроек...');
+
+      const response = await fetch('/api/settings', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          portfolioSortOrder: newSortOrder,
+          portfolioSortDirection: newSortDirection
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Ошибка ответа сервера:', errorData);
+        throw new Error('Ошибка сохранения настроек');
+      }
+
+      const result = await response.json();
+      console.log('Настройки сохранены:', result);
+
+      setSortSettings({
+        portfolioSortOrder: newSortOrder,
+        portfolioSortDirection: newSortDirection
+      });
+
+    } catch (err) {
+      console.error('Ошибка сохранения настроек:', err);
+      setError(err.message);
     }
   };
 
@@ -301,7 +370,7 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
         method: 'PUT',
         headers,
         body: JSON.stringify({
-          isHidden: !project.is_hidden
+          is_hidden: !project.is_hidden
         })
       });
 
@@ -357,6 +426,31 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
             <div className={styles.header}>
               <h3>Проекты портфолио</h3>
               <div className={styles.headerActions}>
+                {/* Селект сортировки */}
+                <div className={styles.sortControls}>
+                  <label className={styles.sortLabel}>Сортировка:</label>
+                  <select 
+                    className={styles.sortSelect}
+                    value={sortSettings.portfolioSortOrder}
+                    onChange={(e) => handleSortSettingsChange(e.target.value, sortSettings.portfolioSortDirection)}
+                    disabled={loading}
+                  >
+                    <option value="sort_order">По порядку</option>
+                    <option value="created_at">По дате добавления</option>
+                    <option value="title_ru">По названию</option>
+                    <option value="likes_count">По лайкам</option>
+                  </select>
+                  <select 
+                    className={styles.sortSelect}
+                    value={sortSettings.portfolioSortDirection}
+                    onChange={(e) => handleSortSettingsChange(sortSettings.portfolioSortOrder, e.target.value)}
+                    disabled={loading}
+                  >
+                    <option value="asc">По возрастанию</option>
+                    <option value="desc">По убыванию</option>
+                  </select>
+                </div>
+                
                 <button 
                   className={styles.categoryButton}
                   onClick={handleOpenCategoryManager}
@@ -392,10 +486,10 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
                       </span>
                       
                       <div className={styles.flags}>
-                        {project.is_ai && <span className={styles.flag}>AI</span>}
-                        {project.is_new && <span className={styles.flag}>NEW</span>}
-                        {project.is_in_progress && <span className={styles.flag}>В работе</span>}
-                        {project.is_hidden && <span className={styles.flag}>Скрыт</span>}
+                        {Boolean(project.is_ai) && <span className={styles.flag}>AI</span>}
+                        {Boolean(project.is_new) && <span className={styles.flag}>NEW</span>}
+                        {Boolean(project.is_in_progress) && <span className={styles.flag}>В работе</span>}
+                        {Boolean(project.is_hidden) && <span className={styles.flag}>Скрыт</span>}
                       </div>
                     </div>
 

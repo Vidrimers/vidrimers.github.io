@@ -304,17 +304,43 @@ const sanitizeProject = (req, res, next) => {
     data.categoryId = data.categoryId.trim().toLowerCase();
   }
 
-  // Приведение типов
+  // Приведение типов только для переданных полей
   if (data.sortOrder !== undefined && data.sortOrder !== null) {
     data.sortOrder = Number(data.sortOrder) || 0;
-  } else {
-    data.sortOrder = 0;
   }
 
-  data.isAi = Boolean(data.isAi);
-  data.isNew = Boolean(data.isNew);
-  data.isInProgress = Boolean(data.isInProgress);
-  data.isHidden = Boolean(data.isHidden);
+  if (data.isAi !== undefined) {
+    data.isAi = Boolean(data.isAi);
+  }
+  
+  if (data.isNew !== undefined) {
+    data.isNew = Boolean(data.isNew);
+  }
+  
+  if (data.isInProgress !== undefined) {
+    data.isInProgress = Boolean(data.isInProgress);
+  }
+  
+  if (data.isHidden !== undefined) {
+    data.isHidden = Boolean(data.isHidden);
+  }
+
+  // Поддержка snake_case полей из базы данных
+  if (data.is_ai !== undefined) {
+    data.is_ai = Boolean(data.is_ai);
+  }
+  
+  if (data.is_new !== undefined) {
+    data.is_new = Boolean(data.is_new);
+  }
+  
+  if (data.is_in_progress !== undefined) {
+    data.is_in_progress = Boolean(data.is_in_progress);
+  }
+  
+  if (data.is_hidden !== undefined) {
+    data.is_hidden = Boolean(data.is_hidden);
+  }
 
   req.body = data;
   next();

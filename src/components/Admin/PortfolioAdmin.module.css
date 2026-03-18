@@ -44,6 +44,47 @@
   align-items: center;
 }
 
+/* Контролы сортировки */
+.sortControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 15px;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.sortLabel {
+  font-size: 0.9rem;
+  color: #495057;
+  font-weight: 500;
+  margin: 0;
+}
+
+.sortSelect {
+  padding: 6px 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  background-color: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.sortSelect:focus {
+  outline: none;
+  border-color: #fc285b;
+  box-shadow: 0 0 0 2px rgba(252, 40, 91, 0.1);
+}
+
+.sortSelect:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .createButton,
 .categoryButton {
   border: none;
@@ -468,6 +509,21 @@
   .headerActions {
     flex-direction: column;
     gap: 10px;
+  }
+
+  .sortControls {
+    margin-right: 0;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sortLabel {
+    font-size: 0.85rem;
+  }
+
+  .sortSelect {
+    font-size: 0.8rem;
+    padding: 4px 6px;
   }
 
   .projectTitle {

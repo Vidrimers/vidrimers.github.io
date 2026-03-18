@@ -65,6 +65,9 @@ Temp/
 database/
 logs/
 
+# Migration files
+server/migrations/
+
 # CMS uploads directory
 uploads/
 

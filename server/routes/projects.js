@@ -15,15 +15,24 @@ const router = express.Router();
  */
 router.get('/', optionalAuth, async (req, res) => {
   try {
-    const { category, includeHidden = false } = req.query;
+    const { category, includeHidden = false, sortBy = 'sort_order', sortDirection = 'asc' } = req.query;
     const isAdmin = req.user && req.user.role === 'admin';
     
     const dbService = getDbService();
     
+    // Валидация параметров сортировки
+    const validSortFields = ['sort_order', 'created_at', 'title_ru', 'likes_count'];
+    const validDirections = ['asc', 'desc'];
+    
+    const sortField = validSortFields.includes(sortBy) ? sortBy : 'sort_order';
+    const direction = validDirections.includes(sortDirection) ? sortDirection : 'asc';
+    
     let sql = `
-      SELECT p.*, c.name_ru as category_name_ru, c.name_en as category_name_en
+      SELECT p.*, c.name_ru as category_name_ru, c.name_en as category_name_en,
+             COALESCE(l.likes_count, 0) as likes_count
       FROM projects p
       LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN likes l ON p.id = l.project_id
       WHERE 1=1
     `;
     const params = [];
@@ -39,7 +48,17 @@ router.get('/', optionalAuth, async (req, res) => {
       sql += ' AND p.is_hidden = FALSE';
     }
 
-    sql += ' ORDER BY p.sort_order ASC, p.created_at DESC';
+    // Добавляем сортировку
+    if (sortField === 'likes_count') {
+      sql += ` ORDER BY COALESCE(l.likes_count, 0) ${direction.toUpperCase()}`;
+    } else {
+      sql += ` ORDER BY p.${sortField} ${direction.toUpperCase()}`;
+    }
+    
+    // Если сортируем не по sort_order, добавляем вторичную сортировку
+    if (sortField !== 'sort_order') {
+      sql += ', p.sort_order ASC';
+    }
 
     const projects = await dbService.allQuery(sql, params);
 
@@ -74,9 +93,11 @@ router.get('/:id', optionalAuth, async (req, res) => {
     const dbService = getDbService();
 
     let sql = `
-      SELECT p.*, c.name_ru as category_name_ru, c.name_en as category_name_en
+      SELECT p.*, c.name_ru as category_name_ru, c.name_en as category_name_en,
+             COALESCE(l.likes_count, 0) as likes_count
       FROM projects p
       LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN likes l ON p.id = l.project_id
       WHERE p.id = ?
     `;
 

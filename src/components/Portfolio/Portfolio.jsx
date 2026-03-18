@@ -21,7 +21,23 @@ const Portfolio = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('/api/projects');
+      // Загружаем настройки сортировки
+      const settingsResponse = await fetch('/api/settings');
+      let sortOrder = 'sort_order';
+      let sortDirection = 'asc';
+      
+      if (settingsResponse.ok) {
+        const settingsData = await settingsResponse.json();
+        if (settingsData.success) {
+          sortOrder = settingsData.data.portfolio_sort_order || 'sort_order';
+          sortDirection = settingsData.data.portfolio_sort_direction || 'asc';
+        }
+      }
+      
+      // Загружаем проекты с параметрами сортировки
+      const projectsUrl = `/api/projects?sortBy=${sortOrder}&sortDirection=${sortDirection}`;
+      const response = await fetch(projectsUrl);
+      
       if (!response.ok) {
         throw new Error('Ошибка загрузки проектов');
       }
@@ -43,7 +59,8 @@ const Portfolio = () => {
           isInProgress: Boolean(project.is_in_progress),
           isHidden: Boolean(project.is_hidden),
           sortOrder: project.sort_order,
-          createdAt: project.created_at
+          createdAt: project.created_at,
+          likesCount: project.likes_count || 0
         }));
         
         setProjects(transformedProjects);
@@ -67,16 +84,8 @@ const Portfolio = () => {
   const filteredProjects = useMemo(() => {
     if (!projects.length) return [];
     
-    // Фильтруем по категории
-    let filtered = projects.filter(project => project.category === activeCategory);
-    
-    // Сортируем по sortOrder, затем по дате создания (новые первые)
-    return filtered.sort((a, b) => {
-      if (a.sortOrder !== b.sortOrder) {
-        return a.sortOrder - b.sortOrder;
-      }
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    });
+    // Только фильтруем по категории, сортировка уже пришла с сервера
+    return projects.filter(project => project.category === activeCategory);
   }, [projects, activeCategory]);
   
   // Обработчик смены категории с анимацией
