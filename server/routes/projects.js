@@ -153,6 +153,9 @@ router.post('/', requireAuth, sanitizeProject, validateProject, async (req, res)
       imagePath,
       link,
       categoryId,
+      year,
+      month,
+      day,
       isAi = false,
       isNew = false,
       isInProgress = false,
@@ -191,11 +194,11 @@ router.post('/', requireAuth, sanitizeProject, validateProject, async (req, res)
     await dbService.runQuery(`
       INSERT INTO projects (
         id, title_ru, title_en, description_ru, description_en,
-        image_path, link, category_id, is_ai, is_new, is_in_progress, sort_order
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        image_path, link, category_id, year, month, day, is_ai, is_new, is_in_progress, sort_order
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       id, titleRu, titleEn, descriptionRu, descriptionEn,
-      imagePath, link, categoryId, isAi, isNew, isInProgress, sortOrder
+      imagePath, link, categoryId, year, month, day, isAi, isNew, isInProgress, sortOrder
     ]);
 
     // Логируем активность
@@ -378,7 +381,7 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
     // Формируем SQL для обновления
     const allowedFields = [
       'title_ru', 'title_en', 'description_ru', 'description_en',
-      'image_path', 'link', 'category_id', 'is_ai', 'is_new', 
+      'image_path', 'link', 'category_id', 'year', 'month', 'day', 'is_ai', 'is_new', 
       'is_in_progress', 'is_hidden', 'sort_order'
     ];
 

@@ -21,6 +21,9 @@ const validateProject = (req, res, next) => {
     imagePath,
     link,
     categoryId,
+    year,
+    month,
+    day,
     isAi,
     isNew,
     isInProgress,
@@ -123,6 +126,39 @@ const validateProject = (req, res, next) => {
     // Проверка на потенциально опасные пути
     if (trimmedPath.includes('..') || trimmedPath.includes('\\')) {
       errors.push('Путь к изображению содержит недопустимые символы');
+    }
+  }
+
+  // Валидация года создания проекта
+  if (year !== undefined && year !== null && year !== '') {
+    const numYear = Number(year);
+    
+    if (isNaN(numYear)) {
+      errors.push('Год должен быть числом');
+    } else if (numYear < 1990) {
+      errors.push('Год должен быть не менее 1990');
+    }
+  }
+
+  // Валидация месяца создания проекта
+  if (month !== undefined && month !== null && month !== '') {
+    const numMonth = Number(month);
+    
+    if (isNaN(numMonth)) {
+      errors.push('Месяц должен быть числом');
+    } else if (numMonth < 1 || numMonth > 12) {
+      errors.push('Месяц должен быть от 1 до 12');
+    }
+  }
+
+  // Валидация дня создания проекта
+  if (day !== undefined && day !== null && day !== '') {
+    const numDay = Number(day);
+    
+    if (isNaN(numDay)) {
+      errors.push('День должен быть числом');
+    } else if (numDay < 1 || numDay > 31) {
+      errors.push('День должен быть от 1 до 31');
     }
   }
 
@@ -307,6 +343,19 @@ const sanitizeProject = (req, res, next) => {
   // Приведение типов только для переданных полей
   if (data.sortOrder !== undefined && data.sortOrder !== null) {
     data.sortOrder = Number(data.sortOrder) || 0;
+  }
+
+  // Санитизация года, месяца и дня
+  if (data.year !== undefined && data.year !== null && data.year !== '') {
+    data.year = Number(data.year) || null;
+  }
+
+  if (data.month !== undefined && data.month !== null && data.month !== '') {
+    data.month = Number(data.month) || null;
+  }
+
+  if (data.day !== undefined && data.day !== null && data.day !== '') {
+    data.day = Number(data.day) || null;
   }
 
   if (data.isAi !== undefined) {

@@ -211,6 +211,12 @@
   color: #fc285b;
 }
 
+.projectYear {
+  font-weight: 400;
+  color: #666;
+  font-size: 0.9em;
+}
+
 .description {
   padding: 0 2rem 2rem;
   font-size: 1.5rem;

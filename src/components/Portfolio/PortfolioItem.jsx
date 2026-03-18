@@ -85,6 +85,11 @@ const PortfolioItem = memo(({ project }) => {
         onClick={handleProjectClick}
       >
         {title}
+        {(project.year || project.month || project.day) && (
+          <span className={styles.projectYear}>
+            {' '}({[project.day, project.month, project.year].filter(Boolean).join('.')})
+          </span>
+        )}
       </a>
       
       {/* Описание проекта */}

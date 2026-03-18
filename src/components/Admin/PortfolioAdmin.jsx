@@ -33,6 +33,9 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
     imagePath: '',
     link: '',
     categoryId: '',
+    year: '',
+    month: '',
+    day: '',
     isAi: false,
     isNew: false,
     isInProgress: false,
@@ -159,6 +162,9 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
       imagePath: '',
       link: '',
       categoryId: categories.length > 0 ? categories[0].id : '',
+      year: '',
+      month: '',
+      day: '',
       isAi: false,
       isNew: false,
       isInProgress: false,
@@ -212,6 +218,9 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
       imagePath: project.image_path || '',
       link: project.link || '',
       categoryId: project.category_id,
+      year: project.year || '',
+      month: project.month || '',
+      day: project.day || '',
       isAi: project.is_ai,
       isNew: project.is_new,
       isInProgress: project.is_in_progress,
@@ -650,7 +659,7 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
                 />
               </div>
 
-              {/* Ссылка */}
+              {/* Ссылка на проект - отдельно */}
               <div className={styles.formGroup}>
                 <label htmlFor="link">Ссылка на проект</label>
                 <input
@@ -659,7 +668,49 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
                   value={projectForm.link}
                   onChange={(e) => handleFormChange('link', e.target.value)}
                   placeholder="https://example.com"
+                  style={{width: '100%'}}
                 />
+              </div>
+
+              {/* Дата создания - отдельная строка */}
+              <div style={{display: 'flex', gap: '15px'}}>
+                <div className={styles.formGroup} style={{flex: '0 0 100px'}}>
+                  <label htmlFor="year">Год</label>
+                  <input
+                    id="year"
+                    type="number"
+                    value={projectForm.year}
+                    onChange={(e) => handleFormChange('year', e.target.value)}
+                    placeholder="2024"
+                    min="1990"
+                  />
+                </div>
+
+                <div className={styles.formGroup} style={{flex: '0 0 80px'}}>
+                  <label htmlFor="month">Месяц</label>
+                  <input
+                    id="month"
+                    type="number"
+                    value={projectForm.month}
+                    onChange={(e) => handleFormChange('month', e.target.value)}
+                    placeholder="12"
+                    min="1"
+                    max="12"
+                  />
+                </div>
+
+                <div className={styles.formGroup} style={{flex: '0 0 80px'}}>
+                  <label htmlFor="day">День</label>
+                  <input
+                    id="day"
+                    type="number"
+                    value={projectForm.day}
+                    onChange={(e) => handleFormChange('day', e.target.value)}
+                    placeholder="31"
+                    min="1"
+                    max="31"
+                  />
+                </div>
               </div>
 
               {/* Изображение проекта */}

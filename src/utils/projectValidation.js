@@ -109,6 +109,39 @@ export const validateProject = (projectData, existingProjects = [], isEditing = 
     }
   }
 
+  // Валидация года создания проекта
+  if (projectData.year && projectData.year.toString().trim()) {
+    const year = Number(projectData.year);
+    
+    if (isNaN(year)) {
+      errors.push('Год должен быть числом');
+    } else if (year < 1990) {
+      errors.push('Год должен быть не менее 1990');
+    }
+  }
+
+  // Валидация месяца создания проекта
+  if (projectData.month && projectData.month.toString().trim()) {
+    const month = Number(projectData.month);
+    
+    if (isNaN(month)) {
+      errors.push('Месяц должен быть числом');
+    } else if (month < 1 || month > 12) {
+      errors.push('Месяц должен быть от 1 до 12');
+    }
+  }
+
+  // Валидация дня создания проекта
+  if (projectData.day && projectData.day.toString().trim()) {
+    const day = Number(projectData.day);
+    
+    if (isNaN(day)) {
+      errors.push('День должен быть числом');
+    } else if (day < 1 || day > 31) {
+      errors.push('День должен быть от 1 до 31');
+    }
+  }
+
   // Предупреждения для улучшения качества данных
   if (!projectData.imagePath || !projectData.imagePath.trim()) {
     warnings.push('Рекомендуется добавить изображение для проекта');
@@ -178,6 +211,19 @@ export const sanitizeProject = (projectData) => {
   // Приводим числовые значения к правильному типу
   if (sanitized.sortOrder !== undefined && sanitized.sortOrder !== null) {
     sanitized.sortOrder = Number(sanitized.sortOrder) || 0;
+  }
+
+  // Санитизация года, месяца и дня
+  if (sanitized.year !== undefined && sanitized.year !== null && sanitized.year !== '') {
+    sanitized.year = Number(sanitized.year) || null;
+  }
+
+  if (sanitized.month !== undefined && sanitized.month !== null && sanitized.month !== '') {
+    sanitized.month = Number(sanitized.month) || null;
+  }
+
+  if (sanitized.day !== undefined && sanitized.day !== null && sanitized.day !== '') {
+    sanitized.day = Number(sanitized.day) || null;
   }
 
   // Приводим булевые значения к правильному типу

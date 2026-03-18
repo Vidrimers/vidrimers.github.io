@@ -25,6 +25,7 @@
 /* Заголовок списка проектов */
 .header {
   display: flex;
+  background: ;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
@@ -315,6 +316,18 @@
   flex-direction: column;
 }
 
+/* Строка с несколькими полями - ОБНОВЛЕНО */
+.formRow {
+  display: grid !important;
+  grid-template-columns: 5fr 70px 70px 70px !important;
+  gap: 15px !important;
+  margin-bottom: 20px !important;
+}
+
+.formRow .formGroup {
+  margin-bottom: 0 !important;
+}
+
 .formGroup label {
   margin-bottom: 6px;
   font-weight: 500;
@@ -551,6 +564,11 @@
 
   .formGrid {
     grid-template-columns: 1fr;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
   }
 
   .formGroup:nth-child(5),
