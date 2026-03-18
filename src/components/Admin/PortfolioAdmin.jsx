@@ -115,16 +115,12 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
 
   // Сохранение настроек сортировки
   const handleSortSettingsChange = async (newSortOrder, newSortDirection) => {
-    console.log('Изменение настроек сортировки:', { newSortOrder, newSortDirection });
-    
     try {
       const token = localStorage.getItem('admin_token');
       const headers = {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       };
-
-      console.log('Отправляем запрос на сохранение настроек...');
 
       const response = await fetch('/api/settings', {
         method: 'PUT',
@@ -140,9 +136,6 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
         console.error('Ошибка ответа сервера:', errorData);
         throw new Error('Ошибка сохранения настроек');
       }
-
-      const result = await response.json();
-      console.log('Настройки сохранены:', result);
 
       setSortSettings({
         portfolioSortOrder: newSortOrder,

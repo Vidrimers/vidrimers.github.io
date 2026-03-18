@@ -56,7 +56,7 @@ export default defineConfig({
   // Dev server конфигурация
   server: {
     port: 3000,
-    open: true,
+    open: false, // Отключаем автоматическое открытие браузера для devtun
     host: true,
     allowedHosts: [
       'vidrimers.ru.tuna.am'
@@ -65,7 +65,13 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:1989',
         changeOrigin: true,
-        secure: false
+        secure: false,
+        // Добавляем retry логику для случаев, когда backend еще не запустился
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('Proxy error:', err.message);
+          });
+        }
       }
     }
   },

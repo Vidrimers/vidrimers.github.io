@@ -5,7 +5,7 @@
   "author": "Yaroslav Shiryakov",
   "homepage": "https://vidrimers.site",
   "scripts": {
-    "dev": "concurrently \"npm run server\" \"vite\"",
+    "dev": "concurrently \"npm run server\" \"node scripts/start-frontend.js\"",
     "dev:frontend": "vite",
     "devtun": "tuna http 3000 --domain=vidrimers.ru.tuna.am",
     "build": "vite build",
