@@ -50,13 +50,14 @@ const fileFilter = (req, file, cb) => {
     'image/jpg', 
     'image/png',
     'image/webp',
-    'image/gif'
+    'image/gif',
+    'image/svg+xml'
   ];
 
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Неподдерживаемый тип файла. Разрешены только изображения: JPG, PNG, WebP, GIF'), false);
+    cb(new Error('Неподдерживаемый тип файла. Разрешены только изображения: JPG, PNG, WebP, GIF, SVG'), false);
   }
 };
 
@@ -119,39 +120,51 @@ router.post('/upload', requireAuth, (req, res) => {
       
       const originalPath = req.file.path;
       const category = req.body.category || 'general';
+      let finalPath = originalPath;
+      let finalFilename = req.file.filename;
       
-      // Оптимизируем изображение с помощью Sharp
-      const optimizedFilename = `optimized-${req.file.filename}`;
-      const optimizedPath = path.join(path.dirname(originalPath), optimizedFilename);
+      // Проверяем, является ли файл SVG
+      const isSvg = req.file.mimetype === 'image/svg+xml';
       
-      await sharp(originalPath)
-        .resize(1200, 800, { 
-          fit: 'inside',
-          withoutEnlargement: true 
-        })
-        .jpeg({ 
-          quality: 85,
-          progressive: true 
-        })
-        .toFile(optimizedPath);
+      if (!isSvg) {
+        // Оптимизируем изображение с помощью Sharp (только для растровых изображений)
+        const optimizedFilename = `optimized-${req.file.filename}`;
+        const optimizedPath = path.join(path.dirname(originalPath), optimizedFilename);
+        
+        await sharp(originalPath)
+          .resize(1200, 800, { 
+            fit: 'inside',
+            withoutEnlargement: true 
+          })
+          .jpeg({ 
+            quality: 85,
+            progressive: true 
+          })
+          .toFile(optimizedPath);
 
-      // Удаляем оригинальный файл
-      fs.unlinkSync(originalPath);
+        // Удаляем оригинальный файл
+        fs.unlinkSync(originalPath);
+        
+        finalPath = optimizedPath;
+        finalFilename = optimizedFilename;
+      }
+      // Для SVG файлов оставляем как есть
 
       // Формируем путь для веба (относительно public)
-      const webPath = `/uploads/${category}/${optimizedFilename}`;
+      const webPath = `/uploads/${category}/${finalFilename}`;
 
       // Логируем активность
       await dbService.logActivity(
         req.user.userId,
         'UPLOAD_FILE',
         'file',
-        optimizedFilename,
+        finalFilename,
         { 
           originalName: req.file.originalname,
           category: category,
           size: req.file.size,
-          webPath: webPath
+          webPath: webPath,
+          isSvg: isSvg
         },
         req.ip,
         req.get('User-Agent')
@@ -161,7 +174,7 @@ router.post('/upload', requireAuth, (req, res) => {
       if (telegramService) {
         await telegramService.sendActivityNotification('Загружен файл', {
           entityType: 'Файл',
-          entityId: optimizedFilename,
+          entityId: finalFilename,
           title: req.file.originalname
         });
       }
@@ -169,11 +182,12 @@ router.post('/upload', requireAuth, (req, res) => {
       res.json({
         success: true,
         data: {
-          filename: optimizedFilename,
+          filename: finalFilename,
           originalName: req.file.originalname,
           path: webPath,
           size: req.file.size,
-          category: category
+          category: category,
+          isSvg: isSvg
         },
         timestamp: new Date().toISOString()
       });

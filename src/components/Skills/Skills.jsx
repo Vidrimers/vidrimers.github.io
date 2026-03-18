@@ -1,12 +1,14 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import { skills } from '../../data/skillsData';
 import SkillItem from './SkillItem';
 import AdminIndicator from '../Admin/AdminIndicator';
+import SkillsAdmin from '../Admin/SkillsAdmin';
 import styles from './Skills.module.css';
 
 const Skills = () => {
   const { translations } = useContext(LanguageContext);
+  const [showSkillsAdmin, setShowSkillsAdmin] = useState(false);
 
   // Мемоизируем рендеринг навыков для оптимизации производительности
   const skillItems = useMemo(() => {
@@ -18,6 +20,16 @@ const Skills = () => {
     ));
   }, [skills]);
 
+  // Обработчик открытия админской панели
+  const handleOpenSkillsAdmin = () => {
+    setShowSkillsAdmin(true);
+  };
+
+  // Обработчик закрытия админской панели
+  const handleCloseSkillsAdmin = () => {
+    setShowSkillsAdmin(false);
+  };
+
   return (
     <section className={styles.skills} id="skills">
       <div className={styles.wrapper}>
@@ -27,7 +39,7 @@ const Skills = () => {
               {translations.skills.title}
               <AdminIndicator 
                 section="Навыки"
-                onClick={() => console.log('Открыть управление разделом "Навыки"')}
+                onClick={handleOpenSkillsAdmin}
               />
             </h2>
           </div>
@@ -36,6 +48,12 @@ const Skills = () => {
           </div>
         </div>
       </div>
+
+      {/* Админская панель управления навыками */}
+      <SkillsAdmin 
+        isOpen={showSkillsAdmin}
+        onClose={handleCloseSkillsAdmin}
+      />
     </section>
   );
 };

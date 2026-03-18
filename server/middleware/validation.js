@@ -430,9 +430,140 @@ const sanitizeCategory = (req, res, next) => {
   next();
 };
 
+/**
+ * Валидация данных навыка на сервере
+ * @param {Object} req - Express request объект
+ * @param {Object} res - Express response объект
+ * @param {Function} next - Express next функция
+ */
+const validateSkill = (req, res, next) => {
+  const {
+    nameRu,
+    nameEn,
+    iconPath,
+    sortOrder,
+    isHidden
+  } = req.body;
+
+  const errors = [];
+
+  // Валидация названий
+  if (!nameRu || typeof nameRu !== 'string' || !nameRu.trim()) {
+    errors.push('Название на русском языке обязательно');
+  } else {
+    const trimmed = nameRu.trim();
+    if (trimmed.length < 2) {
+      errors.push('Название на русском должно содержать минимум 2 символа');
+    } else if (trimmed.length > 50) {
+      errors.push('Название на русском не должно превышать 50 символов');
+    }
+  }
+
+  if (!nameEn || typeof nameEn !== 'string' || !nameEn.trim()) {
+    errors.push('Название на английском языке обязательно');
+  } else {
+    const trimmed = nameEn.trim();
+    if (trimmed.length < 2) {
+      errors.push('Название на английском должно содержать минимум 2 символа');
+    } else if (trimmed.length > 50) {
+      errors.push('Название на английском не должно превышать 50 символов');
+    }
+  }
+
+  // Валидация пути к иконке
+  if (!iconPath || typeof iconPath !== 'string' || !iconPath.trim()) {
+    errors.push('Путь к иконке обязателен');
+  } else {
+    const trimmedPath = iconPath.trim();
+    
+    // Проверка расширения файла или URL
+    const isUrl = validator.isURL(trimmedPath, { protocols: ['http', 'https'] });
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg'];
+    const hasValidExtension = imageExtensions.some(ext => 
+      trimmedPath.toLowerCase().endsWith(ext)
+    );
+    
+    if (!isUrl && !hasValidExtension) {
+      errors.push('Иконка должна быть валидным URL или иметь расширение: .jpg, .jpeg, .png, .webp, .gif, .svg');
+    }
+
+    // Проверка на потенциально опасные пути (только для локальных путей)
+    if (!isUrl && (trimmedPath.includes('..') || trimmedPath.includes('\\'))) {
+      errors.push('Путь к иконке содержит недопустимые символы');
+    }
+  }
+
+  // Валидация порядка сортировки
+  if (sortOrder !== undefined && sortOrder !== null) {
+    const numSortOrder = Number(sortOrder);
+    if (isNaN(numSortOrder) || numSortOrder < 0) {
+      errors.push('Порядок сортировки должен быть неотрицательным числом');
+    }
+  }
+
+  // Валидация булевых флагов
+  if (isHidden !== undefined && typeof isHidden !== 'boolean') {
+    errors.push('Флаг "Скрытый" должен быть булевым значением');
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Ошибки валидации данных',
+        details: errors
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  next();
+};
+
+/**
+ * Санитизация данных навыка
+ * @param {Object} data - Данные навыка для санитизации
+ * @returns {Object} Санитизированные данные
+ */
+const sanitizeSkill = (data) => {
+  const sanitized = {};
+
+  // Санитизация строковых полей
+  if (data.nameRu || data.name_ru) {
+    const nameRu = data.nameRu || data.name_ru;
+    sanitized.name_ru = DOMPurify.sanitize(nameRu.trim(), { ALLOWED_TAGS: [] });
+  }
+
+  if (data.nameEn || data.name_en) {
+    const nameEn = data.nameEn || data.name_en;
+    sanitized.name_en = DOMPurify.sanitize(nameEn.trim(), { ALLOWED_TAGS: [] });
+  }
+
+  if (data.iconPath || data.icon_path) {
+    const iconPath = data.iconPath || data.icon_path;
+    sanitized.icon_path = iconPath.trim();
+  }
+
+  // Приведение типов
+  if (data.sortOrder !== undefined || data.sort_order !== undefined) {
+    const sortOrder = data.sortOrder !== undefined ? data.sortOrder : data.sort_order;
+    sanitized.sort_order = Number(sortOrder) || 0;
+  }
+
+  if (data.isHidden !== undefined || data.is_hidden !== undefined) {
+    const isHidden = data.isHidden !== undefined ? data.isHidden : data.is_hidden;
+    sanitized.is_hidden = Boolean(isHidden);
+  }
+
+  return sanitized;
+};
+
 module.exports = {
   validateProject,
   validateCategory,
+  validateSkill,
   sanitizeProject,
-  sanitizeCategory
+  sanitizeCategory,
+  sanitizeSkill
 };

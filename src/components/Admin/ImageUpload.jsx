@@ -7,7 +7,8 @@ const ImageUpload = ({
   onError, 
   accept = "image/*",
   maxSize = 5 * 1024 * 1024, // 5MB по умолчанию
-  placeholder = "Перетащите изображение сюда или нажмите для выбора"
+  placeholder = "Перетащите изображение сюда или нажмите для выбора",
+  category = "portfolio" // Категория для организации файлов
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -19,7 +20,7 @@ const ImageUpload = ({
     const errors = [];
 
     // Проверка типа файла
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith('image/') && file.type !== 'image/svg+xml') {
       errors.push('Файл должен быть изображением');
     }
 
@@ -30,11 +31,11 @@ const ImageUpload = ({
     }
 
     // Проверка расширения
-    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg'];
     const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
     
     if (!allowedExtensions.includes(fileExtension)) {
-      errors.push('Поддерживаются только файлы: JPG, PNG, WebP, GIF');
+      errors.push('Поддерживаются только файлы: JPG, PNG, WebP, GIF, SVG');
     }
 
     return errors;
@@ -44,7 +45,7 @@ const ImageUpload = ({
   const uploadFile = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
-    formData.append('category', 'portfolio'); // Категория для организации файлов
+    formData.append('category', category); // Используем переданную категорию
 
     try {
       const token = localStorage.getItem('admin_token');
@@ -229,7 +230,12 @@ const ImageUpload = ({
           <div className={styles.emptyState}>
             <div className={styles.uploadIcon}>📁</div>
             <p>{placeholder}</p>
-            <small>Поддерживаются: JPG, PNG, WebP, GIF (до 5MB)</small>
+            <small>
+              {category === 'skills' 
+                ? 'Поддерживаются: JPG, PNG, WebP, GIF, SVG (до 5MB)' 
+                : 'Поддерживаются: JPG, PNG, WebP, GIF (до 5MB)'
+              }
+            </small>
           </div>
         )}
       </div>
