@@ -11,8 +11,8 @@
   justify-content: center;
   cursor: pointer;
   position: absolute;
-  top: 8px;
-  right: -5px;
+  top: -15px;
+  right: -15px;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
 }
