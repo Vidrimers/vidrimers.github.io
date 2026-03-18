@@ -2,6 +2,7 @@ import { useContext, useMemo, useState } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import { useAdmin } from '../Admin/AdminProvider';
 import AuthModal from '../Admin/AuthModal';
+import AdminLogout from '../Admin/AdminLogout';
 import styles from './Hero.module.css';
 import photoImg from '../../assets/img/photo.jpg';
 
@@ -43,14 +44,17 @@ const Hero = () => {
               <h1 className={styles.heroTitle}>
                 {translations.hero.title}
               </h1>
-              <p 
-                className={styles.heroText}
-                style={subtitleStyle}
-                onClick={handleFrontendClick}
-                title={!isAuthenticated ? 'Нажмите для входа в админскую панель' : 'Админский режим активен'}
-              >
-                {translations.hero.subtitle}
-              </p>
+              <div className={styles.heroTextContainer}>
+                <p 
+                  className={styles.heroText}
+                  style={subtitleStyle}
+                  onClick={handleFrontendClick}
+                  title={!isAuthenticated ? 'Нажмите для входа в админскую панель' : 'Админский режим активен'}
+                >
+                  {translations.hero.subtitle}
+                </p>
+                <AdminLogout />
+              </div>
               <div className={styles.heroLang}>
                 <a 
                   href="#" 

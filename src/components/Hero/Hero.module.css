@@ -61,6 +61,12 @@
   /* Использует базовые стили body */
 }
 
+.heroTextContainer {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
 .heroLang {
   display: flex;
   align-items: center;
@@ -131,6 +137,11 @@
     text-align: left;
   }
   
+  .heroTextContainer {
+    max-width: none;
+    text-align: left;
+  }
+  
   .heroLang {
     transform: none;
     align-self: flex-end;
@@ -178,6 +189,11 @@
   }
   
   .heroText {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .heroTextContainer {
     text-align: center;
     margin-bottom: 1rem;
   }
