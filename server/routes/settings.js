@@ -55,7 +55,7 @@ router.put('/', requireAuth, async (req, res) => {
     const dbService = getDbService();
     
     // Валидация
-    const validSortOrders = ['sort_order', 'created_at', 'likes_count', 'title_ru'];
+    const validSortOrders = ['sort_order', 'created_at', 'project_date', 'likes_count', 'title_ru'];
     const validDirections = ['asc', 'desc'];
     
     if (portfolioSortOrder && !validSortOrders.includes(portfolioSortOrder)) {
