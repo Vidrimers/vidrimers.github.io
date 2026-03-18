@@ -21,7 +21,7 @@ router.get('/', optionalAuth, async (req, res) => {
     const dbService = getDbService();
     
     // Валидация параметров сортировки
-    const validSortFields = ['sort_order', 'created_at', 'title_ru', 'likes_count'];
+    const validSortFields = ['sort_order', 'created_at', 'title_ru', 'likes_count', 'project_date'];
     const validDirections = ['asc', 'desc'];
     
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'sort_order';
@@ -51,12 +51,21 @@ router.get('/', optionalAuth, async (req, res) => {
     // Добавляем сортировку
     if (sortField === 'likes_count') {
       sql += ` ORDER BY COALESCE(l.likes_count, 0) ${direction.toUpperCase()}`;
+    } else if (sortField === 'project_date') {
+      // Сортировка по дате создания проекта (год, месяц, день)
+      sql += ` ORDER BY 
+        CASE WHEN p.year IS NULL THEN 1 ELSE 0 END,
+        p.year ${direction.toUpperCase()},
+        CASE WHEN p.month IS NULL THEN 1 ELSE 0 END,
+        p.month ${direction.toUpperCase()},
+        CASE WHEN p.day IS NULL THEN 1 ELSE 0 END,
+        p.day ${direction.toUpperCase()}`;
     } else {
       sql += ` ORDER BY p.${sortField} ${direction.toUpperCase()}`;
     }
     
     // Если сортируем не по sort_order, добавляем вторичную сортировку
-    if (sortField !== 'sort_order') {
+    if (sortField !== 'sort_order' && sortField !== 'project_date') {
       sql += ', p.sort_order ASC';
     }
 

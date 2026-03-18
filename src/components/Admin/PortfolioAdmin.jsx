@@ -439,6 +439,7 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
                   >
                     <option value="sort_order">По порядку</option>
                     <option value="created_at">По дате добавления</option>
+                    <option value="project_date">По дате создания проекта</option>
                     <option value="title_ru">По названию</option>
                     <option value="likes_count">По лайкам</option>
                   </select>
