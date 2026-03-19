@@ -1,0 +1,312 @@
+.container {
+  padding: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* Сообщения */
+.error {
+  background-color: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid #fcc;
+}
+
+.success {
+  background-color: #efe;
+  color: #363;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid #cfc;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Вкладки языков */
+.langTabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 12px;
+}
+
+.langTab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px 6px 0 0;
+  background: #f8f9fa;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.langTab:hover {
+  background: #e9ecef;
+}
+
+.langTabActive {
+  background: white;
+  border-bottom-color: white;
+  color: #fc285b;
+  border-color: #fc285b;
+  font-weight: 600;
+}
+
+.emptyBadge {
+  background: #ffc107;
+  color: #856404;
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.previewToggle {
+  margin-left: auto;
+  padding: 7px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f8f9fa;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.previewToggle:hover {
+  background: #e9ecef;
+}
+
+.previewToggleActive {
+  background: #e8f4fd;
+  border-color: #007bff;
+  color: #007bff;
+}
+
+/* Лейаут редактора */
+.editorLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.editorLayoutSplit {
+  flex-direction: row;
+  gap: 20px;
+}
+
+.editorPane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Тулбар */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px 6px 0 0;
+  border-bottom: none;
+}
+
+.toolbarBtn {
+  padding: 4px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.15s;
+  min-width: 32px;
+}
+
+.toolbarBtn:hover {
+  background: #e9ecef;
+  border-color: #999;
+}
+
+.toolbarHint {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: #999;
+  font-style: italic;
+}
+
+/* Textarea */
+.textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 0 0 6px 6px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #fc285b;
+  box-shadow: 0 0 0 2px rgba(252, 40, 91, 0.1);
+}
+
+.charCount {
+  font-size: 0.78rem;
+  color: #999;
+  text-align: right;
+}
+
+/* Предпросмотр */
+.previewPane {
+  flex: 1;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.previewHeader {
+  padding: 8px 14px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.previewContent {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.previewParagraph {
+  margin: 0 0 1em 0;
+  line-height: 1.7;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.previewParagraph:last-child {
+  margin-bottom: 0;
+}
+
+.previewEmpty {
+  padding: 20px;
+  color: #aaa;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* Кнопки действий */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.resetButton,
+.cancelButton,
+.saveButton {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.resetButton {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.resetButton:hover:not(:disabled) {
+  background: #ffe69c;
+}
+
+.cancelButton {
+  background: #6c757d;
+  color: white;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: #545b62;
+}
+
+.saveButton {
+  background: #fc285b;
+  color: white;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: #e02350;
+}
+
+.saveButton:disabled,
+.cancelButton:disabled,
+.resetButton:disabled {
+  background: #ccc;
+  color: #888;
+  cursor: not-allowed;
+  border-color: transparent;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .container {
+    padding: 14px;
+  }
+
+  .editorLayoutSplit {
+    flex-direction: column;
+  }
+
+  .langTabs {
+    flex-wrap: wrap;
+  }
+
+  .previewToggle {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .formActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resetButton,
+  .cancelButton,
+  .saveButton {
+    text-align: center;
+  }
+}

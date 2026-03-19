@@ -1,11 +1,13 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import AdminIndicator from '../Admin/AdminIndicator';
+import AboutAdmin from '../Admin/AboutAdmin';
 import styles from './About.module.css';
 
 const About = () => {
   const { translations } = useContext(LanguageContext);
   const { about } = translations;
+  const [isAboutAdminOpen, setIsAboutAdminOpen] = useState(false);
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -57,6 +59,7 @@ const About = () => {
   }, [about.paragraphs, about.links]);
 
   return (
+    <>
     <section className={styles.about} id="about">
       <div className={styles.wrapper}>
         <div className={styles.container}>
@@ -65,7 +68,7 @@ const About = () => {
               {about.title}
               <AdminIndicator 
                 section="Обо мне"
-                onClick={() => console.log('Открыть управление разделом "Обо мне"')}
+                onClick={() => setIsAboutAdminOpen(true)}
               />
             </h2>
             <div className={styles.items}>
@@ -75,6 +78,12 @@ const About = () => {
         </div>
       </div>
     </section>
+
+    <AboutAdmin
+      isOpen={isAboutAdminOpen}
+      onClose={() => setIsAboutAdminOpen(false)}
+    />
+  </>
   );
 };
 
