@@ -69,11 +69,80 @@ router.get('/', async (req, res) => {
 });
 
 /**
+ * PUT /api/skills/reorder - Изменить порядок навыков
+ */
+router.put('/reorder', requireAuth, async (req, res) => {
+  try {
+    console.log('🔄 Reorder request body:', JSON.stringify(req.body, null, 2));
+    console.log('🔄 Request headers:', req.headers);
+    
+    const { skills } = req.body;
+    
+    if (!skills) {
+      console.log('❌ No skills property in body');
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_SKILLS_DATA',
+          message: 'Отсутствуют данные навыков'
+        }
+      });
+    }
+    
+    if (!Array.isArray(skills)) {
+      console.log('❌ Skills is not array:', typeof skills, skills);
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_SKILLS_DATA',
+          message: 'Некорректные данные навыков - ожидается массив'
+        }
+      });
+    }
+    
+    console.log('✅ Skills array length:', skills.length);
+    
+    const dbService = getDbService();
+    
+    // Обновляем порядок для каждого навыка
+    for (const skill of skills) {
+      if (!skill.id || skill.sort_order === undefined) {
+        console.log('⚠️ Skipping skill:', skill);
+        continue;
+      }
+      
+      console.log('🔄 Updating skill:', skill.id, 'to order:', skill.sort_order);
+      
+      await dbService.runQuery(
+        'UPDATE skills SET sort_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [skill.sort_order, skill.id]
+      );
+    }
+    
+    console.log('✅ Reorder completed successfully');
+    
+    res.json({
+      success: true,
+      message: 'Порядок навыков успешно обновлен'
+    });
+    
+  } catch (error) {
+    console.error('❌ Ошибка при изменении порядка навыков:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'SKILLS_REORDER_ERROR',
+        message: 'Ошибка при изменении порядка навыков',
+        details: error.message
+      }
+    });
+  }
+});
+
+/**
  * GET /api/skills/:id - Получить навык по ID
  */
 router.get('/:id', async (req, res) => {
-  let db;
-  
   try {
     const { id } = req.params;
     
@@ -87,9 +156,9 @@ router.get('/:id', async (req, res) => {
       });
     }
     
-    db = await getDatabase();
+    const dbService = getDbService();
     
-    const skill = await getOne(db, 'SELECT * FROM skills WHERE id = ?', [parseInt(id)]);
+    const skill = await dbService.getQuery('SELECT * FROM skills WHERE id = ?', [parseInt(id)]);
     
     if (!skill) {
       return res.status(404).json({
@@ -116,10 +185,6 @@ router.get('/:id', async (req, res) => {
         details: error.message
       }
     });
-  } finally {
-    if (db) {
-      db.close();
-    }
   }
 });
 
@@ -376,61 +441,6 @@ router.delete('/:id', requireAuth, async (req, res) => {
       error: {
         code: 'SKILL_DELETE_ERROR',
         message: 'Ошибка при удалении навыка',
-        details: error.message
-      }
-    });
-  } finally {
-    if (db) {
-      db.close();
-    }
-  }
-});
-
-/**
- * PUT /api/skills/reorder - Изменить порядок навыков
- */
-router.put('/reorder', requireAuth, async (req, res) => {
-  let db;
-  
-  try {
-    const { skills } = req.body;
-    
-    if (!Array.isArray(skills)) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'INVALID_SKILLS_DATA',
-          message: 'Некорректные данные навыков'
-        }
-      });
-    }
-    
-    db = await getDatabase();
-    
-    // Обновляем порядок для каждого навыка
-    for (const skill of skills) {
-      if (!skill.id || skill.sort_order === undefined) {
-        continue;
-      }
-      
-      await runQuery(db, 
-        'UPDATE skills SET sort_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-        [skill.sort_order, skill.id]
-      );
-    }
-    
-    res.json({
-      success: true,
-      message: 'Порядок навыков успешно обновлен'
-    });
-    
-  } catch (error) {
-    console.error('Ошибка при изменении порядка навыков:', error);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'SKILLS_REORDER_ERROR',
-        message: 'Ошибка при изменении порядка навыков',
         details: error.message
       }
     });
