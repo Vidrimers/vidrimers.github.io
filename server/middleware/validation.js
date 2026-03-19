@@ -559,11 +559,162 @@ const sanitizeSkill = (data) => {
   return sanitized;
 };
 
+/**
+ * Валидация данных сертификата на сервере
+ */
+const validateCertificate = (req, res, next) => {
+  const {
+    titleRu,
+    titleEn,
+    descriptionRu,
+    descriptionEn,
+    imagePath,
+    link,
+    dateIssued,
+    sortOrder,
+    isHidden
+  } = req.body;
+
+  const errors = [];
+
+  // Названия необязательны, но если переданы — валидируем
+  if (titleRu && typeof titleRu === 'string' && titleRu.trim()) {
+    if (titleRu.trim().length > 200) {
+      errors.push('Название на русском не должно превышать 200 символов');
+    }
+  }
+
+  if (titleEn && typeof titleEn === 'string' && titleEn.trim()) {
+    if (titleEn.trim().length > 200) {
+      errors.push('Название на английском не должно превышать 200 символов');
+    }
+  }
+
+  // Описания необязательны
+  if (descriptionRu && typeof descriptionRu === 'string' && descriptionRu.trim()) {
+    if (descriptionRu.trim().length > 1000) {
+      errors.push('Описание на русском не должно превышать 1000 символов');
+    }
+  }
+
+  if (descriptionEn && typeof descriptionEn === 'string' && descriptionEn.trim()) {
+    if (descriptionEn.trim().length > 1000) {
+      errors.push('Описание на английском не должно превышать 1000 символов');
+    }
+  }
+
+  // Путь к изображению обязателен
+  if (!imagePath || typeof imagePath !== 'string' || !imagePath.trim()) {
+    errors.push('Изображение сертификата обязательно');
+  } else {
+    const trimmedPath = imagePath.trim();
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+    const isUrl = validator.isURL(trimmedPath, { protocols: ['http', 'https'] });
+    const hasValidExtension = imageExtensions.some(ext =>
+      trimmedPath.toLowerCase().endsWith(ext)
+    );
+
+    if (!isUrl && !hasValidExtension) {
+      errors.push('Изображение должно быть валидным URL или иметь расширение: .jpg, .jpeg, .png, .webp, .gif');
+    }
+
+    if (!isUrl && (trimmedPath.includes('..') || trimmedPath.includes('\\'))) {
+      errors.push('Путь к изображению содержит недопустимые символы');
+    }
+  }
+
+  // Ссылка необязательна
+  if (link && typeof link === 'string' && link.trim()) {
+    if (!validator.isURL(link.trim(), { protocols: ['http', 'https'] })) {
+      errors.push('Ссылка должна быть валидным URL (http:// или https://)');
+    }
+  }
+
+  // Дата необязательна
+  if (dateIssued && typeof dateIssued === 'string' && dateIssued.trim()) {
+    if (!validator.isDate(dateIssued.trim())) {
+      errors.push('Дата должна быть в формате YYYY-MM-DD');
+    }
+  }
+
+  if (sortOrder !== undefined && sortOrder !== null) {
+    const numSortOrder = Number(sortOrder);
+    if (isNaN(numSortOrder) || numSortOrder < 0) {
+      errors.push('Порядок сортировки должен быть неотрицательным числом');
+    }
+  }
+
+  if (isHidden !== undefined && typeof isHidden !== 'boolean') {
+    errors.push('Флаг "Скрытый" должен быть булевым значением');
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Ошибки валидации данных',
+        details: errors
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  next();
+};
+
+/**
+ * Санитизация данных сертификата
+ */
+const sanitizeCertificate = (data) => {
+  const sanitized = {};
+
+  const titleRu = data.titleRu || data.title_ru;
+  if (titleRu) sanitized.title_ru = DOMPurify.sanitize(titleRu.trim(), { ALLOWED_TAGS: [] });
+
+  const titleEn = data.titleEn || data.title_en;
+  if (titleEn) sanitized.title_en = DOMPurify.sanitize(titleEn.trim(), { ALLOWED_TAGS: [] });
+
+  const descriptionRu = data.descriptionRu || data.description_ru;
+  if (descriptionRu) {
+    sanitized.description_ru = DOMPurify.sanitize(descriptionRu.trim(), {
+      ALLOWED_TAGS: ['a', 'strong', 'em', 'br'],
+      ALLOWED_ATTR: ['href', 'target']
+    });
+  }
+
+  const descriptionEn = data.descriptionEn || data.description_en;
+  if (descriptionEn) {
+    sanitized.description_en = DOMPurify.sanitize(descriptionEn.trim(), {
+      ALLOWED_TAGS: ['a', 'strong', 'em', 'br'],
+      ALLOWED_ATTR: ['href', 'target']
+    });
+  }
+
+  const imagePath = data.imagePath || data.image_path;
+  if (imagePath) sanitized.image_path = imagePath.trim();
+
+  if (data.link) sanitized.link = data.link.trim();
+
+  const dateIssued = data.dateIssued || data.date_issued;
+  if (dateIssued) sanitized.date_issued = dateIssued.trim();
+
+  const sortOrder = data.sortOrder !== undefined ? data.sortOrder : data.sort_order;
+  if (sortOrder !== undefined) sanitized.sort_order = Number(sortOrder) || 0;
+
+  const isHidden = data.isHidden !== undefined ? data.isHidden : data.is_hidden;
+  if (isHidden !== undefined) sanitized.is_hidden = Boolean(isHidden);
+
+  return sanitized;
+};
+
 module.exports = {
   validateProject,
   validateCategory,
   validateSkill,
+  validateCertificate,
   sanitizeProject,
   sanitizeCategory,
-  sanitizeSkill
+  sanitizeSkill,
+  sanitizeCertificate
 };
