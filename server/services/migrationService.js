@@ -206,19 +206,19 @@ const aboutContent = {
   ru: [
     "Привет! Меня зовут Ярослав, я frontend-разработчик.",
     "Обучаюсь по онлайн-курсам, тематическим книгам, видео на YouTube и через мобильные приложения, такие как SoloLearn. Постоянно стремлюсь расширять кругозор и углублять знания в веб-разработке.",
-    "Создаю лендинги на Gulp-сборке, работаю с макетами из Photoshop и Pixso. В портфолио — учебные и личные проекты, выполненные по найденным в сети макетам и в рамках практики.",
+    "Создаю лендинги на Gulp-сборке, работаю с макетами из Photoshop и Pixso. В [портфолио](#portfolio) — учебные и личные проекты, выполненные по найденным в сети макетам и в рамках практики.",
     "Сменил сферу деятельности и полностью посвятил себя развитию в IT. Вижу в этом путь роста, вызовов и вдохновения.",
     "Базовый уровень английского. Умею читать техническую документацию и логически разбирать тексты, при необходимости использую переводчик.",
-    "Играю в футбол в любительской лиге, участвую в городских соревнованиях. Люблю хорошую музыку и концерты — они заряжают энергией и вдохновляют.",
+    "Играю в футбол в любительской лиге, участвую в городских соревнованиях. Люблю хорошую [музыку](https://music.yandex.ru/users/Jebanashka/playlists/3) и концерты — они заряжают энергией и вдохновляют.",
     "Буду рад сотрудничеству и предложениям от интересных людей и компаний. Всегда стремлюсь прокачивать навыки и работать над реальными задачами."
   ],
   en: [
     "Hello! My name is Yaroslav, I'm a frontend developer.",
     "I learn through online courses, thematic books, YouTube videos, and mobile apps like SoloLearn. I constantly strive to expand my horizons and deepen my knowledge in web development.",
-    "I create landing pages using Gulp build, work with layouts from Photoshop and Pixso. My portfolio includes educational and personal projects based on layouts found online and completed as part of practice.",
+    "I create landing pages using Gulp build, work with layouts from Photoshop and Pixso. My [portfolio](#portfolio) includes educational and personal projects based on layouts found online and completed as part of practice.",
     "I changed my field of activity and fully dedicated myself to IT development. I see this as a path of growth, challenges, and inspiration.",
     "Basic level of English. I can read technical documentation and logically analyze texts, using a translator when necessary.",
-    "I play football in an amateur league, participate in city competitions. I love good music and concerts — they energize and inspire me.",
+    "I play football in an amateur league, participate in city competitions. I love good [music](https://music.yandex.ru/users/Jebanashka/playlists/3) and concerts — they energize and inspire me.",
     "I would be happy to collaborate and receive offers from interesting people and companies. I always strive to improve my skills and work on real tasks."
   ]
 };
