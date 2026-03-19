@@ -49,7 +49,7 @@ const ImageUpload = ({
 
     try {
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('/api/files/upload', {
+      const response = await fetch(`/api/files/upload?category=${encodeURIComponent(category)}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

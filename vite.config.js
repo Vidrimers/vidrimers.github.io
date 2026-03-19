@@ -66,12 +66,17 @@ export default defineConfig({
         target: 'http://localhost:1989',
         changeOrigin: true,
         secure: false,
-        // Добавляем retry логику для случаев, когда backend еще не запустился
         configure: (proxy, options) => {
           proxy.on('error', (err, req, res) => {
             console.log('Proxy error:', err.message);
           });
         }
+      },
+      // Проксируем загруженные файлы на сервер
+      '/uploads': {
+        target: 'http://localhost:1989',
+        changeOrigin: true,
+        secure: false
       }
     }
   },

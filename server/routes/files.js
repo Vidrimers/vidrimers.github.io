@@ -21,7 +21,8 @@ if (!fs.existsSync(uploadsDir)) {
 // Настройка multer для загрузки файлов
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const category = req.body.category || 'general';
+    // req.body недоступен в destination при multipart/form-data — используем query
+    const category = req.query.category || 'general';
     const categoryDir = path.join(uploadsDir, category);
     
     // Создаем папку категории если её нет
@@ -76,6 +77,11 @@ const upload = multer({
  * Загружает изображение (только для админа)
  */
 router.post('/upload', requireAuth, (req, res) => {
+  console.log('🔄 File upload request received');
+  console.log('🔄 Headers:', req.headers.authorization ? 'Token present' : 'No token');
+  console.log('🔄 Body:', req.body);
+  console.log('🔄 Files:', req.files);
+  
   upload.single('image')(req, res, async (err) => {
     if (err) {
       console.error('Ошибка загрузки файла:', err);

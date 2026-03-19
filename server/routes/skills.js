@@ -192,16 +192,14 @@ router.get('/:id', async (req, res) => {
  * POST /api/skills - Создать новый навык
  */
 router.post('/', requireAuth, validateSkill, async (req, res) => {
-  let db;
-  
   try {
-    db = await getDatabase();
+    const dbService = getDbService();
     
     // Санитизируем данные
     const skillData = sanitizeSkill(req.body);
     
     // Проверяем уникальность названий
-    const existingRu = await getOne(db, 'SELECT id FROM skills WHERE name_ru = ?', [skillData.name_ru]);
+    const existingRu = await dbService.getQuery('SELECT id FROM skills WHERE name_ru = ?', [skillData.name_ru]);
     if (existingRu) {
       return res.status(400).json({
         success: false,
@@ -212,7 +210,7 @@ router.post('/', requireAuth, validateSkill, async (req, res) => {
       });
     }
     
-    const existingEn = await getOne(db, 'SELECT id FROM skills WHERE name_en = ?', [skillData.name_en]);
+    const existingEn = await dbService.getQuery('SELECT id FROM skills WHERE name_en = ?', [skillData.name_en]);
     if (existingEn) {
       return res.status(400).json({
         success: false,
@@ -225,12 +223,12 @@ router.post('/', requireAuth, validateSkill, async (req, res) => {
     
     // Если sort_order не указан, устанавливаем следующий доступный
     if (skillData.sort_order === undefined || skillData.sort_order === null) {
-      const maxOrder = await getOne(db, 'SELECT MAX(sort_order) as max_order FROM skills');
+      const maxOrder = await dbService.getQuery('SELECT MAX(sort_order) as max_order FROM skills');
       skillData.sort_order = (maxOrder.max_order || 0) + 1;
     }
     
     // Создаем навык
-    const result = await runQuery(db, `
+    const result = await dbService.runQuery(`
       INSERT INTO skills (name_ru, name_en, icon_path, sort_order, is_hidden)
       VALUES (?, ?, ?, ?, ?)
     `, [
@@ -242,7 +240,7 @@ router.post('/', requireAuth, validateSkill, async (req, res) => {
     ]);
     
     // Получаем созданный навык
-    const newSkill = await getOne(db, 'SELECT * FROM skills WHERE id = ?', [result.lastID]);
+    const newSkill = await dbService.getQuery('SELECT * FROM skills WHERE id = ?', [result.lastID]);
     
     res.status(201).json({
       success: true,
@@ -259,10 +257,6 @@ router.post('/', requireAuth, validateSkill, async (req, res) => {
         details: error.message
       }
     });
-  } finally {
-    if (db) {
-      db.close();
-    }
   }
 });
 
@@ -270,8 +264,6 @@ router.post('/', requireAuth, validateSkill, async (req, res) => {
  * PUT /api/skills/:id - Обновить навык
  */
 router.put('/:id', requireAuth, validateSkill, async (req, res) => {
-  let db;
-  
   try {
     const { id } = req.params;
     
@@ -285,10 +277,10 @@ router.put('/:id', requireAuth, validateSkill, async (req, res) => {
       });
     }
     
-    db = await getDatabase();
+    const dbService = getDbService();
     
     // Проверяем, существует ли навык
-    const existingSkill = await getOne(db, 'SELECT * FROM skills WHERE id = ?', [parseInt(id)]);
+    const existingSkill = await dbService.getQuery('SELECT * FROM skills WHERE id = ?', [parseInt(id)]);
     if (!existingSkill) {
       return res.status(404).json({
         success: false,
@@ -304,7 +296,7 @@ router.put('/:id', requireAuth, validateSkill, async (req, res) => {
     
     // Проверяем уникальность названий (исключая текущий навык)
     if (skillData.name_ru && skillData.name_ru !== existingSkill.name_ru) {
-      const existingRu = await getOne(db, 'SELECT id FROM skills WHERE name_ru = ? AND id != ?', [skillData.name_ru, parseInt(id)]);
+      const existingRu = await dbService.getQuery('SELECT id FROM skills WHERE name_ru = ? AND id != ?', [skillData.name_ru, parseInt(id)]);
       if (existingRu) {
         return res.status(400).json({
           success: false,
@@ -317,7 +309,7 @@ router.put('/:id', requireAuth, validateSkill, async (req, res) => {
     }
     
     if (skillData.name_en && skillData.name_en !== existingSkill.name_en) {
-      const existingEn = await getOne(db, 'SELECT id FROM skills WHERE name_en = ? AND id != ?', [skillData.name_en, parseInt(id)]);
+      const existingEn = await dbService.getQuery('SELECT id FROM skills WHERE name_en = ? AND id != ?', [skillData.name_en, parseInt(id)]);
       if (existingEn) {
         return res.status(400).json({
           success: false,
@@ -362,14 +354,14 @@ router.put('/:id', requireAuth, validateSkill, async (req, res) => {
     updateValues.push(parseInt(id));
     
     // Обновляем навык
-    await runQuery(db, `
+    await dbService.runQuery(`
       UPDATE skills 
       SET ${updateFields.join(', ')}
       WHERE id = ?
     `, updateValues);
     
     // Получаем обновленный навык
-    const updatedSkill = await getOne(db, 'SELECT * FROM skills WHERE id = ?', [parseInt(id)]);
+    const updatedSkill = await dbService.getQuery('SELECT * FROM skills WHERE id = ?', [parseInt(id)]);
     
     res.json({
       success: true,
@@ -386,10 +378,6 @@ router.put('/:id', requireAuth, validateSkill, async (req, res) => {
         details: error.message
       }
     });
-  } finally {
-    if (db) {
-      db.close();
-    }
   }
 });
 
@@ -397,8 +385,6 @@ router.put('/:id', requireAuth, validateSkill, async (req, res) => {
  * DELETE /api/skills/:id - Удалить навык
  */
 router.delete('/:id', requireAuth, async (req, res) => {
-  let db;
-  
   try {
     const { id } = req.params;
     
@@ -412,10 +398,10 @@ router.delete('/:id', requireAuth, async (req, res) => {
       });
     }
     
-    db = await getDatabase();
+    const dbService = getDbService();
     
     // Проверяем, существует ли навык
-    const existingSkill = await getOne(db, 'SELECT * FROM skills WHERE id = ?', [parseInt(id)]);
+    const existingSkill = await dbService.getQuery('SELECT * FROM skills WHERE id = ?', [parseInt(id)]);
     if (!existingSkill) {
       return res.status(404).json({
         success: false,
@@ -427,7 +413,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
     }
     
     // Удаляем навык
-    await runQuery(db, 'DELETE FROM skills WHERE id = ?', [parseInt(id)]);
+    await dbService.runQuery('DELETE FROM skills WHERE id = ?', [parseInt(id)]);
     
     res.json({
       success: true,
@@ -444,10 +430,6 @@ router.delete('/:id', requireAuth, async (req, res) => {
         details: error.message
       }
     });
-  } finally {
-    if (db) {
-      db.close();
-    }
   }
 });
 

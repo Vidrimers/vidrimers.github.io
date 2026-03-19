@@ -169,11 +169,11 @@ const SkillsAdmin = ({ isOpen, onClose }) => {
       };
 
       const skillData = {
-        name_ru: skillForm.nameRu.trim(),
-        name_en: skillForm.nameEn.trim(),
-        icon_path: skillForm.iconPath.trim(),
-        sort_order: skillForm.sortOrder,
-        is_hidden: skillForm.isHidden
+        nameRu: skillForm.nameRu.trim(),
+        nameEn: skillForm.nameEn.trim(),
+        iconPath: skillForm.iconPath.trim(),
+        sortOrder: skillForm.sortOrder,
+        isHidden: skillForm.isHidden
       };
 
       const url = editingSkill 
@@ -261,7 +261,11 @@ const SkillsAdmin = ({ isOpen, onClose }) => {
         method: 'PUT',
         headers,
         body: JSON.stringify({
-          is_hidden: !skill.is_hidden
+          nameRu: skill.name_ru,
+          nameEn: skill.name_en,
+          iconPath: skill.icon_path,
+          sortOrder: skill.sort_order,
+          isHidden: !skill.is_hidden
         })
       });
 
