@@ -5,13 +5,13 @@ import styles from './Skills.module.css';
 const SkillItem = memo(({ skill }) => {
   const { language } = useContext(LanguageContext);
   
-  // Используем название навыка в зависимости от языка
-  const skillName = language === 'ru' ? skill.name : skill.nameEn;
+  // Используем название навыка в зависимости от языка (поля из БД)
+  const skillName = language === 'ru' ? skill.name_ru : skill.name_en;
 
   return (
     <div className={styles.item}>
       <img 
-        src={skill.icon} 
+        src={skill.icon_path} 
         alt={skillName}
         className={styles.itemImg}
         loading="lazy"

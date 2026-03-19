@@ -3,8 +3,8 @@
  */
 
 const express = require('express');
-const { getDatabase, getAll, getOne, runQuery } = require('../services/databaseService');
-const { authenticateAdmin } = require('../middleware/auth');
+const { getDbService } = require('../services');
+const { requireAuth } = require('../middleware/auth');
 const { validateSkill, sanitizeSkill } = require('../middleware/validation');
 
 const router = express.Router();
@@ -13,10 +13,10 @@ const router = express.Router();
  * GET /api/skills - Получить все навыки
  */
 router.get('/', async (req, res) => {
-  let db;
-  
   try {
-    db = await getDatabase();
+    console.log('🔍 GET /api/skills - запрос получен, параметры:', req.query);
+    
+    const dbService = getDbService();
     
     const { 
       includeHidden = 'false',
@@ -30,10 +30,8 @@ router.get('/', async (req, res) => {
     // Фильтрация по видимости
     if (includeHidden === 'false') {
       sql += ' WHERE is_hidden = 0';
-    } else if (includeHidden === 'true') {
-      sql += ' WHERE is_hidden = 1';
     }
-    // Если includeHidden не указан или 'all', показываем все навыки
+    // Если includeHidden === 'true', показываем все навыки (не добавляем WHERE)
     
     // Сортировка
     const allowedSortFields = ['id', 'name_ru', 'name_en', 'sort_order', 'created_at'];
@@ -45,7 +43,11 @@ router.get('/', async (req, res) => {
       sql += ' ORDER BY sort_order ASC';
     }
     
-    const skills = await getAll(db, sql, params);
+    console.log('📊 SQL запрос:', sql);
+    
+    const skills = await dbService.allQuery(sql, params);
+    
+    console.log('✅ Найдено навыков:', skills.length);
     
     res.json({
       success: true,
@@ -54,7 +56,7 @@ router.get('/', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Ошибка при получении навыков:', error);
+    console.error('❌ Ошибка при получении навыков:', error);
     res.status(500).json({
       success: false,
       error: {
@@ -63,10 +65,6 @@ router.get('/', async (req, res) => {
         details: error.message
       }
     });
-  } finally {
-    if (db) {
-      db.close();
-    }
   }
 });
 
@@ -128,7 +126,7 @@ router.get('/:id', async (req, res) => {
 /**
  * POST /api/skills - Создать новый навык
  */
-router.post('/', authenticateAdmin, validateSkill, async (req, res) => {
+router.post('/', requireAuth, validateSkill, async (req, res) => {
   let db;
   
   try {
@@ -206,7 +204,7 @@ router.post('/', authenticateAdmin, validateSkill, async (req, res) => {
 /**
  * PUT /api/skills/:id - Обновить навык
  */
-router.put('/:id', authenticateAdmin, validateSkill, async (req, res) => {
+router.put('/:id', requireAuth, validateSkill, async (req, res) => {
   let db;
   
   try {
@@ -333,7 +331,7 @@ router.put('/:id', authenticateAdmin, validateSkill, async (req, res) => {
 /**
  * DELETE /api/skills/:id - Удалить навык
  */
-router.delete('/:id', authenticateAdmin, async (req, res) => {
+router.delete('/:id', requireAuth, async (req, res) => {
   let db;
   
   try {
@@ -391,7 +389,7 @@ router.delete('/:id', authenticateAdmin, async (req, res) => {
 /**
  * PUT /api/skills/reorder - Изменить порядок навыков
  */
-router.put('/reorder', authenticateAdmin, async (req, res) => {
+router.put('/reorder', requireAuth, async (req, res) => {
   let db;
   
   try {
