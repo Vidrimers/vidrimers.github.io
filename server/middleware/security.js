@@ -69,7 +69,7 @@ function createRateLimiter({ windowMs = 60 * 1000, max = 60, message = 'Слиш
  */
 const authRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
-  max: 5,
+  max: 20,
   message: 'Слишком много попыток аутентификации. Попробуйте через минуту'
 });
 
