@@ -24,6 +24,7 @@ const Telegram = require('./telegram');
 // Импортируем CMS сервисы
 const { initializeServices, closeServices } = require('./services');
 const { requireAuth, optionalAuth } = require('./middleware/auth');
+const { authRateLimiter, apiRateLimiter, uploadRateLimiter, csrfTokenEndpoint } = require('./middleware/security');
 
 // Импортируем роуты
 const authRoutes = require('./routes/auth');
@@ -101,20 +102,23 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Подключаем роуты аутентификации
-app.use('/api/auth', authRoutes);
+// Подключаем роуты аутентификации (с rate limiting)
+app.use('/api/auth', authRateLimiter, authRoutes);
 
-// Подключаем роуты управления контентом
-app.use('/api/projects', projectsRoutes);
-app.use('/api/categories', categoriesRoutes);
-app.use('/api/skills', skillsRoutes);
-app.use('/api/certificates', certificatesRoutes);
-app.use('/api/about', aboutRoutes);
-app.use('/api/contacts', contactsRoutes);
-app.use('/api/files', filesRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/donate-wallets', donateWalletsRoutes);
-app.use('/api/footer', footerRoutes);
+// CSRF токен эндпоинт (без rate limiting — нужен для инициализации)
+app.get('/api/csrf-token', csrfTokenEndpoint);
+
+// Подключаем роуты управления контентом (с общим rate limiting)
+app.use('/api/projects', apiRateLimiter, projectsRoutes);
+app.use('/api/categories', apiRateLimiter, categoriesRoutes);
+app.use('/api/skills', apiRateLimiter, skillsRoutes);
+app.use('/api/certificates', apiRateLimiter, certificatesRoutes);
+app.use('/api/about', apiRateLimiter, aboutRoutes);
+app.use('/api/contacts', apiRateLimiter, contactsRoutes);
+app.use('/api/files', uploadRateLimiter, filesRoutes);
+app.use('/api/settings', apiRateLimiter, settingsRoutes);
+app.use('/api/donate-wallets', apiRateLimiter, donateWalletsRoutes);
+app.use('/api/footer', apiRateLimiter, footerRoutes);
 
 // Получить лайки для конкретного проекта
 app.get('/api/likes/:projectId', async (req, res) => {

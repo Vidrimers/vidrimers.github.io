@@ -26,6 +26,58 @@ const ALLOWED_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.
 // Максимальный размер файла (5 MB)
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
+/**
+ * Проверяет magic bytes файла для защиты от поддельных расширений
+ * @param {Buffer} buffer - Буфер с содержимым файла
+ * @param {string} mimetype - Заявленный MIME-тип
+ * @returns {{ valid: boolean, error?: string }}
+ */
+function checkMagicBytes(buffer, mimetype) {
+  if (!buffer || buffer.length < 4) {
+    // SVG и маленькие файлы пропускаем (они текстовые)
+    if (mimetype === 'image/svg+xml') return { valid: true };
+    return { valid: false, error: 'Файл слишком мал или пуст' };
+  }
+
+  const b = buffer;
+
+  // JPEG: FF D8 FF
+  if (mimetype === 'image/jpeg' || mimetype === 'image/jpg') {
+    if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) return { valid: true };
+    return { valid: false, error: 'Содержимое файла не соответствует формату JPEG' };
+  }
+
+  // PNG: 89 50 4E 47
+  if (mimetype === 'image/png') {
+    if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) return { valid: true };
+    return { valid: false, error: 'Содержимое файла не соответствует формату PNG' };
+  }
+
+  // GIF: 47 49 46 38
+  if (mimetype === 'image/gif') {
+    if (b[0] === 0x47 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x38) return { valid: true };
+    return { valid: false, error: 'Содержимое файла не соответствует формату GIF' };
+  }
+
+  // WebP: 52 49 46 46 ... 57 45 42 50
+  if (mimetype === 'image/webp') {
+    if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 &&
+        buffer.length >= 12 && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) {
+      return { valid: true };
+    }
+    return { valid: false, error: 'Содержимое файла не соответствует формату WebP' };
+  }
+
+  // SVG — текстовый формат, проверяем наличие тега <svg
+  if (mimetype === 'image/svg+xml') {
+    const text = buffer.toString('utf8', 0, Math.min(buffer.length, 512));
+    if (text.includes('<svg') || text.includes('<?xml')) return { valid: true };
+    return { valid: false, error: 'Содержимое файла не соответствует формату SVG' };
+  }
+
+  return { valid: true };
+}
+
 class FileService {
   constructor() {
     this._ensureUploadsDir();
@@ -54,7 +106,7 @@ class FileService {
   }
 
   /**
-   * Валидирует безопасность файла
+   * Валидирует безопасность файла по метаданным (MIME, расширение, размер)
    * @param {{ mimetype: string, size: number, originalname: string }} fileInfo
    * @returns {{ valid: boolean, error?: string }}
    */
@@ -96,6 +148,16 @@ class FileService {
     }
 
     return { valid: true };
+  }
+
+  /**
+   * Валидирует файл по содержимому буфера (magic bytes) — защита от поддельных расширений
+   * @param {Buffer} buffer - Содержимое файла
+   * @param {string} mimetype - Заявленный MIME-тип
+   * @returns {{ valid: boolean, error?: string }}
+   */
+  validateFileBuffer(buffer, mimetype) {
+    return checkMagicBytes(buffer, mimetype);
   }
 
   /**
@@ -313,3 +375,4 @@ module.exports.getFileService = getFileService;
 module.exports.UPLOADS_DIR = UPLOADS_DIR;
 module.exports.ALLOWED_MIME_TYPES = ALLOWED_MIME_TYPES;
 module.exports.MAX_FILE_SIZE = MAX_FILE_SIZE;
+module.exports.checkMagicBytes = checkMagicBytes;

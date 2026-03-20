@@ -19,11 +19,20 @@ class AuthService {
     
     // Время жизни сессии (24 часа)
     this.sessionExpirationTime = 24 * 60 * 60 * 1000;
+
+    // Blacklist инвалидированных токенов (logout)
+    // Структура: Map<token, expiresAt> — храним до истечения JWT
+    this.tokenBlacklist = new Map();
     
     // Очистка истекших кодов каждую минуту
     setInterval(() => {
       this.cleanupExpiredCodes();
     }, 60 * 1000);
+
+    // Очистка blacklist каждые 30 минут (удаляем токены, которые уже истекли)
+    setInterval(() => {
+      this.cleanupBlacklist();
+    }, 30 * 60 * 1000);
   }
 
   /**
@@ -89,12 +98,18 @@ class AuthService {
 
   /**
    * Проверяет валидность JWT токена
+   * Выполняет полную проверку: подпись, срок жизни, роль, blacklist
    * @param {string} token - JWT токен
    * @returns {object|null} Декодированный payload или null
    */
   validateSession(token) {
     try {
       if (!token || typeof token !== 'string') {
+        return null;
+      }
+
+      // Проверяем blacklist — инвалидированные токены (logout)
+      if (this.tokenBlacklist.has(token)) {
         return null;
       }
 
@@ -105,9 +120,49 @@ class AuthService {
         return null;
       }
 
+      // Явная проверка истечения (jwt.verify уже делает это, но дублируем для надёжности)
+      const now = Math.floor(Date.now() / 1000);
+      if (decoded.exp && decoded.exp < now) {
+        return null;
+      }
+
       return decoded;
     } catch (error) {
       return null;
+    }
+  }
+
+  /**
+   * Инвалидирует токен (logout) — добавляет в blacklist до истечения JWT
+   * @param {string} token - JWT токен для инвалидации
+   * @returns {boolean} Успешность операции
+   */
+  invalidateSession(token) {
+    if (!token || typeof token !== 'string') return false;
+
+    try {
+      // Декодируем без верификации, чтобы получить exp даже для истекших токенов
+      const decoded = jwt.decode(token);
+      if (!decoded) return false;
+
+      const expiresAt = decoded.exp ? decoded.exp * 1000 : Date.now() + this.sessionExpirationTime;
+      this.tokenBlacklist.set(token, expiresAt);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Очищает истекшие токены из blacklist
+   * @private
+   */
+  cleanupBlacklist() {
+    const now = Date.now();
+    for (const [token, expiresAt] of this.tokenBlacklist.entries()) {
+      if (now > expiresAt) {
+        this.tokenBlacklist.delete(token);
+      }
     }
   }
 

@@ -3,6 +3,7 @@
  */
 
 const express = require('express');
+const DOMPurify = require('isomorphic-dompurify');
 const { getDbService } = require('../services');
 const { requireAuth } = require('../middleware/auth');
 
@@ -84,6 +85,18 @@ router.put('/', requireAuth, async (req, res) => {
 
     const dbService = getDbService();
 
+    // Санитизация rich text контента — разрешаем безопасные теги форматирования
+    const allowedTags = ['a', 'strong', 'em', 'b', 'i', 'br', 'p', 'span'];
+    const allowedAttr = ['href', 'target', 'rel'];
+    const sanitizedRu = DOMPurify.sanitize(contentRu.trim(), {
+      ALLOWED_TAGS: allowedTags,
+      ALLOWED_ATTR: allowedAttr
+    });
+    const sanitizedEn = DOMPurify.sanitize(contentEn.trim(), {
+      ALLOWED_TAGS: allowedTags,
+      ALLOWED_ATTR: allowedAttr
+    });
+
     // Проверяем существование записи
     const existing = await dbService.getQuery('SELECT id FROM about_content WHERE id = 1');
 
@@ -93,13 +106,13 @@ router.put('/', requireAuth, async (req, res) => {
         `UPDATE about_content 
          SET content_ru = ?, content_en = ?, updated_at = CURRENT_TIMESTAMP 
          WHERE id = 1`,
-        [contentRu.trim(), contentEn.trim()]
+        [sanitizedRu, sanitizedEn]
       );
     } else {
       // Создаём запись если её нет
       await dbService.runQuery(
         `INSERT INTO about_content (id, content_ru, content_en) VALUES (1, ?, ?)`,
-        [contentRu.trim(), contentEn.trim()]
+        [sanitizedRu, sanitizedEn]
       );
     }
 

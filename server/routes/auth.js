@@ -5,6 +5,7 @@
 const express = require('express');
 const { getAuthService } = require('../middleware/auth');
 const TelegramService = require('../services/telegramService');
+const { csrfTokenEndpoint } = require('../middleware/security');
 
 const router = express.Router();
 
@@ -213,19 +214,22 @@ router.post('/validate-session', (req, res) => {
 
 /**
  * POST /api/auth/logout
- * Выход из системы (инвалидация токена на клиенте)
+ * Выход из системы — инвалидирует токен через blacklist
  */
 router.post('/logout', (req, res) => {
   try {
-    // В JWT нет возможности инвалидировать токен на сервере без blacklist
-    // Поэтому просто возвращаем успешный ответ
-    // Клиент должен удалить токен из localStorage/sessionStorage
-    
     const clientInfo = {
       ip: req.ip || req.connection.remoteAddress,
       userAgent: req.get('User-Agent'),
       timestamp: new Date().toISOString()
     };
+
+    // Инвалидируем токен если он передан
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      authService.invalidateSession(token);
+    }
 
     console.log('🚪 Выход из админ-панели:', clientInfo);
 
@@ -254,6 +258,12 @@ router.post('/logout', (req, res) => {
     });
   }
 });
+
+/**
+ * GET /api/auth/csrf-token
+ * Получить CSRF токен для защиты мутирующих операций
+ */
+router.get('/csrf-token', csrfTokenEndpoint);
 
 /**
  * GET /api/auth/stats

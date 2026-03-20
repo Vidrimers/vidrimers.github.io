@@ -3,6 +3,8 @@
  */
 
 const express = require('express');
+const validator = require('validator');
+const DOMPurify = require('isomorphic-dompurify');
 const { getDbService } = require('../services');
 const { requireAuth } = require('../middleware/auth');
 
@@ -80,19 +82,46 @@ router.put('/', requireAuth, async (req, res) => {
       });
     }
 
-    // Валидация URL для ссылок
+    // Валидация URL для ссылок — строгая проверка через validator
     const urlFields = { telegram, linkedin, github };
     for (const [field, value] of Object.entries(urlFields)) {
-      if (value && value.trim() && !value.startsWith('http') && !value.startsWith('https')) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            code: 'INVALID_URL',
-            message: `Некорректный формат URL для поля ${field}`
-          }
-        });
+      if (value && value.trim()) {
+        if (!validator.isURL(value.trim(), { protocols: ['http', 'https'], require_protocol: true })) {
+          return res.status(400).json({
+            success: false,
+            error: {
+              code: 'INVALID_URL',
+              message: `Некорректный формат URL для поля ${field}`
+            }
+          });
+        }
       }
     }
+
+    // Валидация otherLinks — каждая ссылка должна быть валидным URL
+    if (otherLinks && typeof otherLinks === 'object') {
+      for (const [key, value] of Object.entries(otherLinks)) {
+        if (value && typeof value === 'string' && value.trim()) {
+          if (!validator.isURL(value.trim(), { protocols: ['http', 'https'], require_protocol: true })) {
+            return res.status(400).json({
+              success: false,
+              error: {
+                code: 'INVALID_URL',
+                message: `Некорректный URL в дополнительных ссылках: ${key}`
+              }
+            });
+          }
+        }
+      }
+    }
+
+    // Санитизация строковых полей — убираем HTML
+    const sanitizeText = (val) => val ? DOMPurify.sanitize(val.trim(), { ALLOWED_TAGS: [] }) : null;
+
+    const sanitizedEmail = sanitizeText(email);
+    const sanitizedTelegram = sanitizeText(telegram);
+    const sanitizedLinkedin = sanitizeText(linkedin);
+    const sanitizedGithub = sanitizeText(github);
 
     const otherLinksJson = otherLinks ? JSON.stringify(otherLinks) : '{}';
 
@@ -105,10 +134,10 @@ router.put('/', requireAuth, async (req, res) => {
         SET email = ?, telegram = ?, linkedin = ?, github = ?, other_links = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = 1
       `, [
-        email || null,
-        telegram || null,
-        linkedin || null,
-        github || null,
+        sanitizedEmail || null,
+        sanitizedTelegram || null,
+        sanitizedLinkedin || null,
+        sanitizedGithub || null,
         otherLinksJson
       ]);
     } else {
@@ -116,10 +145,10 @@ router.put('/', requireAuth, async (req, res) => {
         INSERT INTO contacts (id, email, telegram, linkedin, github, other_links)
         VALUES (1, ?, ?, ?, ?, ?)
       `, [
-        email || null,
-        telegram || null,
-        linkedin || null,
-        github || null,
+        sanitizedEmail || null,
+        sanitizedTelegram || null,
+        sanitizedLinkedin || null,
+        sanitizedGithub || null,
         otherLinksJson
       ]);
     }

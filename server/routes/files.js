@@ -87,6 +87,16 @@ router.post('/upload', requireAuth, (req, res) => {
         });
       }
 
+      // Проверка magic bytes — защита от файлов с поддельным расширением
+      const bufferValidation = fileService.validateFileBuffer(req.file.buffer, req.file.mimetype);
+      if (!bufferValidation.valid) {
+        return res.status(400).json({
+          success: false,
+          error: { code: 'INVALID_FILE_CONTENT', message: bufferValidation.error },
+          timestamp: new Date().toISOString(),
+        });
+      }
+
       // Генерируем уникальное имя файла
       const filename = fileService.generateUniqueFilename(req.file.originalname);
       const categoryDir = path.join(require('../services/fileService').UPLOADS_DIR, category);
