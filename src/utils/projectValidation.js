@@ -19,10 +19,10 @@ export const validateProject = (projectData, existingProjects = [], isEditing = 
   } else {
     const id = projectData.id.trim();
     
-    // Проверка формата ID (должен быть pet-N или layout-N)
-    const idPattern = /^(pet|layout|commercial)-\d+$/;
+    // Проверка формата ID (любая категория: word-N)
+    const idPattern = /^[a-z0-9]+-\d+$/;
     if (!idPattern.test(id)) {
-      errors.push('ID проекта должен быть в формате "pet-1", "layout-1" или "commercial-1"');
+      errors.push('ID проекта должен быть в формате "категория-номер", например "pet-1" или "tg-1"');
     }
 
     // Проверка уникальности ID (только при создании нового проекта)
@@ -75,9 +75,10 @@ export const validateProject = (projectData, existingProjects = [], isEditing = 
 
   // Валидация ссылки (если указана)
   if (projectData.link && projectData.link.trim()) {
-    const urlPattern = /^https?:\/\/.+/;
-    if (!urlPattern.test(projectData.link.trim())) {
-      errors.push('Ссылка должна начинаться с http:// или https://');
+    const link = projectData.link.trim();
+    const urlPattern = /^(https?:\/\/.+|t\.me\/.+|@\w+)/;
+    if (!urlPattern.test(link)) {
+      errors.push('Ссылка должна начинаться с http://, https://, t.me/ или @username');
     }
   }
 
