@@ -1,8 +1,6 @@
 /* Основной контейнер */
 .container {
   padding: 20px;
-  max-height: 80vh;
-  overflow-y: auto;
 }
 
 /* Сообщения об ошибках и загрузке */

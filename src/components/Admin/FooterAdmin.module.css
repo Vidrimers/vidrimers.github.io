@@ -40,7 +40,6 @@
 /* Содержимое вкладки */
 .tabContent {
   padding: 20px;
-  overflow-y: auto;
   flex: 1;
 }
 
