@@ -73,11 +73,24 @@ const Header = () => {
   // Блокировка скролла body при открытом меню
   useEffect(() => {
     if (isMenuOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.top = `-${scrollY}px`;
       document.body.classList.add('lock');
+      document.documentElement.classList.add('lock');
     } else {
+      const scrollY = document.body.style.top;
       document.body.classList.remove('lock');
+      document.documentElement.classList.remove('lock');
+      document.body.style.top = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
     }
-    return () => document.body.classList.remove('lock');
+    return () => {
+      document.body.classList.remove('lock');
+      document.documentElement.classList.remove('lock');
+      document.body.style.top = '';
+    };
   }, [isMenuOpen]);
 
   const toggleMenu = () => {

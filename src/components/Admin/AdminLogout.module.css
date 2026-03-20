@@ -17,6 +17,13 @@
   backdrop-filter: blur(10px);
 }
 
+@media (max-width: 768px) {
+  .logoutButton {
+    top: -8px;
+    right: -8px;
+  }
+}
+
 .logoutButton:hover {
   background: rgba(252, 40, 91, 0.3);
   border-color: rgba(252, 40, 91, 0.5);

@@ -125,10 +125,14 @@
 @media (max-width: 768px) {
   .header {
     display: block;
+    height: 0;
+    overflow: visible;
   }
 
+  /* Убираем border чтобы не было пустого блока */
   .headerInner {
-    padding: 2rem 0;
+    padding: 0;
+    border-bottom: none;
   }
 
   .menuBtn {

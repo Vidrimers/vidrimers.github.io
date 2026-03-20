@@ -25,7 +25,13 @@ body {
   padding: 0;
 }
 
-.lock {
+body.lock {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+html.lock {
   overflow: hidden;
 }
 
