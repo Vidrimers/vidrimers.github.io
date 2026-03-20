@@ -484,6 +484,87 @@ class MigrationService {
   }
 
   /**
+   * Мигрировать начальные данные текстов футера
+   */
+  async migrateFooterContent() {
+    console.log('🔄 Миграция текстов футера...');
+
+    await this.dbService.runQuery(`
+      CREATE TABLE IF NOT EXISTS footer_content (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        title_ru TEXT NOT NULL DEFAULT 'Контакты',
+        title_en TEXT NOT NULL DEFAULT 'Contacts',
+        text_ru TEXT NOT NULL DEFAULT 'Связаться со мной можно по данным ссылочкам',
+        text_en TEXT NOT NULL DEFAULT 'You can contact me through these links',
+        send_message_ru TEXT NOT NULL DEFAULT 'Отправить сообщение',
+        send_message_en TEXT NOT NULL DEFAULT 'Send message',
+        find_me_ru TEXT NOT NULL DEFAULT 'Найти меня можно',
+        find_me_en TEXT NOT NULL DEFAULT 'You can find me',
+        on_social_ru TEXT NOT NULL DEFAULT 'В линкедине и телеграме',
+        on_social_en TEXT NOT NULL DEFAULT 'On LinkedIn and Telegram',
+        thanks_ru TEXT NOT NULL DEFAULT 'СПАСИБО :-)',
+        thanks_en TEXT NOT NULL DEFAULT 'THANK YOU :-)',
+        donate_ru TEXT NOT NULL DEFAULT 'Донатная',
+        donate_en TEXT NOT NULL DEFAULT 'Donate',
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    const existing = await this.dbService.getQuery('SELECT id FROM footer_content WHERE id = 1');
+    if (!existing) {
+      await this.dbService.runQuery(`
+        INSERT INTO footer_content (id, title_ru, title_en, text_ru, text_en, send_message_ru, send_message_en, find_me_ru, find_me_en, on_social_ru, on_social_en, thanks_ru, thanks_en, donate_ru, donate_en)
+        VALUES (1, 'Контакты', 'Contacts', 'Связаться со мной можно по данным ссылочкам', 'You can contact me through these links', 'Отправить сообщение', 'Send message', 'Найти меня можно', 'You can find me', 'В линкедине и телеграме', 'On LinkedIn and Telegram', 'СПАСИБО :-)', 'THANK YOU :-)', 'Донатная', 'Donate')
+      `);
+      console.log('✅ Тексты футера добавлены');
+    } else {
+      console.log('⚠️ Тексты футера уже существуют');
+    }
+  }
+
+  /**
+   * Мигрировать начальные данные кошельков донатов
+   * @returns {Promise<void>}
+   */
+  async migrateDonateWallets() {
+    console.log('🔄 Миграция кошельков донатов...');
+
+    // Создаём таблицу если не существует (на случай если schema.sql ещё не применялась)
+    await this.dbService.runQuery(`
+      CREATE TABLE IF NOT EXISTS donate_wallets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        address TEXT NOT NULL,
+        color TEXT DEFAULT '#888888',
+        sort_order INTEGER DEFAULT 0,
+        is_hidden BOOLEAN DEFAULT FALSE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    const initialWallets = [
+      { name: 'Kaspa', address: 'kaspa:qzdkq9n6p0rgp7fg3cyhuq4uznfy6a4csh5jcqt4gs355zyf3r3t2eszhhc9c', color: '#70c7ba', sortOrder: 1 },
+      { name: 'TON', address: 'UQB6VnvZJXUfq3CW-xS6ku38t3fIK7RJ30a5TMTGJiJal8tr', color: '#0088cc', sortOrder: 2 },
+      { name: 'USDT (TRC-20)', address: 'TYYvAa7u8agTheFHoJK6sGqPV2E6UJd6Er', color: '#26a17b', sortOrder: 3 }
+    ];
+
+    const existing = await this.dbService.getOne('SELECT COUNT(*) as count FROM donate_wallets');
+    if (existing && existing.count > 0) {
+      console.log('⚠️ Кошельки донатов уже существуют');
+      return;
+    }
+
+    for (const wallet of initialWallets) {
+      await this.dbService.runQuery(
+        'INSERT INTO donate_wallets (name, address, color, sort_order, is_hidden) VALUES (?, ?, ?, ?, ?)',
+        [wallet.name, wallet.address, wallet.color, wallet.sortOrder, 0]
+      );
+      console.log(`✅ Кошелёк "${wallet.name}" добавлен`);
+    }
+  }
+
+  /**
    * Выполнить полную миграцию данных
    * @returns {Promise<void>}
    */
@@ -498,6 +579,8 @@ class MigrationService {
         await this.migrateCertificates();
         await this.migrateAboutContent();
         await this.migrateContacts();
+        await this.migrateDonateWallets();
+        await this.migrateFooterContent();
       });
       
       console.log('✅ Миграция данных завершена успешно!');

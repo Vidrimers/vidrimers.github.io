@@ -35,6 +35,8 @@ const aboutRoutes = require('./routes/about');
 const contactsRoutes = require('./routes/contacts');
 const filesRoutes = require('./routes/files');
 const settingsRoutes = require('./routes/settings');
+const donateWalletsRoutes = require('./routes/donate-wallets');
+const footerRoutes = require('./routes/footer');
 
 const app = express();
 const PORT = process.env.PORT || 1989;
@@ -111,6 +113,8 @@ app.use('/api/about', aboutRoutes);
 app.use('/api/contacts', contactsRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/donate-wallets', donateWalletsRoutes);
+app.use('/api/footer', footerRoutes);
 
 // Получить лайки для конкретного проекта
 app.get('/api/likes/:projectId', async (req, res) => {

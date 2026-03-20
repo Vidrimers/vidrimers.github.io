@@ -56,8 +56,17 @@
   margin-bottom: 9rem;
 }
 
+.mailWrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
 .mail {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 1.8rem;
   line-height: 2rem;
   font-weight: 700;
@@ -72,6 +81,13 @@
 .mail:hover {
   background: #fc285b;
   color: #000;
+}
+
+.donateWrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
 }
 
 .donateButton {
@@ -146,6 +162,30 @@
   width: 100%;
   height: auto;
   display: block;
+}
+
+/* Иконки дополнительных платформ */
+.socialText {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1;
+  text-align: center;
+  word-break: break-word;
+}
+
+.socialEmoji {
+  font-size: 1.8rem;
+  line-height: 1;
+  display: block;
+  text-align: center;
+}
+
+.socialIconImg {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
 }
 
 .bottom {

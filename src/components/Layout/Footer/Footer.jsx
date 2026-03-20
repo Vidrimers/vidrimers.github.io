@@ -1,37 +1,119 @@
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useMemo, useState, useEffect } from 'react';
 import { LanguageContext } from '../../../context/LanguageContext';
 import DonateModal from '../DonateModal/DonateModal';
 import AdminIndicator from '../../Admin/AdminIndicator';
+import ContactsAdmin from '../../Admin/ContactsAdmin';
+import AdminDonate from '../../Admin/AdminDonate';
+import FooterAdmin from '../../Admin/FooterAdmin';
 import { sendDonateModalNotification } from '../../../utils/telegramNotifications';
 import styles from './Footer.module.css';
 
-const Footer = () => {
-  const { translations } = useContext(LanguageContext);
-  const { footer } = translations;
-  const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
+// Рендер иконки для платформы по типу
+const renderLinkIcon = (name, iconData) => {
+  if (!iconData || typeof iconData !== 'object') {
+    return <span className={styles.socialText}>{name}</span>;
+  }
+  const { iconType, iconValue } = iconData;
+  if (iconType === 'fa' && iconValue) {
+    return <i className={iconValue} aria-hidden="true" />;
+  }
+  if (iconType === 'emoji' && iconValue) {
+    return <span className={styles.socialEmoji}>{iconValue}</span>;
+  }
+  if (iconType === 'file' && iconValue) {
+    return <img src={iconValue} alt={name} className={styles.socialIconImg} />;
+  }
+  return <span className={styles.socialText}>{name}</span>;
+};
 
-  // Мемоизируем массив социальных ссылок для оптимизации производительности
-  const socialLinks = useMemo(() => [
-    {
-      href: "https://www.linkedin.com/in/yaroslav-shiryakov-79a426183/",
-      label: "LinkedIn",
-      icon: "/assets/img/ico/social/linkedin.png",
-      alt: "LinkedIn"
-    },
-    {
-      href: "https://t.me/Vidrimers",
-      label: "Telegram", 
-      icon: "/assets/img/ico/social/telegram.png",
-      alt: "Telegram"
+const Footer = () => {
+  const { language, translations } = useContext(LanguageContext);
+  const { footer: fallbackFooter } = translations;
+
+  const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
+  const [isContactsAdminOpen, setIsContactsAdminOpen] = useState(false);
+  const [isAdminDonateOpen, setIsAdminDonateOpen] = useState(false);
+  const [isFooterAdminOpen, setIsFooterAdminOpen] = useState(false);
+
+  const [apiContacts, setApiContacts] = useState(null);
+  const [apiFooter, setApiFooter] = useState(null);
+
+  useEffect(() => {
+    loadContacts();
+    loadFooterContent();
+  }, []);
+
+  const loadContacts = async () => {
+    try {
+      const res = await fetch('/api/contacts');
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setApiContacts(data.data);
+    } catch {
+      setApiContacts(null);
     }
-  ], []);
+  };
+
+  const loadFooterContent = async () => {
+    try {
+      const res = await fetch('/api/footer');
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setApiFooter(data.data);
+    } catch {
+      setApiFooter(null);
+    }
+  };
+
+  // Тексты футера: из API или из translations (fallback)
+  const texts = useMemo(() => {
+    if (apiFooter) {
+      return language === 'ru' ? apiFooter.ru : apiFooter.en;
+    }
+    return fallbackFooter;
+  }, [apiFooter, language, fallbackFooter]);
+
+  // Социальные ссылки из otherLinks
+  const socialLinks = useMemo(() => {
+    if (!apiContacts?.otherLinks) {
+      // Fallback — хардкод
+      return [
+        {
+          href: 'https://www.linkedin.com/in/yaroslav-shiryakov-79a426183/',
+          label: 'LinkedIn',
+          renderIcon: () => <img src="/assets/img/ico/social/linkedin.png" alt="LinkedIn" />
+        },
+        {
+          href: 'https://t.me/Vidrimers',
+          label: 'Telegram',
+          renderIcon: () => <img src="/assets/img/ico/social/telegram.png" alt="Telegram" />
+        }
+      ];
+    }
+
+    return Object.entries(apiContacts.otherLinks)
+      .filter(([, val]) => {
+        const href = typeof val === 'object' ? val.url : val;
+        return !!href;
+      })
+      .map(([name, val]) => {
+        const href = typeof val === 'object' ? val.url : val;
+        return {
+          href,
+          label: name,
+          renderIcon: () => renderLinkIcon(name, typeof val === 'object' ? val : null)
+        };
+      });
+  }, [apiContacts]);
+
+  const emailHref = apiContacts?.email
+    ? `mailto:${apiContacts.email}`
+    : 'mailto:vidrimers2@gmail.com';
 
   const openDonateModal = async () => {
     setIsDonateModalOpen(true);
-    // Отправляем уведомление в Telegram
     await sendDonateModalNotification();
   };
-  const closeDonateModal = () => setIsDonateModalOpen(false);
 
   return (
     <>
@@ -39,33 +121,44 @@ const Footer = () => {
         <div className={styles.wrapper}>
           <div className={styles.container}>
             <div className={styles.inner}>
+
               <div className={styles.titleWrapper}>
                 <h2 className={styles.title}>
-                  {footer.title}
-                  <AdminIndicator 
-                    section="Контакты"
-                    onClick={() => console.log('Открыть управление разделом "Контакты"')}
+                  {texts.title}
+                  <AdminIndicator
+                    section="Тексты футера"
+                    onClick={() => setIsFooterAdminOpen(true)}
                   />
                 </h2>
               </div>
-              <p className={styles.text}>{footer.text}</p>
-              
-              <div className={styles.actions}>
-                <a 
-                  className={styles.mail} 
-                  href="mailto:vidrimers2@gmail.com"
-                >
-                  {footer.sendMessage}
-                </a>
 
-                <button 
-                  className={styles.donateButton}
-                  onClick={openDonateModal}
-                  aria-label={footer.donate}
-                >
-                  <span className={styles.donateIcon}>❤️</span>
-                  {footer.donate}
-                </button>
+              <p className={styles.text}>{texts.text}</p>
+
+              <div className={styles.actions}>
+                <div className={styles.mailWrapper}>
+                  <a className={styles.mail} href={emailHref}>
+                    {texts.sendMessage}
+                  </a>
+                  <AdminIndicator
+                    section="Контакты"
+                    onClick={() => setIsContactsAdminOpen(true)}
+                  />
+                </div>
+
+                <div className={styles.donateWrapper}>
+                  <button
+                    className={styles.donateButton}
+                    onClick={openDonateModal}
+                    aria-label={texts.donate}
+                  >
+                    <span className={styles.donateIcon}>❤️</span>
+                    {texts.donate}
+                  </button>
+                  <AdminIndicator
+                    section="Донаты"
+                    onClick={() => setIsAdminDonateOpen(true)}
+                  />
+                </div>
               </div>
 
               <div className={styles.social}>
@@ -78,22 +171,40 @@ const Footer = () => {
                     href={link.href}
                     aria-label={link.label}
                   >
-                    <img src={link.icon} alt={link.alt} />
+                    {link.renderIcon()}
                   </a>
                 ))}
               </div>
 
-              <p className={styles.bottom}>{footer.findMe}</p>
-              <p className={styles.bottom}>{footer.onSocial}</p>
-              <p className={styles.bottom}>{footer.thanks}</p>
+              <p className={styles.bottom}>{texts.findMe}</p>
+              <p className={styles.bottom}>{texts.onSocial}</p>
+              <p className={styles.bottom}>{texts.thanks}</p>
             </div>
           </div>
         </div>
       </footer>
 
-      <DonateModal 
-        isOpen={isDonateModalOpen} 
-        onClose={closeDonateModal} 
+      <DonateModal isOpen={isDonateModalOpen} onClose={() => setIsDonateModalOpen(false)} />
+
+      <ContactsAdmin
+        isOpen={isContactsAdminOpen}
+        onClose={() => {
+          setIsContactsAdminOpen(false);
+          loadContacts();
+        }}
+      />
+
+      <AdminDonate
+        isOpen={isAdminDonateOpen}
+        onClose={() => setIsAdminDonateOpen(false)}
+      />
+
+      <FooterAdmin
+        isOpen={isFooterAdminOpen}
+        onClose={() => {
+          setIsFooterAdminOpen(false);
+          loadFooterContent();
+        }}
       />
     </>
   );

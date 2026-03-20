@@ -1,0 +1,312 @@
+.container {
+  padding: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.error {
+  background-color: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid #fcc;
+}
+
+.success {
+  background-color: #efe;
+  color: #363;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid #cfc;
+}
+
+.loading {
+  text-align: center;
+  padding: 12px;
+  color: #666;
+  font-style: italic;
+  margin-bottom: 16px;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 12px 0;
+}
+
+.sectionHeader .sectionTitle {
+  margin: 0;
+}
+
+.formGroup input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: #fc285b;
+  box-shadow: 0 0 0 2px rgba(252, 40, 91, 0.1);
+}
+
+.addButton {
+  background-color: #fc285b;
+  color: white;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.addButton:hover:not(:disabled) { background-color: #e02350; }
+.addButton:disabled { background-color: #ccc; cursor: not-allowed; }
+
+.dragHint {
+  font-size: 0.82rem;
+  color: #6c757d;
+  margin: 0 0 12px 0;
+  padding: 6px 10px;
+  background: #f8f9fa;
+  border-left: 3px solid #007bff;
+  border-radius: 4px;
+}
+
+.emptyHint {
+  color: #999;
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Блок одной платформы */
+.linkBlock {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  margin-bottom: 10px;
+  cursor: default;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.linkBlock:hover {
+  border-color: #fc285b;
+  box-shadow: 0 2px 8px rgba(252, 40, 91, 0.08);
+}
+
+.linkBlock.dragging {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.dragHandle {
+  color: #bbb;
+  font-size: 1.1rem;
+  cursor: grab;
+  padding: 4px 2px;
+  user-select: none;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.dragHandle:active { cursor: grabbing; }
+
+.linkContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Строка: название + URL + удалить */
+.linkRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.linkKey {
+  width: 160px;
+  flex-shrink: 0;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.linkValue {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.linkKey:focus, .linkValue:focus {
+  outline: none;
+  border-color: #fc285b;
+}
+
+.removeButton {
+  background: #dc3545;
+  color: white;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: background-color 0.2s;
+}
+
+.removeButton:hover:not(:disabled) { background: #c82333; }
+.removeButton:disabled { background: #ccc; cursor: not-allowed; }
+
+/* Строка иконки */
+.iconRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.iconLabel {
+  font-size: 0.82rem;
+  color: #666;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.iconTypeTabs {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.iconTypeTab {
+  padding: 4px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f8f9fa;
+  cursor: pointer;
+  font-size: 0.78rem;
+  transition: all 0.15s;
+}
+
+.iconTypeTab:hover { background: #e9ecef; }
+
+.iconTypeTabActive {
+  background: #fc285b;
+  color: white;
+  border-color: #fc285b;
+}
+
+.iconInput {
+  flex: 1;
+  min-width: 120px;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.iconInput:focus {
+  outline: none;
+  border-color: #fc285b;
+}
+
+.iconPreview {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+.iconPreviewEmpty { color: #ccc; font-size: 0.9rem; }
+.iconPreviewFa { font-size: 1.2rem; color: #333; }
+.iconPreviewEmoji { font-size: 1.2rem; }
+.iconPreviewImg { width: 22px; height: 22px; object-fit: contain; }
+
+.iconHint {
+  font-size: 0.78rem;
+  color: #888;
+  margin: 0;
+}
+
+.iconHint a { color: #fc285b; }
+.iconHint code { background: #f0f0f0; padding: 1px 4px; border-radius: 3px; font-size: 0.75rem; }
+
+/* Кнопки формы */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.cancelButton, .saveButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.cancelButton { background: #6c757d; color: white; }
+.cancelButton:hover:not(:disabled) { background: #545b62; }
+
+.saveButton { background: #fc285b; color: white; }
+.saveButton:hover:not(:disabled) { background: #e02350; }
+
+.cancelButton:disabled, .saveButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .linkRow { flex-wrap: wrap; }
+  .linkKey { width: 100%; }
+  .iconRow { flex-direction: column; align-items: flex-start; }
+}
