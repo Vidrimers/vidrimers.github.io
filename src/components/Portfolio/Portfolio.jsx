@@ -8,12 +8,28 @@ import styles from './Portfolio.module.css';
 
 const Portfolio = () => {
   const { translations } = useContext(LanguageContext);
-  const [activeCategory, setActiveCategory] = useState('pet');
+  const [activeCategory, setActiveCategory] = useState(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showPortfolioAdmin, setShowPortfolioAdmin] = useState(false);
   const [projects, setProjects] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Загрузка категорий из API
+  const loadCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      if (!response.ok) throw new Error('Ошибка загрузки категорий');
+      const data = await response.json();
+      if (data.success && data.data.length > 0) {
+        setCategories(data.data);
+        setActiveCategory(prev => prev || data.data[0].id);
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки категорий:', err);
+    }
+  };
 
   // Загрузка проектов из API
   const loadProjects = async () => {
@@ -78,8 +94,9 @@ const Portfolio = () => {
     }
   };
 
-  // Загружаем проекты при монтировании компонента
+  // Загружаем категории и проекты при монтировании
   useEffect(() => {
+    loadCategories();
     loadProjects();
   }, []);
   
@@ -135,6 +152,7 @@ const Portfolio = () => {
           
           {/* Табы для переключения категорий */}
           <PortfolioTabs 
+            categories={categories}
             activeCategory={activeCategory}
             onCategoryChange={handleCategoryChange}
           />
