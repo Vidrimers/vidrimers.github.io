@@ -2,8 +2,6 @@ import { useContext, useMemo, useState, useEffect } from 'react';
 import { LanguageContext } from '../../../context/LanguageContext';
 import DonateModal from '../DonateModal/DonateModal';
 import AdminIndicator from '../../Admin/AdminIndicator';
-import ContactsAdmin from '../../Admin/ContactsAdmin';
-import AdminDonate from '../../Admin/AdminDonate';
 import FooterAdmin from '../../Admin/FooterAdmin';
 import { sendDonateModalNotification } from '../../../utils/telegramNotifications';
 import styles from './Footer.module.css';
@@ -31,8 +29,6 @@ const Footer = () => {
   const { footer: fallbackFooter } = translations;
 
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
-  const [isContactsAdminOpen, setIsContactsAdminOpen] = useState(false);
-  const [isAdminDonateOpen, setIsAdminDonateOpen] = useState(false);
   const [isFooterAdminOpen, setIsFooterAdminOpen] = useState(false);
 
   const [apiContacts, setApiContacts] = useState(null);
@@ -94,7 +90,10 @@ const Footer = () => {
     return Object.entries(apiContacts.otherLinks)
       .filter(([, val]) => {
         const href = typeof val === 'object' ? val.url : val;
-        return !!href;
+        if (!href) return false;
+        // Фильтруем скрытые ссылки
+        if (typeof val === 'object' && val.isHidden) return false;
+        return true;
       })
       .map(([name, val]) => {
         const href = typeof val === 'object' ? val.url : val;
@@ -126,7 +125,7 @@ const Footer = () => {
                 <h2 className={styles.title}>
                   {texts.title}
                   <AdminIndicator
-                    section="Тексты футера"
+                    section="Футер"
                     onClick={() => setIsFooterAdminOpen(true)}
                   />
                 </h2>
@@ -139,10 +138,6 @@ const Footer = () => {
                   <a className={styles.mail} href={emailHref}>
                     {texts.sendMessage}
                   </a>
-                  <AdminIndicator
-                    section="Контакты"
-                    onClick={() => setIsContactsAdminOpen(true)}
-                  />
                 </div>
 
                 <div className={styles.donateWrapper}>
@@ -154,10 +149,6 @@ const Footer = () => {
                     <span className={styles.donateIcon}>❤️</span>
                     {texts.donate}
                   </button>
-                  <AdminIndicator
-                    section="Донаты"
-                    onClick={() => setIsAdminDonateOpen(true)}
-                  />
                 </div>
               </div>
 
@@ -186,24 +177,12 @@ const Footer = () => {
 
       <DonateModal isOpen={isDonateModalOpen} onClose={() => setIsDonateModalOpen(false)} />
 
-      <ContactsAdmin
-        isOpen={isContactsAdminOpen}
-        onClose={() => {
-          setIsContactsAdminOpen(false);
-          loadContacts();
-        }}
-      />
-
-      <AdminDonate
-        isOpen={isAdminDonateOpen}
-        onClose={() => setIsAdminDonateOpen(false)}
-      />
-
       <FooterAdmin
         isOpen={isFooterAdminOpen}
         onClose={() => {
           setIsFooterAdminOpen(false);
           loadFooterContent();
+          loadContacts();
         }}
       />
     </>

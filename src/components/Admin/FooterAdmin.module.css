@@ -1,150 +1,291 @@
 .container {
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
   max-height: 80vh;
-  overflow-y: auto;
 }
 
+/* Вкладки */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 16px 20px 0;
+  border-bottom: 2px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.tab {
+  padding: 8px 20px;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: #f8f9fa;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #555;
+  transition: all 0.2s;
+  position: relative;
+  bottom: -2px;
+}
+
+.tab:hover { background: #e9ecef; }
+
+.tabActive {
+  background: white;
+  color: #fc285b;
+  border-color: #f0f0f0;
+  border-bottom-color: white;
+  font-weight: 600;
+}
+
+/* Содержимое вкладки */
+.tabContent {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Сообщения */
 .error {
-  background-color: #fee;
+  background: #fee;
   color: #c33;
-  padding: 12px;
+  padding: 10px 14px;
   border-radius: 6px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   border: 1px solid #fcc;
+  font-size: 0.9rem;
 }
 
 .success {
-  background-color: #efe;
+  background: #efe;
   color: #363;
-  padding: 12px;
+  padding: 10px 14px;
   border-radius: 6px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   border: 1px solid #cfc;
+  font-size: 0.9rem;
 }
 
 .loading {
   text-align: center;
   padding: 20px;
-  color: #666;
+  color: #888;
   font-style: italic;
 }
 
+/* Переключатель языка */
 .langTabs {
   display: flex;
   gap: 8px;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .langTab {
-  padding: 8px 18px;
+  padding: 7px 16px;
   border: 1px solid #ddd;
   border-radius: 6px;
   background: #f8f9fa;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   transition: all 0.2s;
 }
 
 .langTab:hover { background: #e9ecef; }
+.langTabActive { background: #fc285b; color: white; border-color: #fc285b; }
 
-.langTabActive {
-  background: #fc285b;
-  color: white;
-  border-color: #fc285b;
-}
+/* Поля формы */
+.fields { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
 
-.fields {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-bottom: 20px;
-}
+.formGroup { display: flex; flex-direction: column; gap: 5px; }
 
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.formGroup label, label { font-size: 0.88rem; font-weight: 500; color: #444; }
 
-.formGroup label {
-  font-weight: 500;
-  color: #444;
-  font-size: 0.9rem;
-}
-
-.formGroup input {
-  padding: 10px 12px;
+.formGroup input,
+.formGroup textarea,
+.emailInput,
+.linkKey,
+.linkValue,
+.iconInput,
+.colorText {
+  padding: 9px 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-family: inherit;
   transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
-.formGroup input:focus {
+.formGroup input:focus,
+.formGroup textarea:focus,
+.emailInput:focus,
+.linkKey:focus,
+.linkValue:focus,
+.iconInput:focus,
+.colorText:focus {
   outline: none;
   border-color: #fc285b;
-  box-shadow: 0 0 0 2px rgba(252, 40, 91, 0.1);
+  box-shadow: 0 0 0 2px rgba(252,40,91,0.1);
 }
 
-.formGroup input:disabled {
-  background: #f5f5f5;
-  color: #999;
-}
+.emailInput { width: 100%; }
 
-.formActions {
+.formGroup textarea { resize: vertical; }
+
+/* Секции */
+.section { margin-bottom: 20px; }
+
+.sectionHeader {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
-.resetButton {
-  padding: 9px 18px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: white;
+.sectionTitle { font-size: 0.95rem; font-weight: 600; color: #333; margin: 0 0 10px 0; }
+.sectionHeader .sectionTitle { margin: 0; }
+
+/* Кнопки */
+.addButton {
+  background: #fc285b; color: white; border: none;
+  padding: 6px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 0.82rem; font-weight: 500; transition: background 0.2s; white-space: nowrap;
+}
+.addButton:hover:not(:disabled) { background: #e02350; }
+.addButton:disabled { background: #ccc; cursor: not-allowed; }
+
+.backButton {
+  background: #6c757d; color: white; border: none;
+  padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+}
+.backButton:hover { background: #545b62; }
+
+/* Drag & drop подсказка */
+.dragHint {
+  font-size: 0.8rem; color: #6c757d; margin: 0 0 10px 0;
+  padding: 5px 10px; background: #f8f9fa; border-left: 3px solid #007bff; border-radius: 4px;
+}
+
+.emptyHint { color: #999; font-style: italic; font-size: 0.88rem; text-align: center; padding: 16px; }
+
+/* Блок ссылки */
+.linkBlock {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px;
+  background: white; margin-bottom: 8px; transition: border-color 0.2s;
+}
+.linkBlock:hover { border-color: #fc285b; }
+.linkBlock.dragging { opacity: 0.5; border-style: dashed; }
+.linkHidden { opacity: 0.5; background: #f8f8f8; }
+
+.hiddenCheckbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
+  user-select: none;
+  font-size: 0.82rem;
   color: #666;
-  transition: all 0.2s;
-  margin-right: auto;
+  margin-top: 2px;
+}
+.hiddenCheckbox input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; }
+
+.dragHandle { color: #bbb; font-size: 1rem; cursor: grab; padding: 4px 2px; user-select: none; flex-shrink: 0; margin-top: 4px; }
+.dragHandle:active { cursor: grabbing; }
+
+.linkContent { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+
+.linkRow { display: flex; gap: 6px; align-items: center; }
+.linkKey { width: 150px; flex-shrink: 0; }
+.linkValue { flex: 1; min-width: 0; }
+
+.removeButton {
+  background: #dc3545; color: white; border: none;
+  width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; flex-shrink: 0;
+}
+.removeButton:hover:not(:disabled) { background: #c82333; }
+.removeButton:disabled { background: #ccc; cursor: not-allowed; }
+
+/* Иконки */
+.iconRow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.iconLabel { font-size: 0.8rem; color: #666; white-space: nowrap; flex-shrink: 0; }
+
+.iconTypeTabs { display: flex; gap: 3px; flex-shrink: 0; }
+.iconTypeTab { padding: 3px 9px; border: 1px solid #ddd; border-radius: 4px; background: #f8f9fa; cursor: pointer; font-size: 0.76rem; transition: all 0.15s; }
+.iconTypeTab:hover { background: #e9ecef; }
+.iconTypeTabActive { background: #fc285b; color: white; border-color: #fc285b; }
+
+.iconInput { flex: 1; min-width: 100px; }
+
+.iconPreview { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #eee; border-radius: 6px; background: #fafafa; flex-shrink: 0; }
+.iconPreviewEmpty { color: #ccc; font-size: 0.85rem; }
+.iconPreviewFa { font-size: 1.1rem; color: #333; }
+.iconPreviewEmoji { font-size: 1.1rem; }
+.iconPreviewImg { width: 20px; height: 20px; object-fit: contain; }
+
+.iconHint { font-size: 0.76rem; color: #888; margin: 0; }
+.iconHint a { color: #fc285b; }
+.iconHint code { background: #f0f0f0; padding: 1px 4px; border-radius: 3px; font-size: 0.73rem; }
+
+/* Кошельки */
+.walletCard {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px;
+  background: white; cursor: move; margin-bottom: 8px; transition: all 0.2s;
+}
+.walletCard:hover { border-color: #fc285b; box-shadow: 0 2px 6px rgba(252,40,91,0.08); }
+.walletHidden { opacity: 0.6; background: #f8f8f8; }
+
+.colorDot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.1); }
+
+.walletInfo { flex: 1; min-width: 0; }
+.walletName { font-weight: 600; color: #333; font-size: 0.9rem; }
+.walletAddress { font-size: 0.75rem; color: #888; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.hiddenFlag { display: inline-block; background: #ffc107; color: #856404; padding: 1px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: 500; margin-top: 3px; }
+
+.walletActions { display: flex; gap: 5px; flex-shrink: 0; }
+.walletForm { display: flex; flex-direction: column; gap: 14px; }
+
+.editButton { background: #007bff; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; }
+.editButton:hover:not(:disabled) { background: #0056b3; }
+
+.visibilityButton { background: #6c757d; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; }
+.visibilityButton:hover:not(:disabled) { background: #545b62; }
+
+.deleteButton { background: #dc3545; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; }
+.deleteButton:hover:not(:disabled) { background: #c82333; }
+
+.editButton:disabled, .visibilityButton:disabled, .deleteButton:disabled { background: #ccc; cursor: not-allowed; }
+
+/* Цвет */
+.colorRow { display: flex; align-items: center; gap: 8px; }
+.colorPicker { width: 40px; height: 36px; padding: 2px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; flex-shrink: 0; }
+.colorPreview { font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
+
+/* Чекбокс */
+.checkbox { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: 0.88rem; color: #333; }
+.checkbox input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
+
+/* Кнопки действий вкладки */
+.tabActions {
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding-top: 14px; border-top: 1px solid #e0e0e0; margin-top: 4px;
 }
 
+.resetButton { padding: 8px 16px; border: 1px solid #ddd; border-radius: 6px; background: white; cursor: pointer; font-size: 0.88rem; color: #666; margin-right: auto; }
 .resetButton:hover { background: #f5f5f5; }
 
-.cancelButton {
-  padding: 9px 18px;
-  border: none;
-  border-radius: 6px;
-  background: #6c757d;
-  color: white;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
-}
-
+.cancelButton { padding: 8px 16px; border: none; border-radius: 6px; background: #6c757d; color: white; cursor: pointer; font-size: 0.88rem; }
 .cancelButton:hover:not(:disabled) { background: #545b62; }
 
-.saveButton {
-  padding: 9px 20px;
-  border: none;
-  border-radius: 6px;
-  background: #fc285b;
-  color: white;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
-}
-
+.saveButton { padding: 8px 20px; border: none; border-radius: 6px; background: #fc285b; color: white; cursor: pointer; font-size: 0.88rem; font-weight: 500; }
 .saveButton:hover:not(:disabled) { background: #e02350; }
 
-.saveButton:disabled,
-.cancelButton:disabled {
-  background: #ccc;
-  cursor: not-allowed;
+.cancelButton:disabled, .saveButton:disabled { background: #ccc; cursor: not-allowed; }
+
+@media (max-width: 600px) {
+  .linkRow { flex-wrap: wrap; }
+  .linkKey { width: 100%; }
+  .iconRow { flex-direction: column; align-items: flex-start; }
+  .walletCard { flex-wrap: wrap; }
+  .walletActions { width: 100%; justify-content: flex-end; }
 }
