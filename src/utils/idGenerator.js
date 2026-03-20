@@ -79,18 +79,20 @@ export const validateProjectIdFormat = (id) => {
 
   const trimmedId = id.trim();
   
-  // Проверяем формат: category-number
-  const pattern = /^(pet|layout|commercial)-\d+$/;
+  // Проверяем формат: category-number (любая категория)
+  const pattern = /^[a-z0-9]+-\d+$/;
   
   if (!pattern.test(trimmedId)) {
     return {
       isValid: false,
-      error: 'ID должен быть в формате "pet-1", "layout-1" или "commercial-1"'
+      error: 'ID должен быть в формате "категория-номер", например "pet-1" или "tg-1"'
     };
   }
 
   // Извлекаем категорию и номер
-  const [category, numberStr] = trimmedId.split('-');
+  const lastDash = trimmedId.lastIndexOf('-');
+  const category = trimmedId.substring(0, lastDash);
+  const numberStr = trimmedId.substring(lastDash + 1);
   const number = parseInt(numberStr, 10);
 
   if (number <= 0) {
@@ -140,24 +142,19 @@ export const getRecommendedId = (categoryId, existingProjects = []) => {
  * @returns {Object} Статистика по категориям
  */
 export const getIdStatistics = (existingProjects = []) => {
-  const stats = {
-    pet: { count: 0, maxNumber: 0, gaps: [] },
-    layout: { count: 0, maxNumber: 0, gaps: [] },
-    commercial: { count: 0, maxNumber: 0, gaps: [] }
-  };
+  const stats = {};
+  const projectsByCategory = {};
 
-  // Группируем проекты по категориям
-  const projectsByCategory = {
-    pet: [],
-    layout: [],
-    commercial: []
-  };
-
+  // Динамически группируем проекты по категориям
   existingProjects.forEach(project => {
     if (!project.id) return;
     
     const validation = validateProjectIdFormat(project.id);
-    if (validation.isValid && projectsByCategory[validation.category]) {
+    if (validation.isValid) {
+      if (!projectsByCategory[validation.category]) {
+        projectsByCategory[validation.category] = [];
+        stats[validation.category] = { count: 0, maxNumber: 0, gaps: [] };
+      }
       projectsByCategory[validation.category].push(validation.number);
     }
   });

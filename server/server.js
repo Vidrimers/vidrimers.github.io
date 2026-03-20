@@ -9,7 +9,6 @@ require('dotenv').config();
 
 const { 
   initDatabase, 
-  projectExists,
   getLikes, 
   addLike, 
   removeLike, 
@@ -148,21 +147,12 @@ app.get('/api/likes/:projectId', async (req, res) => {
       });
     }
     
-    // Валидация формата projectId
-    const validIdPattern = /^(pet|layout)-\d+$/;
+    // Валидация формата projectId (любая категория: word-N)
+    const validIdPattern = /^[a-z0-9]+-\d+$/;
     if (!validIdPattern.test(projectId)) {
       return res.status(400).json({
         success: false,
         error: 'Некорректный формат Project ID'
-      });
-    }
-    
-    // Проверяем существует ли проект
-    const exists = await projectExists(db, projectId);
-    if (!exists) {
-      return res.status(404).json({
-        success: false,
-        error: 'Проект не найден'
       });
     }
     
@@ -203,21 +193,12 @@ app.post('/api/likes/:projectId', async (req, res) => {
       });
     }
     
-    // Валидация формата projectId
-    const validIdPattern = /^(pet|layout)-\d+$/;
+    // Валидация формата projectId (любая категория: word-N)
+    const validIdPattern = /^[a-z0-9]+-\d+$/;
     if (!validIdPattern.test(projectId)) {
       return res.status(400).json({
         success: false,
         error: 'Некорректный формат Project ID'
-      });
-    }
-    
-    // Проверяем существует ли проект
-    const exists = await projectExists(db, projectId);
-    if (!exists) {
-      return res.status(404).json({
-        success: false,
-        error: 'Проект не найден'
       });
     }
     
