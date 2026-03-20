@@ -459,6 +459,14 @@ app.get('/api/telegram/info', async (req, res) => {
   }
 });
 
+// Раздача статики из dist/
+app.use(express.static(path.join(__dirname, '..', 'dist')));
+
+// SPA fallback — все не-API маршруты отдают index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
+});
+
 // 404 для неизвестных маршрутов
 app.use((req, res) => {
   res.status(404).json({ 
