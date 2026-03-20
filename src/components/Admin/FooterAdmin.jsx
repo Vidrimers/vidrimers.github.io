@@ -7,19 +7,17 @@ import styles from './FooterAdmin.module.css';
 
 const ICON_TYPES = { FILE: 'file', EMOJI: 'emoji', FA: 'fa' };
 
+// Поля с одиночным input
 const FOOTER_FIELDS = [
-  { key: 'title',       label: 'Заголовок',             placeholder: 'Контакты' },
-  { key: 'text',        label: 'Подзаголовок',          placeholder: 'Связаться со мной...' },
-  { key: 'sendMessage', label: 'Кнопка "Написать"',     placeholder: 'Отправить сообщение' },
-  { key: 'findMe',      label: 'Строка "Найти меня"',   placeholder: 'Найти меня можно' },
-  { key: 'onSocial',    label: 'Строка "В соцсетях"',   placeholder: 'В линкедине и телеграме' },
-  { key: 'thanks',      label: 'Строка "Спасибо"',      placeholder: 'СПАСИБО :-)' },
-  { key: 'donate',      label: 'Кнопка "Донат"',        placeholder: 'Донатная' },
+  { key: 'title',       label: 'Заголовок',         placeholder: 'Контакты' },
+  { key: 'text',        label: 'Подзаголовок',      placeholder: 'Связаться со мной...' },
+  { key: 'sendMessage', label: 'Кнопка "Написать"', placeholder: 'Отправить сообщение' },
+  { key: 'donate',      label: 'Кнопка "Донат"',   placeholder: 'Донатная' },
 ];
 
 const emptyTextForm = () => ({
-  ru: { title: '', text: '', sendMessage: '', findMe: '', onSocial: '', thanks: '', donate: '' },
-  en: { title: '', text: '', sendMessage: '', findMe: '', onSocial: '', thanks: '', donate: '' }
+  ru: { title: '', text: '', sendMessage: '', bottomText: '', donate: '' },
+  en: { title: '', text: '', sendMessage: '', bottomText: '', donate: '' }
 });
 
 const emptyWalletForm = { name: '', address: '', color: '#888888', isHidden: false };
@@ -97,6 +95,17 @@ const TabTexts = ({ getAuthHeaders }) => {
             <input type="text" value={form[activeLang][key] || ''} onChange={e => handleChange(activeLang, key, e.target.value)} placeholder={placeholder} disabled={saving} />
           </div>
         ))}
+        <div className={styles.formGroup}>
+          <label>Нижние строки</label>
+          <textarea
+            value={form[activeLang].bottomText || ''}
+            onChange={e => handleChange(activeLang, 'bottomText', e.target.value)}
+            placeholder="Каждая строка — отдельный абзац"
+            rows={4}
+            disabled={saving}
+          />
+          <span className={styles.fieldHint}>Каждая строка — отдельный абзац в футере</span>
+        </div>
       </div>
 
       <div className={styles.tabActions}>

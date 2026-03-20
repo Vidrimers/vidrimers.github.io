@@ -167,9 +167,9 @@ const Footer = () => {
                 ))}
               </div>
 
-              <p className={styles.bottom}>{texts.findMe}</p>
-              <p className={styles.bottom}>{texts.onSocial}</p>
-              <p className={styles.bottom}>{texts.thanks}</p>
+              {(texts.bottomText || '').split('\n').filter(Boolean).map((line, i) => (
+                <p key={i} className={styles.bottom}>{line}</p>
+              ))}
             </div>
           </div>
         </div>

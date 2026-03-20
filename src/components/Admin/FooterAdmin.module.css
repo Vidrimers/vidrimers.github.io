@@ -226,6 +226,8 @@
 .iconHint a { color: #fc285b; }
 .iconHint code { background: #f0f0f0; padding: 1px 4px; border-radius: 3px; font-size: 0.73rem; }
 
+.fieldHint { font-size: 0.78rem; color: #888; margin-top: 3px; }
+
 /* Кошельки */
 .walletCard {
   display: flex; align-items: center; gap: 10px;
