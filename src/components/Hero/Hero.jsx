@@ -64,7 +64,7 @@ const Hero = () => {
                   }}
                   style={languageStyles.ru}
                 >
-                  РУС
+                  {language === 'ru' ? 'РУС' : 'RUS'}
                 </a> 
                 <span>|</span> 
                 <a 
@@ -75,11 +75,10 @@ const Hero = () => {
                   }}
                   style={languageStyles.en}
                 >
-                  АНГ
+                  {language === 'ru' ? 'АНГ' : 'ENG'}
                 </a>
               </div>
               <div className={styles.heroMenuMobile}>
-                {/* Мобильное меню будет здесь */}
               </div>
             </div>
             <div 

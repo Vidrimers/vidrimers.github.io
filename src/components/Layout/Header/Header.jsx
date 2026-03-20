@@ -3,9 +3,14 @@ import { LanguageContext } from '../../../context/LanguageContext';
 import styles from './Header.module.css';
 
 const Header = () => {
-  const { translations } = useContext(LanguageContext);
+  const { translations, language, changeLanguage } = useContext(LanguageContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+
+  const toggleLanguage = (e) => {
+    e.preventDefault();
+    changeLanguage(language === 'ru' ? 'en' : 'ru');
+  };
 
   // Smooth scroll к секции с плавной анимацией
   const scrollToSection = (sectionId) => {
@@ -124,6 +129,16 @@ const Header = () => {
                   </a>
                 </li>
               ))}
+              {/* Переключатель языка — виден только в мобильном меню */}
+              <li className={styles.menuItemLang}>
+                <a
+                  href="#"
+                  onClick={toggleLanguage}
+                  className={styles.menuLangLink}
+                >
+                  {language === 'ru' ? 'РУС | АНГ' : 'RUS | ENG'}
+                </a>
+              </li>
             </ul>
           </nav>
         </div>

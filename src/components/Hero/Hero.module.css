@@ -172,6 +172,34 @@
   .heroPhoto {
     min-height: 30rem;
   }
+
+  /* На мобилке скрываем десктопный переключатель языка */
+  .heroLang {
+    display: none;
+  }
+
+  /* Показываем мобильный блок с переключателем */
+  .heroMenuMobile {
+    display: block;
+    position: relative;
+  }
+
+  .heroLangMobile {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+
+  .heroLangMobile a {
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  .heroLangMobile span {
+    color: #828282;
+  }
 }
 
 /* 480px (ssm) */
