@@ -392,8 +392,14 @@ const CategoryManager = ({ isOpen, onClose, onCategoryChange }) => {
                         <label>Порядок:</label>
                         <input
                           type="number"
-                          value={category.sort_order}
-                          onChange={(e) => handleSortOrderChange(category, parseInt(e.target.value) || 0)}
+                          defaultValue={category.sort_order}
+                          key={category.sort_order}
+                          onBlur={(e) => {
+                            const val = parseInt(e.target.value) || 0;
+                            if (val !== category.sort_order) {
+                              handleSortOrderChange(category, val);
+                            }
+                          }}
                           min="0"
                           disabled={loading}
                         />
