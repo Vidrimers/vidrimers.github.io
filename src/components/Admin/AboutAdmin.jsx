@@ -149,6 +149,7 @@ const AboutAdmin = ({ isOpen, onClose }) => {
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
   const [activeTab, setActiveTab] = useState('ru'); // 'ru' | 'en'
+  const [showPreview, setShowPreview] = useState(false);
 
   // Состояние формы
   const [form, setForm] = useState({
@@ -307,12 +308,16 @@ const AboutAdmin = ({ isOpen, onClose }) => {
                   <span className={styles.emptyBadge}>empty</span>
                 )}
               </button>
-
-
+              <button
+                className={`${styles.previewToggle} ${showPreview ? styles.previewToggleActive : ''}`}
+                onClick={() => setShowPreview(prev => !prev)}
+              >
+                {showPreview ? '✕ Скрыть' : '👁 Предпросмотр'}
+              </button>
             </div>
 
             {/* Редактор + предпросмотр */}
-            <div className={styles.editorLayout}>
+            <div className={`${styles.editorLayout} ${showPreview ? styles.editorLayoutSplit : ''}`}>
               {/* Левая часть — редактор */}
               <div className={styles.editorPane}>
                 <RichTextToolbar
@@ -349,13 +354,15 @@ const AboutAdmin = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              {/* Правая часть — предпросмотр (всегда виден) */}
-              <div className={styles.previewPane}>
-                <div className={styles.previewHeader}>
-                  Предпросмотр ({activeTab === 'ru' ? 'RU' : 'EN'})
+              {/* Правая часть — предпросмотр (только если включён) */}
+              {showPreview && (
+                <div className={styles.previewPane}>
+                  <div className={styles.previewHeader}>
+                    Предпросмотр ({activeTab === 'ru' ? 'RU' : 'EN'})
+                  </div>
+                  <ContentPreview content={activeContent} lang={activeTab} />
                 </div>
-                <ContentPreview content={activeContent} lang={activeTab} />
-              </div>
+              )}
             </div>
 
             {/* Кнопки действий */}
