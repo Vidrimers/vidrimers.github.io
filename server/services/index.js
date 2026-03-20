@@ -4,10 +4,12 @@
 
 const DatabaseService = require('./databaseService');
 const TelegramService = require('./telegramService');
+const FileService = require('./fileService');
 
 // Глобальные экземпляры
 let dbService = null;
 let telegramService = null;
+let fileService = null;
 
 /**
  * Инициализирует все сервисы
@@ -25,9 +27,12 @@ async function initializeServices() {
       console.warn('⚠️ Telegram сервис не настроен:', error.message);
       telegramService = null;
     }
-    
+
+    // Инициализируем FileService
+    fileService = new FileService();
+
     console.log('✅ Все сервисы инициализированы');
-    return { dbService, telegramService };
+    return { dbService, telegramService, fileService };
     
   } catch (error) {
     console.error('❌ Ошибка инициализации сервисов:', error);
@@ -53,6 +58,17 @@ function getTelegramService() {
 }
 
 /**
+ * Получает экземпляр FileService
+ */
+function getFileService() {
+  if (!fileService) {
+    // Создаём на лету если не инициализирован через initializeServices
+    fileService = new FileService();
+  }
+  return fileService;
+}
+
+/**
  * Закрывает все сервисы
  */
 async function closeServices() {
@@ -70,5 +86,6 @@ module.exports = {
   initializeServices,
   getDbService,
   getTelegramService,
+  getFileService,
   closeServices
 };

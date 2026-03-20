@@ -3,7 +3,7 @@
  */
 
 const express = require('express');
-const { getDbService } = require('../services');
+const { getDbService, getFileService } = require('../services');
 const { requireAuth } = require('../middleware/auth');
 const { validateSkill, sanitizeSkill } = require('../middleware/validation');
 
@@ -414,7 +414,13 @@ router.delete('/:id', requireAuth, async (req, res) => {
     
     // Удаляем навык
     await dbService.runQuery('DELETE FROM skills WHERE id = ?', [parseInt(id)]);
-    
+
+    // Удаляем связанный файл иконки если он в /uploads
+    if (existingSkill.icon_path && existingSkill.icon_path.startsWith('/uploads/')) {
+      const fileService = getFileService();
+      fileService.deleteFileByWebPath(existingSkill.icon_path);
+    }
+
     res.json({
       success: true,
       message: 'Навык успешно удален'

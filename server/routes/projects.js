@@ -5,7 +5,7 @@
 const express = require('express');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { validateProject, sanitizeProject } = require('../middleware/validation');
-const { getDbService, getTelegramService } = require('../services');
+const { getDbService, getTelegramService, getFileService } = require('../services');
 
 const router = express.Router();
 
@@ -496,6 +496,12 @@ router.delete('/:id', requireAuth, async (req, res) => {
 
     // Удаляем проект
     await dbService.runQuery('DELETE FROM projects WHERE id = ?', [id]);
+
+    // Удаляем связанный файл изображения если он в /uploads
+    if (existingProject.image_path && existingProject.image_path.startsWith('/uploads/')) {
+      const fileService = getFileService();
+      fileService.deleteFileByWebPath(existingProject.image_path);
+    }
 
     // Логируем активность
     await dbService.logActivity(

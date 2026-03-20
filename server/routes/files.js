@@ -1,5 +1,6 @@
 /**
  * Роуты для управления файлами
+ * Requirements: 9.1, 9.3, 9.5, 9.6
  */
 
 const express = require('express');
@@ -8,68 +9,30 @@ const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
 const { requireAuth } = require('../middleware/auth');
-const { getDbService, getTelegramService } = require('../services');
+const { getDbService, getTelegramService, getFileService } = require('../services');
 
 const router = express.Router();
 
-// Создаем папку uploads если её нет
-const uploadsDir = path.join(__dirname, '..', '..', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Настройка multer для загрузки файлов
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // req.body недоступен в destination при multipart/form-data — используем query
-    const category = req.query.category || 'general';
-    const categoryDir = path.join(uploadsDir, category);
-    
-    // Создаем папку категории если её нет
-    if (!fs.existsSync(categoryDir)) {
-      fs.mkdirSync(categoryDir, { recursive: true });
-    }
-    
-    cb(null, categoryDir);
-  },
-  filename: (req, file, cb) => {
-    // Генерируем уникальное имя файла
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 8);
-    const extension = path.extname(file.originalname).toLowerCase();
-    const filename = `${timestamp}-${randomString}${extension}`;
-    
-    cb(null, filename);
-  }
-});
-
-// Фильтр для проверки типов файлов
-const fileFilter = (req, file, cb) => {
-  // Разрешенные MIME типы
-  const allowedMimeTypes = [
-    'image/jpeg',
-    'image/jpg', 
-    'image/png',
-    'image/webp',
-    'image/gif',
-    'image/svg+xml'
-  ];
-
-  if (allowedMimeTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Неподдерживаемый тип файла. Разрешены только изображения: JPG, PNG, WebP, GIF, SVG'), false);
-  }
-};
-
-// Настройка multer
+// Настройка multer — используем memoryStorage, чтобы FileService управлял путями
 const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    const fileService = getFileService();
+    const validation = fileService.validateFile({
+      mimetype: file.mimetype,
+      size: 0, // размер проверим после загрузки в память
+      originalname: file.originalname,
+    });
+
+    if (!validation.valid) {
+      return cb(new Error(validation.error), false);
+    }
+    cb(null, true);
+  },
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB
-    files: 1 // Только один файл за раз
-  }
+    files: 1,
+  },
 });
 
 /**
@@ -77,87 +40,77 @@ const upload = multer({
  * Загружает изображение (только для админа)
  */
 router.post('/upload', requireAuth, (req, res) => {
-  console.log('🔄 File upload request received');
-  console.log('🔄 Headers:', req.headers.authorization ? 'Token present' : 'No token');
-  console.log('🔄 Body:', req.body);
-  console.log('🔄 Files:', req.files);
-  
   upload.single('image')(req, res, async (err) => {
     if (err) {
-      console.error('Ошибка загрузки файла:', err);
-      
-      if (err instanceof multer.MulterError) {
-        if (err.code === 'LIMIT_FILE_SIZE') {
-          return res.status(400).json({
-            success: false,
-            error: {
-              code: 'FILE_TOO_LARGE',
-              message: 'Размер файла не должен превышать 5MB'
-            },
-            timestamp: new Date().toISOString()
-          });
-        }
+      if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          success: false,
+          error: { code: 'FILE_TOO_LARGE', message: 'Размер файла не должен превышать 5MB' },
+          timestamp: new Date().toISOString(),
+        });
       }
-
       return res.status(400).json({
         success: false,
-        error: {
-          code: 'UPLOAD_ERROR',
-          message: err.message || 'Ошибка загрузки файла'
-        },
-        timestamp: new Date().toISOString()
+        error: { code: 'UPLOAD_ERROR', message: err.message || 'Ошибка загрузки файла' },
+        timestamp: new Date().toISOString(),
       });
     }
 
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        error: {
-          code: 'NO_FILE',
-          message: 'Файл не был загружен'
-        },
-        timestamp: new Date().toISOString()
+        error: { code: 'NO_FILE', message: 'Файл не был загружен' },
+        timestamp: new Date().toISOString(),
       });
     }
 
     try {
+      const fileService = getFileService();
       const dbService = getDbService();
       const telegramService = getTelegramService();
-      
-      const originalPath = req.file.path;
-      const category = req.body.category || 'general';
-      let finalPath = originalPath;
-      let finalFilename = req.file.filename;
-      
-      // Проверяем, является ли файл SVG
+
+      const category = req.query.category || req.body.category || 'general';
       const isSvg = req.file.mimetype === 'image/svg+xml';
-      
-      if (!isSvg) {
-        // Оптимизируем изображение с помощью Sharp (только для растровых изображений)
-        const optimizedFilename = `optimized-${req.file.filename}`;
-        const optimizedPath = path.join(path.dirname(originalPath), optimizedFilename);
-        
-        await sharp(originalPath)
-          .resize(1200, 800, { 
-            fit: 'inside',
-            withoutEnlargement: true 
-          })
-          .jpeg({ 
-            quality: 85,
-            progressive: true 
-          })
-          .toFile(optimizedPath);
 
-        // Удаляем оригинальный файл
-        fs.unlinkSync(originalPath);
-        
-        finalPath = optimizedPath;
-        finalFilename = optimizedFilename;
+      // Финальная проверка размера (multer уже ограничивает, но на всякий случай)
+      const validation = fileService.validateFile({
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        originalname: req.file.originalname,
+      });
+
+      if (!validation.valid) {
+        return res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: validation.error },
+          timestamp: new Date().toISOString(),
+        });
       }
-      // Для SVG файлов оставляем как есть
 
-      // Формируем путь для веба (относительно public)
-      const webPath = `/uploads/${category}/${finalFilename}`;
+      // Генерируем уникальное имя файла
+      const filename = fileService.generateUniqueFilename(req.file.originalname);
+      const categoryDir = path.join(require('../services/fileService').UPLOADS_DIR, category);
+
+      // Создаём папку категории если нет
+      if (!fs.existsSync(categoryDir)) {
+        fs.mkdirSync(categoryDir, { recursive: true });
+      }
+
+      const finalFilename = isSvg ? filename : `optimized-${filename}`;
+      const finalPath = path.join(categoryDir, finalFilename);
+
+      if (isSvg) {
+        // SVG сохраняем как есть
+        fs.writeFileSync(finalPath, req.file.buffer);
+      } else {
+        // Оптимизируем растровые изображения через Sharp
+        await sharp(req.file.buffer)
+          .resize(1200, 800, { fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: 85, progressive: true })
+          .toFile(finalPath);
+      }
+
+      const webPath = fileService.getWebPath(category, finalFilename);
 
       // Логируем активность
       await dbService.logActivity(
@@ -165,23 +118,16 @@ router.post('/upload', requireAuth, (req, res) => {
         'UPLOAD_FILE',
         'file',
         finalFilename,
-        { 
-          originalName: req.file.originalname,
-          category: category,
-          size: req.file.size,
-          webPath: webPath,
-          isSvg: isSvg
-        },
+        { originalName: req.file.originalname, category, size: req.file.size, webPath, isSvg },
         req.ip,
         req.get('User-Agent')
       );
 
-      // Отправляем уведомление в Telegram
       if (telegramService) {
         await telegramService.sendActivityNotification('Загружен файл', {
           entityType: 'Файл',
           entityId: finalFilename,
-          title: req.file.originalname
+          title: req.file.originalname,
         });
       }
 
@@ -192,119 +138,76 @@ router.post('/upload', requireAuth, (req, res) => {
           originalName: req.file.originalname,
           path: webPath,
           size: req.file.size,
-          category: category,
-          isSvg: isSvg
+          category,
+          isSvg,
         },
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
     } catch (error) {
       console.error('Ошибка обработки файла:', error);
-      
-      // Удаляем файл при ошибке
-      if (req.file && fs.existsSync(req.file.path)) {
-        fs.unlinkSync(req.file.path);
-      }
-
       res.status(500).json({
         success: false,
-        error: {
-          code: 'FILE_PROCESSING_ERROR',
-          message: 'Ошибка обработки файла'
-        },
-        timestamp: new Date().toISOString()
+        error: { code: 'FILE_PROCESSING_ERROR', message: 'Ошибка обработки файла' },
+        timestamp: new Date().toISOString(),
       });
     }
   });
 });
 
 /**
- * DELETE /api/files/:filename
+ * DELETE /api/files/:category/:filename
  * Удаляет файл (только для админа)
  */
 router.delete('/:category/:filename', requireAuth, async (req, res) => {
   try {
     const { category, filename } = req.params;
-    
-    // Валидация параметров
-    if (!category || !filename) {
-      return res.status(400).json({
+    const fileService = getFileService();
+
+    const result = fileService.deleteFile(category, filename);
+
+    if (!result.success) {
+      const statusCode = result.error === 'Файл не найден' ? 404 : 400;
+      return res.status(statusCode).json({
         success: false,
-        error: {
-          code: 'MISSING_PARAMETERS',
-          message: 'Не указана категория или имя файла'
-        },
-        timestamp: new Date().toISOString()
+        error: { code: 'FILE_DELETE_ERROR', message: result.error },
+        timestamp: new Date().toISOString(),
       });
     }
-
-    // Проверяем безопасность пути
-    if (category.includes('..') || filename.includes('..')) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'INVALID_PATH',
-          message: 'Недопустимый путь к файлу'
-        },
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    const filePath = path.join(uploadsDir, category, filename);
-
-    // Проверяем существование файла
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          code: 'FILE_NOT_FOUND',
-          message: 'Файл не найден'
-        },
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Удаляем файл
-    fs.unlinkSync(filePath);
 
     const dbService = getDbService();
     const telegramService = getTelegramService();
 
-    // Логируем активность
     await dbService.logActivity(
       req.user.userId,
       'DELETE_FILE',
       'file',
       filename,
-      { category: category },
+      { category },
       req.ip,
       req.get('User-Agent')
     );
 
-    // Отправляем уведомление в Telegram
     if (telegramService) {
       await telegramService.sendActivityNotification('Удален файл', {
         entityType: 'Файл',
         entityId: filename,
-        title: filename
+        title: filename,
       });
     }
 
     res.json({
       success: true,
       data: { message: 'Файл успешно удален' },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
   } catch (error) {
     console.error('Ошибка удаления файла:', error);
     res.status(500).json({
       success: false,
-      error: {
-        code: 'FILE_DELETE_ERROR',
-        message: 'Ошибка удаления файла'
-      },
-      timestamp: new Date().toISOString()
+      error: { code: 'FILE_DELETE_ERROR', message: 'Ошибка удаления файла' },
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -313,68 +216,88 @@ router.delete('/:category/:filename', requireAuth, async (req, res) => {
  * GET /api/files/:category
  * Получает список файлов в категории (только для админа)
  */
-router.get('/:category', requireAuth, async (req, res) => {
+router.get('/:category', requireAuth, (req, res) => {
   try {
     const { category } = req.params;
-    
-    // Валидация категории
+
     if (!category || category.includes('..')) {
       return res.status(400).json({
         success: false,
-        error: {
-          code: 'INVALID_CATEGORY',
-          message: 'Недопустимая категория'
-        },
-        timestamp: new Date().toISOString()
+        error: { code: 'INVALID_CATEGORY', message: 'Недопустимая категория' },
+        timestamp: new Date().toISOString(),
       });
     }
 
-    const categoryDir = path.join(uploadsDir, category);
-
-    // Проверяем существование папки
-    if (!fs.existsSync(categoryDir)) {
-      return res.json({
-        success: true,
-        data: [],
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Читаем файлы в папке
-    const files = fs.readdirSync(categoryDir)
-      .filter(file => {
-        const filePath = path.join(categoryDir, file);
-        return fs.statSync(filePath).isFile();
-      })
-      .map(file => {
-        const filePath = path.join(categoryDir, file);
-        const stats = fs.statSync(filePath);
-        
-        return {
-          filename: file,
-          path: `/uploads/${category}/${file}`,
-          size: stats.size,
-          created: stats.birthtime,
-          modified: stats.mtime
-        };
-      })
-      .sort((a, b) => new Date(b.created) - new Date(a.created)); // Сортируем по дате создания
+    const fileService = getFileService();
+    const files = fileService.listFiles(category);
 
     res.json({
       success: true,
       data: files,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
   } catch (error) {
     console.error('Ошибка получения списка файлов:', error);
     res.status(500).json({
       success: false,
-      error: {
-        code: 'FILES_LIST_ERROR',
-        message: 'Ошибка получения списка файлов'
+      error: { code: 'FILES_LIST_ERROR', message: 'Ошибка получения списка файлов' },
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+/**
+ * POST /api/files/cleanup
+ * Запускает очистку неиспользуемых файлов (только для админа)
+ */
+router.post('/cleanup', requireAuth, async (req, res) => {
+  try {
+    const dbService = getDbService();
+    const fileService = getFileService();
+
+    // Собираем все пути к файлам, которые используются в БД
+    const usedPaths = new Set();
+
+    const [projects, skills, certificates] = await Promise.all([
+      dbService.getAll('SELECT image_path FROM projects WHERE image_path IS NOT NULL'),
+      dbService.getAll('SELECT icon_path FROM skills WHERE icon_path IS NOT NULL'),
+      dbService.getAll('SELECT image_path FROM certificates WHERE image_path IS NOT NULL'),
+    ]);
+
+    for (const row of projects) usedPaths.add(row.image_path);
+    for (const row of skills) usedPaths.add(row.icon_path);
+    for (const row of certificates) usedPaths.add(row.image_path);
+
+    const result = fileService.cleanupOrphanedFiles(usedPaths);
+    fileService.cleanupEmptyDirs();
+
+    await dbService.logActivity(
+      req.user.userId,
+      'CLEANUP_FILES',
+      'file',
+      null,
+      { deleted: result.deleted.length, errors: result.errors.length },
+      req.ip,
+      req.get('User-Agent')
+    );
+
+    res.json({
+      success: true,
+      data: {
+        deleted: result.deleted,
+        errors: result.errors,
+        message: `Удалено ${result.deleted.length} неиспользуемых файлов`,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+    });
+
+  } catch (error) {
+    console.error('Ошибка очистки файлов:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'CLEANUP_ERROR', message: 'Ошибка очистки файлов' },
+      timestamp: new Date().toISOString(),
     });
   }
 });

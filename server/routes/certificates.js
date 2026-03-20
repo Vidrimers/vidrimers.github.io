@@ -3,7 +3,7 @@
  */
 
 const express = require('express');
-const { getDbService } = require('../services');
+const { getDbService, getFileService } = require('../services');
 const { requireAuth } = require('../middleware/auth');
 const { validateCertificate, sanitizeCertificate } = require('../middleware/validation');
 
@@ -317,6 +317,12 @@ router.delete('/:id', requireAuth, async (req, res) => {
     }
 
     await dbService.runQuery('DELETE FROM certificates WHERE id = ?', [parseInt(id)]);
+
+    // Удаляем связанный файл изображения если он в /uploads
+    if (existing.image_path && existing.image_path.startsWith('/uploads/')) {
+      const fileService = getFileService();
+      fileService.deleteFileByWebPath(existing.image_path);
+    }
 
     res.json({
       success: true,
