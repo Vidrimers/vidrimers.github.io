@@ -75,3 +75,4 @@ uploads/
 .pm2/
 
 deploy.sh
+dep-vidri.sh
