@@ -463,7 +463,7 @@ app.get('/api/telegram/info', async (req, res) => {
 app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 // SPA fallback — все не-API маршруты отдают index.html
-app.get('*', (req, res) => {
+app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
 });
 
