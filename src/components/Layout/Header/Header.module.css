@@ -146,6 +146,8 @@
   /* Показываем переключатель языка в мобильном меню */
   .menuItemLang {
     display: block;
+    margin-top: auto;
+    padding-bottom: 3rem;
   }
 
   .menuLangLink {
@@ -158,7 +160,7 @@
   .menuList {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     height: 100vh;
     position: fixed;
@@ -167,6 +169,7 @@
     top: 0;
     left: 0;
     right: 0;
+    padding-top: 10rem;
     padding-bottom: 2rem;
     background-color: #ffffff;
     transform: translateX(80rem);
