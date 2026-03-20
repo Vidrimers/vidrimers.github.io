@@ -7,7 +7,7 @@ import { validateProject, sanitizeProject } from '../../utils/projectValidation'
 import { generateProjectId, isIdAvailable, validateProjectIdFormat } from '../../utils/idGenerator';
 import styles from './PortfolioAdmin.module.css';
 
-const PortfolioAdmin = ({ isOpen, onClose }) => {
+const PortfolioAdmin = ({ isOpen, onClose, onCategoriesUpdate }) => {
   const { isAuthenticated } = useAdmin();
   const [projects, setProjects] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -204,7 +204,8 @@ const PortfolioAdmin = ({ isOpen, onClose }) => {
 
   // Обработчик изменения категорий (для обновления списка)
   const handleCategoryChange = () => {
-    loadData(); // Перезагружаем данные при изменении категорий
+    loadData(); // Перезагружаем данные внутри админки
+    if (onCategoriesUpdate) onCategoriesUpdate(); // Обновляем табы на фронте
   };
 
   // Открытие формы редактирования проекта

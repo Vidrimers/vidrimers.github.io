@@ -132,7 +132,8 @@ const Portfolio = () => {
   // Обработчик закрытия админской панели портфолио
   const handleClosePortfolioAdmin = () => {
     setShowPortfolioAdmin(false);
-    // Перезагружаем проекты после закрытия админки
+    // Перезагружаем категории и проекты после закрытия админки
+    loadCategories();
     loadProjects();
   };
   
@@ -185,6 +186,7 @@ const Portfolio = () => {
       <PortfolioAdmin 
         isOpen={showPortfolioAdmin}
         onClose={handleClosePortfolioAdmin}
+        onCategoriesUpdate={loadCategories}
       />
     </section>
   );
