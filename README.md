@@ -12,7 +12,9 @@
 - **CSS Modules** - Изолированные стили для компонентов
 - **Sass** - Препроцессор CSS
 - **Vitest** - Фреймворк для тестирования
-- **GitHub Pages** - Хостинг и деплой
+- **Express.js** - Backend сервер с REST API
+- **SQLite** - База данных для хранения контента
+- **JWT + Telegram Bot** - Аутентификация через Telegram
 
 
 ## 📝 Как добавить новый проект в портфолио
@@ -74,13 +76,15 @@ npm run test:watch
 
 ## 🚀 Деплой
 
-Проект автоматически деплоится на GitHub Pages:
+Деплой на сервер через скрипт (выполняется на сервере):
 
 ```bash
-npm run deploy
+./deploy.sh
 ```
 
-Сайт доступен по адресу: [https://vidrimers.github.io](https://vidrimers.github.io)
+Скрипт делает `git pull origin master`, `npm install`, `npm run build` и перезапускает PM2.
+
+Сайт доступен по адресу: [https://vidrimers.site](https://vidrimers.site)
 
 ## 📱 Адаптивность
 
@@ -146,5 +150,5 @@ export default NewSection;
 
 ---
 
-**Версия:** 2.0.0  
+**Версия:** 3.0.0  
 **Последнее обновление:** Март 2026
