@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { LanguageContext } from '../../context/LanguageContext';
+import { AdminProvider } from '../Admin/AdminProvider';
 import Certificates from './Certificates';
 
 // Мок данных для тестирования
@@ -24,9 +25,11 @@ const mockContextValue = {
 // Обертка для тестирования с контекстом
 const renderWithContext = (component) => {
   return render(
-    <LanguageContext.Provider value={mockContextValue}>
-      {component}
-    </LanguageContext.Provider>
+    <AdminProvider>
+      <LanguageContext.Provider value={mockContextValue}>
+        {component}
+      </LanguageContext.Provider>
+    </AdminProvider>
   );
 };
 
@@ -162,9 +165,11 @@ describe('Certificates Component', () => {
     };
 
     render(
-      <LanguageContext.Provider value={englishContextValue}>
-        <Certificates />
-      </LanguageContext.Provider>
+      <AdminProvider>
+        <LanguageContext.Provider value={englishContextValue}>
+          <Certificates />
+        </LanguageContext.Provider>
+      </AdminProvider>
     );
 
     expect(screen.getByText('Certificates')).toBeInTheDocument();

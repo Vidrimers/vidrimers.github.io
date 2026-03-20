@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { LanguageContext } from '../../context/LanguageContext';
+import { AdminProvider } from '../Admin/AdminProvider';
 import Hero from './Hero';
 
 // Mock для изображения
@@ -23,9 +24,11 @@ const mockContextValue = {
 
 const renderHeroWithContext = (contextValue = mockContextValue) => {
   return render(
-    <LanguageContext.Provider value={contextValue}>
-      <Hero />
-    </LanguageContext.Provider>
+    <AdminProvider>
+      <LanguageContext.Provider value={contextValue}>
+        <Hero />
+      </LanguageContext.Provider>
+    </AdminProvider>
   );
 };
 
@@ -124,8 +127,9 @@ describe('Hero Component Responsiveness', () => {
     
     renderHeroWithContext(englishContextValue);
     
-    const rusLink = screen.getByText('РУС');
-    const engLink = screen.getByText('АНГ');
+    // При английском языке компонент рендерит 'RUS' и 'ENG'
+    const rusLink = screen.getByText('RUS');
+    const engLink = screen.getByText('ENG');
     
     expect(rusLink).toHaveStyle('color: rgb(130, 130, 130)'); // неактивный
     expect(engLink).toHaveStyle('color: rgb(0, 0, 0)'); // активный

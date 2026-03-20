@@ -3,6 +3,57 @@ import AdminModal from './AdminModal';
 import { useAdmin } from './AdminProvider';
 import styles from './AboutAdmin.module.css';
 
+// Компонент предпросмотра контента "Обо мне"
+const ContentPreview = ({ content, lang }) => {
+  // Разбиваем текст на параграфы по двойному переносу строки
+  const paragraphs = content.split('\n\n').filter(p => p.trim());
+
+  // Простой рендер markdown: **текст** → <strong>, [текст](url) → <a>
+  const renderParagraph = (text, index) => {
+    const parts = [];
+    let remaining = text;
+    let key = 0;
+
+    while (remaining.length > 0) {
+      // Ищем ссылку [текст](url)
+      const linkMatch = remaining.match(/\[([^\]]+)\]\(([^)]+)\)/);
+      // Ищем жирный **текст**
+      const boldMatch = remaining.match(/\*\*([^*]+)\*\*/);
+
+      const linkPos = linkMatch ? remaining.indexOf(linkMatch[0]) : Infinity;
+      const boldPos = boldMatch ? remaining.indexOf(boldMatch[0]) : Infinity;
+
+      if (linkPos === Infinity && boldPos === Infinity) {
+        parts.push(remaining);
+        break;
+      }
+
+      if (linkPos < boldPos) {
+        if (linkPos > 0) parts.push(remaining.substring(0, linkPos));
+        parts.push(<a key={key++} href={linkMatch[2]} target="_blank" rel="noopener noreferrer">{linkMatch[1]}</a>);
+        remaining = remaining.substring(linkPos + linkMatch[0].length);
+      } else {
+        if (boldPos > 0) parts.push(remaining.substring(0, boldPos));
+        parts.push(<strong key={key++}>{boldMatch[1]}</strong>);
+        remaining = remaining.substring(boldPos + boldMatch[0].length);
+      }
+    }
+
+    return <p key={index}>{parts}</p>;
+  };
+
+  return (
+    <div style={{ fontSize: '0.95rem', lineHeight: 1.7, color: '#333' }}>
+      {paragraphs.length > 0
+        ? paragraphs.map((p, i) => renderParagraph(p, i))
+        : <p style={{ color: '#999', fontStyle: 'italic' }}>
+            {lang === 'ru' ? 'Нет контента для предпросмотра' : 'No content to preview'}
+          </p>
+      }
+    </div>
+  );
+};
+
 // Вспомогательная функция: вставка текста/тега в позицию курсора textarea
 const insertAtCursor = (textarea, before, after = '') => {
   const start = textarea.selectionStart;
@@ -90,32 +141,6 @@ const RichTextToolbar = ({ textareaRef, value, onChange }) => {
   );
 };
 
-// Компонент предпросмотра параграфов
-const ContentPreview = ({ content, lang }) => {
-  const paragraphs = content
-    .split('\n\n')
-    .map(p => p.trim())
-    .filter(Boolean);
-
-  if (paragraphs.length === 0) {
-    return (
-      <div className={styles.previewEmpty}>
-        Начните вводить текст для предпросмотра...
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.previewContent}>
-      {paragraphs.map((paragraph, index) => (
-        <p key={index} className={styles.previewParagraph}>
-          {paragraph}
-        </p>
-      ))}
-    </div>
-  );
-};
-
 const AboutAdmin = ({ isOpen, onClose }) => {
   const { isAuthenticated } = useAdmin();
 
@@ -124,7 +149,6 @@ const AboutAdmin = ({ isOpen, onClose }) => {
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
   const [activeTab, setActiveTab] = useState('ru'); // 'ru' | 'en'
-  const [showPreview, setShowPreview] = useState(false);
 
   // Состояние формы
   const [form, setForm] = useState({
@@ -284,16 +308,11 @@ const AboutAdmin = ({ isOpen, onClose }) => {
                 )}
               </button>
 
-              <button
-                className={`${styles.previewToggle} ${showPreview ? styles.previewToggleActive : ''}`}
-                onClick={() => setShowPreview(v => !v)}
-              >
-                {showPreview ? '✕ Скрыть предпросмотр' : '👁 Предпросмотр'}
-              </button>
+
             </div>
 
             {/* Редактор + предпросмотр */}
-            <div className={`${styles.editorLayout} ${showPreview ? styles.editorLayoutSplit : ''}`}>
+            <div className={styles.editorLayout}>
               {/* Левая часть — редактор */}
               <div className={styles.editorPane}>
                 <RichTextToolbar
@@ -330,15 +349,13 @@ const AboutAdmin = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              {/* Правая часть — предпросмотр */}
-              {showPreview && (
-                <div className={styles.previewPane}>
-                  <div className={styles.previewHeader}>
-                    Предпросмотр ({activeTab === 'ru' ? 'RU' : 'EN'})
-                  </div>
-                  <ContentPreview content={activeContent} lang={activeTab} />
+              {/* Правая часть — предпросмотр (всегда виден) */}
+              <div className={styles.previewPane}>
+                <div className={styles.previewHeader}>
+                  Предпросмотр ({activeTab === 'ru' ? 'RU' : 'EN'})
                 </div>
-              )}
+                <ContentPreview content={activeContent} lang={activeTab} />
+              </div>
             </div>
 
             {/* Кнопки действий */}

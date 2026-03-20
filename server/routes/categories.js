@@ -217,10 +217,17 @@ router.put('/:id', requireAuth, sanitizeCategory, validateCategory, async (req, 
 
     // Формируем SQL для обновления
     const allowedFields = ['name_ru', 'name_en', 'sort_order', 'is_hidden'];
+
+    // Ключи которые были переданы в оригинальном запросе (до sanitize)
+    const originalKeys = req._originalKeys || new Set(Object.keys(updates));
+
     const updateFields = [];
     const updateValues = [];
 
     for (const [key, value] of Object.entries(updates)) {
+      // Пропускаем поля которые не были в оригинальном запросе (добавлены sanitize)
+      if (!originalKeys.has(key)) continue;
+
       const dbField = key.replace(/([A-Z])/g, '_$1').toLowerCase();
       if (allowedFields.includes(dbField)) {
         updateFields.push(`${dbField} = ?`);

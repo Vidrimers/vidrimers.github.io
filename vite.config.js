@@ -88,5 +88,30 @@ export default defineConfig({
   },
   
   // Настройки для GitHub Pages
-  base: '/'
+  base: '/',
+
+  // Конфигурация тестов
+  test: {
+    // Серверные тесты используют общую SQLite БД — запускаем файлы последовательно
+    fileParallelism: false,
+    // Один поток для всех тестов — предотвращает race condition в SQLite
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true
+      }
+    },
+    sequence: {
+      concurrent: false
+    },
+    environment: 'jsdom',
+    globals: false,
+    setupFiles: [],
+    environmentMatchGlobs: [
+      // Серверные тесты запускаем в node окружении
+      ['server/tests/**', 'node'],
+      // Frontend тесты в jsdom
+      ['src/**/*.test.*', 'jsdom']
+    ]
+  }
 });

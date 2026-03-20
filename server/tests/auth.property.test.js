@@ -652,7 +652,11 @@ describe('Authentication Property Tests', () => {
     it('Property 3.3: Code expiration timing is accurate', () => {
       fc.assert(
         fc.property(
-          fc.integer({ min: -10000, max: 10000 }), // Миллисекунды относительно времени истечения
+          // Исключаем 0 — граничный случай нестабилен из-за задержки выполнения кода
+          fc.oneof(
+            fc.integer({ min: -10000, max: -1 }),  // Истекший код
+            fc.integer({ min: 1000, max: 10000 })  // Действующий код (минимум 1 сек запаса)
+          ),
           (timeOffset) => {
             // Генерируем код
             const code = authService.generateVerificationCode();

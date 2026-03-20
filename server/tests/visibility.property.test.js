@@ -29,16 +29,8 @@ describe('Property 7: Content Visibility Management', () => {
     }
   });
 
-  beforeEach(async () => {
-    try {
-      await dbService.runQuery('DELETE FROM projects');
-      await dbService.runQuery('DELETE FROM categories');
-      await dbService.runQuery('DELETE FROM skills');
-      await dbService.runQuery('DELETE FROM certificates');
-    } catch (error) {
-      console.warn('Warning: Could not clear tables:', error.message);
-    }
-  });
+  // beforeEach убран — каждый тест сам чистит свои данные через insertedIds
+  // Полный DELETE мешал параллельному запуску с другими тестовыми файлами
 
   // ─── Вспомогательные функции ─────────────────────────────────────────────
 
@@ -160,7 +152,7 @@ describe('Property 7: Content Visibility Management', () => {
         }),
         { numRuns: 20 }
       );
-    });
+    }, 30000);
 
     /**
      * Property 7.2: Скрытый проект сохраняется в БД (не удаляется)

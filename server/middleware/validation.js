@@ -299,6 +299,9 @@ const validateCategory = (req, res, next) => {
 const sanitizeProject = (req, res, next) => {
   const data = req.body;
 
+  // Сохраняем список ключей которые были переданы в запросе (до sanitize)
+  req._originalKeys = new Set(Object.keys(data));
+
   // Санитизация строковых полей
   if (data.id) {
     data.id = data.id.trim().toLowerCase();
@@ -340,36 +343,34 @@ const sanitizeProject = (req, res, next) => {
     data.categoryId = data.categoryId.trim().toLowerCase();
   }
 
-  // Приведение типов только для переданных полей
-  if (data.sortOrder !== undefined && data.sortOrder !== null) {
-    data.sortOrder = Number(data.sortOrder) || 0;
+  // Приведение типов — sortOrder всегда должен быть числом (null/undefined/'' → 0)
+  data.sortOrder = (data.sortOrder === null || data.sortOrder === undefined || data.sortOrder === '')
+    ? 0
+    : (Number(data.sortOrder) || 0);
+
+  // Санитизация года, месяца и дня — пустая строка и null → null в БД
+  if (data.year !== undefined) {
+    data.year = (data.year === null || data.year === '') ? null : (Number(data.year) || null);
   }
 
-  // Санитизация года, месяца и дня
-  if (data.year !== undefined && data.year !== null && data.year !== '') {
-    data.year = Number(data.year) || null;
+  if (data.month !== undefined) {
+    data.month = (data.month === null || data.month === '') ? null : (Number(data.month) || null);
   }
 
-  if (data.month !== undefined && data.month !== null && data.month !== '') {
-    data.month = Number(data.month) || null;
+  if (data.day !== undefined) {
+    data.day = (data.day === null || data.day === '') ? null : (Number(data.day) || null);
   }
 
-  if (data.day !== undefined && data.day !== null && data.day !== '') {
-    data.day = Number(data.day) || null;
-  }
-
+  // Булевы поля — приводим к boolean только если поле передано
   if (data.isAi !== undefined) {
     data.isAi = Boolean(data.isAi);
   }
-  
   if (data.isNew !== undefined) {
     data.isNew = Boolean(data.isNew);
   }
-  
   if (data.isInProgress !== undefined) {
     data.isInProgress = Boolean(data.isInProgress);
   }
-  
   if (data.isHidden !== undefined) {
     data.isHidden = Boolean(data.isHidden);
   }
@@ -404,6 +405,9 @@ const sanitizeProject = (req, res, next) => {
 const sanitizeCategory = (req, res, next) => {
   const data = req.body;
 
+  // Сохраняем список ключей которые были переданы в запросе (до sanitize)
+  req._originalKeys = new Set(Object.keys(data));
+
   // Санитизация строковых полей
   if (data.id) {
     data.id = data.id.trim().toLowerCase();
@@ -417,14 +421,15 @@ const sanitizeCategory = (req, res, next) => {
     data.nameEn = DOMPurify.sanitize(data.nameEn.trim(), { ALLOWED_TAGS: [] });
   }
 
-  // Приведение типов
-  if (data.sortOrder !== undefined && data.sortOrder !== null) {
-    data.sortOrder = Number(data.sortOrder) || 0;
-  } else {
-    data.sortOrder = 0;
-  }
+  // Приведение типов — sortOrder всегда должен быть числом (null/undefined/'' → 0)
+  data.sortOrder = (data.sortOrder === null || data.sortOrder === undefined || data.sortOrder === '')
+    ? 0
+    : (Number(data.sortOrder) || 0);
 
-  data.isHidden = Boolean(data.isHidden);
+  // Булево поле — приводим только если передано
+  if (data.isHidden !== undefined) {
+    data.isHidden = Boolean(data.isHidden);
+  }
 
   req.body = data;
   next();

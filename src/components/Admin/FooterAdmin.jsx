@@ -181,7 +181,10 @@ const TabContacts = ({ getAuthHeaders }) => {
     for (const l of links) {
       if (l.key && !l.value) return `Укажите URL для "${l.key}"`;
       if (!l.key && l.value) return 'Укажите название платформы';
-      if (l.value && !l.value.startsWith('http')) return `Ссылка для "${l.key}" должна начинаться с http`;
+      // Разрешаем @username (Telegram) и полные URL
+      if (l.value && !l.value.startsWith('http') && !l.value.startsWith('@')) {
+        return `Ссылка для "${l.key}" должна начинаться с http или @`;
+      }
     }
     return null;
   };

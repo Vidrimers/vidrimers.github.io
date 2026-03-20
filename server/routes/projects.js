@@ -394,10 +394,16 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
       'is_in_progress', 'is_hidden', 'sort_order'
     ];
 
+    // Ключи которые были переданы в оригинальном запросе (до sanitize)
+    const originalKeys = req._originalKeys || new Set(Object.keys(updates));
+
     const updateFields = [];
     const updateValues = [];
 
     for (const [key, value] of Object.entries(updates)) {
+      // Пропускаем поля которые не были в оригинальном запросе (добавлены sanitize)
+      if (!originalKeys.has(key)) continue;
+
       const dbField = key.replace(/([A-Z])/g, '_$1').toLowerCase();
       if (allowedFields.includes(dbField)) {
         updateFields.push(`${dbField} = ?`);

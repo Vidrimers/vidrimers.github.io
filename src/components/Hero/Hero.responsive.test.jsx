@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { LanguageContext } from '../../context/LanguageContext';
+import { AdminProvider } from '../Admin/AdminProvider';
 import Hero from './Hero';
 
 // Mock для изображения
@@ -23,9 +24,11 @@ const mockContextValue = {
 
 const renderHeroWithContext = () => {
   return render(
-    <LanguageContext.Provider value={mockContextValue}>
-      <Hero />
-    </LanguageContext.Provider>
+    <AdminProvider>
+      <LanguageContext.Provider value={mockContextValue}>
+        <Hero />
+      </LanguageContext.Provider>
+    </AdminProvider>
   );
 };
 
@@ -148,7 +151,8 @@ describe('Hero Component Responsive Behavior', () => {
       renderHeroWithContext();
       
       const heroTitle = document.querySelector('[class*="heroTitle"]');
-      const heroText = document.querySelector('[class*="heroText"]');
+      // heroText это p внутри heroTextContainer (div)
+      const heroText = document.querySelector('p[class*="heroText"]');
       
       expect(heroTitle).toBeInTheDocument();
       expect(heroText).toBeInTheDocument();

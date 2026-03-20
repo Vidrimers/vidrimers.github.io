@@ -87,6 +87,13 @@ const Footer = () => {
       ];
     }
 
+    // Нормализует @username → https://t.me/username
+    const normalizeHref = (href) => {
+      if (!href) return href;
+      if (href.startsWith('@')) return `https://t.me/${href.slice(1)}`;
+      return href;
+    };
+
     return Object.entries(apiContacts.otherLinks)
       .filter(([, val]) => {
         const href = typeof val === 'object' ? val.url : val;
@@ -96,9 +103,9 @@ const Footer = () => {
         return true;
       })
       .map(([name, val]) => {
-        const href = typeof val === 'object' ? val.url : val;
+        const rawHref = typeof val === 'object' ? val.url : val;
         return {
-          href,
+          href: normalizeHref(rawHref),
           label: name,
           renderIcon: () => renderLinkIcon(name, typeof val === 'object' ? val : null)
         };
