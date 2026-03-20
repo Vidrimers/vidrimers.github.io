@@ -10,7 +10,6 @@
     "devtun": "tuna http 3000 --domain=vidrimers.ru.tuna.am",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d dist",
     "test": "vitest --run",
     "test:watch": "vitest",
     "server": "node server/server.js",

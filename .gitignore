@@ -73,3 +73,5 @@ uploads/
 
 # PM2 files
 .pm2/
+
+deploy.sh

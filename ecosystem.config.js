@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'vidrimers-api',
+      name: 'vidrimers',
       script: './server/server.js',
       instances: 1,
       exec_mode: 'fork',
@@ -48,11 +48,11 @@ module.exports = {
   deploy: {
     production: {
       user: 'root',
-      host: 'vidrimers.site',
-      ref: 'origin/gh-pages',
-      repo: 'git@github.com:vidrimers/vidrimers.github.io.git',
+      host: '89.124.70.156',
+      ref: 'origin/master',
+      repo: 'git@github.com:Vidrimers/vidrimers.github.io.git',
       path: '/home/vidrimers.site',
-      'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env production',
+      'post-deploy': 'npm install && npm run build && pm2 reload ecosystem.config.js --env production',
       'pre-setup': 'mkdir -p /home/vidrimers.site/logs && mkdir -p /home/vidrimers.site/database'
     }
   }
