@@ -102,7 +102,22 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Подключаем роуты аутентификации (с rate limiting)
+// validate-session без rate limiting — вызывается при каждом обновлении страницы
+app.post('/api/auth/validate-session', (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ success: false, error: { code: 'MISSING_TOKEN', message: 'Токен обязателен' } });
+  }
+  const { getAuthService } = require('./middleware/auth');
+  const authService = getAuthService();
+  const decoded = authService.validateSession(token);
+  if (!decoded) {
+    return res.status(401).json({ success: false, error: { code: 'INVALID_SESSION', message: 'Недействительная сессия' } });
+  }
+  res.json({ success: true, data: { valid: true, userId: decoded.userId, role: decoded.role, expiresAt: new Date(decoded.exp * 1000).toISOString() }, timestamp: new Date().toISOString() });
+});
+
+// Остальные auth роуты с rate limiting
 app.use('/api/auth', authRateLimiter, authRoutes);
 
 // CSRF токен эндпоинт (без rate limiting — нужен для инициализации)
