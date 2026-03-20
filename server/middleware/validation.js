@@ -217,48 +217,51 @@ const validateCategory = (req, res, next) => {
     isHidden
   } = req.body;
 
+  const isUpdate = req.method === 'PUT';
   const errors = [];
 
-  // Валидация ID категории
-  if (!id || typeof id !== 'string' || !id.trim()) {
-    errors.push('ID категории обязателен');
-  } else {
-    const trimmedId = id.trim();
-    
-    // Проверка формата ID (только буквы, цифры, дефисы)
-    const idPattern = /^[a-z0-9-]+$/;
-    if (!idPattern.test(trimmedId)) {
-      errors.push('ID категории может содержать только строчные буквы, цифры и дефисы');
-    }
-
-    // Проверка длины ID
-    if (trimmedId.length < 2) {
-      errors.push('ID категории должен содержать минимум 2 символа');
-    } else if (trimmedId.length > 20) {
-      errors.push('ID категории не должен превышать 20 символов');
+  // Валидация ID категории (обязателен только при создании)
+  if (!isUpdate) {
+    if (!id || typeof id !== 'string' || !id.trim()) {
+      errors.push('ID категории обязателен');
+    } else {
+      const trimmedId = id.trim();
+      const idPattern = /^[a-z0-9-]+$/;
+      if (!idPattern.test(trimmedId)) {
+        errors.push('ID категории может содержать только строчные буквы, цифры и дефисы');
+      }
+      if (trimmedId.length < 2) {
+        errors.push('ID категории должен содержать минимум 2 символа');
+      } else if (trimmedId.length > 20) {
+        errors.push('ID категории не должен превышать 20 символов');
+      }
     }
   }
 
-  // Валидация названий
-  if (!nameRu || typeof nameRu !== 'string' || !nameRu.trim()) {
-    errors.push('Название на русском языке обязательно');
-  } else {
-    const trimmed = nameRu.trim();
-    if (trimmed.length < 2) {
-      errors.push('Название на русском должно содержать минимум 2 символа');
-    } else if (trimmed.length > 50) {
-      errors.push('Название на русском не должно превышать 50 символов');
+  // Валидация названий (обязательны только при создании, при обновлении — если переданы)
+  if (!isUpdate || nameRu !== undefined) {
+    if (!nameRu || typeof nameRu !== 'string' || !nameRu.trim()) {
+      if (!isUpdate) errors.push('Название на русском языке обязательно');
+    } else {
+      const trimmed = nameRu.trim();
+      if (trimmed.length < 2) {
+        errors.push('Название на русском должно содержать минимум 2 символа');
+      } else if (trimmed.length > 50) {
+        errors.push('Название на русском не должно превышать 50 символов');
+      }
     }
   }
 
-  if (!nameEn || typeof nameEn !== 'string' || !nameEn.trim()) {
-    errors.push('Название на английском языке обязательно');
-  } else {
-    const trimmed = nameEn.trim();
-    if (trimmed.length < 2) {
-      errors.push('Название на английском должно содержать минимум 2 символа');
-    } else if (trimmed.length > 50) {
-      errors.push('Название на английском не должно превышать 50 символов');
+  if (!isUpdate || nameEn !== undefined) {
+    if (!nameEn || typeof nameEn !== 'string' || !nameEn.trim()) {
+      if (!isUpdate) errors.push('Название на английском языке обязательно');
+    } else {
+      const trimmed = nameEn.trim();
+      if (trimmed.length < 2) {
+        errors.push('Название на английском должно содержать минимум 2 символа');
+      } else if (trimmed.length > 50) {
+        errors.push('Название на английском не должно превышать 50 символов');
+      }
     }
   }
 
