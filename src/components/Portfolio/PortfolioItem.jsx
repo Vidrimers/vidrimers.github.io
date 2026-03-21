@@ -27,7 +27,12 @@ const PortfolioItem = memo(({ project }) => {
   
   // Получаем локализованные данные в зависимости от языка
   const title = language === 'ru' ? project.title : project.titleEn;
-  const description = language === 'ru' ? project.description : project.descriptionEn;
+  const rawDescription = language === 'ru' ? project.description : project.descriptionEn;
+
+  // Конвертируем переносы строк в <br> для корректного отображения параграфов
+  const description = rawDescription
+    ? rawDescription.replace(/\n/g, '<br>')
+    : rawDescription;
 
   // Нормализуем ссылку: @username и t.me/x → https://t.me/x
   const normalizeLink = (link) => {
