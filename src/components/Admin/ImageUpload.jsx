@@ -58,11 +58,22 @@ const ImageUpload = ({
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Ошибка загрузки файла');
+        let errorMessage = 'Ошибка загрузки файла';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error?.message || errorMessage;
+        } catch {
+          errorMessage = `Ошибка сервера (${response.status})`;
+        }
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error('Сервер вернул некорректный ответ');
+      }
       return data.data.path; // Возвращаем путь к загруженному файлу
 
     } catch (error) {

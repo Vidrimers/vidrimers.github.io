@@ -83,11 +83,11 @@ const apiRateLimiter = createRateLimiter({
 });
 
 /**
- * Rate limiter для загрузки файлов: 10 загрузок в минуту на IP
+ * Rate limiter для загрузки файлов: 50 загрузок в минуту на IP
  */
 const uploadRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
-  max: 10,
+  max: 50,
   message: 'Слишком много загрузок файлов. Попробуйте через минуту'
 });
 
