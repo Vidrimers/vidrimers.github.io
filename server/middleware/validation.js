@@ -39,10 +39,10 @@ const validateProject = (req, res, next) => {
   } else {
     const trimmedId = id.trim();
     
-    // Проверка формата ID
-    const idPattern = /^(pet|layout|commercial)-\d+$/;
+    // Проверка формата ID (любая категория: word-N)
+    const idPattern = /^[a-z0-9]+-\d+$/;
     if (!idPattern.test(trimmedId)) {
-      errors.push('ID проекта должен быть в формате "pet-1", "layout-1" или "commercial-1"');
+      errors.push('ID проекта должен быть в формате "категория-номер", например "pet-1" или "tg-1"');
     }
 
     // Проверка длины ID
@@ -102,10 +102,12 @@ const validateProject = (req, res, next) => {
     errors.push('Категория проекта обязательна');
   }
 
-  // Валидация ссылки (если указана)
+  // Валидация ссылки (если указана) — поддержка http/https, t.me/ и @username
   if (link && typeof link === 'string' && link.trim()) {
-    if (!validator.isURL(link.trim(), { protocols: ['http', 'https'] })) {
-      errors.push('Ссылка должна быть валидным URL (http:// или https://)');
+    const trimmedLink = link.trim();
+    const linkPattern = /^(https?:\/\/.+|t\.me\/.+|@\w+)/;
+    if (!linkPattern.test(trimmedLink)) {
+      errors.push('Ссылка должна начинаться с http://, https://, t.me/ или @username');
     }
   }
 
