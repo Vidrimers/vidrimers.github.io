@@ -28,6 +28,16 @@ const PortfolioItem = memo(({ project }) => {
   // Получаем локализованные данные в зависимости от языка
   const title = language === 'ru' ? project.title : project.titleEn;
   const description = language === 'ru' ? project.description : project.descriptionEn;
+
+  // Нормализуем ссылку: @username и t.me/x → https://t.me/x
+  const normalizeLink = (link) => {
+    if (!link) return link;
+    if (link.startsWith('@')) return `https://t.me/${link.slice(1)}`;
+    if (link.startsWith('t.me/')) return `https://${link}`;
+    return link;
+  };
+
+  const projectLink = normalizeLink(project.link);
   
   // Обработчик клика по проекту
   const handleProjectClick = async () => {
@@ -61,7 +71,7 @@ const PortfolioItem = memo(({ project }) => {
       {/* Ссылка с изображением */}
       <a 
         className={styles.link}
-        href={project.link}
+        href={projectLink}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Открыть проект ${title}`}
@@ -79,7 +89,7 @@ const PortfolioItem = memo(({ project }) => {
       {/* Ссылка с названием проекта */}
       <a
         className={styles.textLink}
-        href={project.link}
+        href={projectLink}
         target="_blank"
         rel="noopener noreferrer"
         onClick={handleProjectClick}
