@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { LanguageProvider, LanguageContext } from './context/LanguageContext';
 import { AdminProvider } from './components/Admin/AdminProvider';
 import Header from './components/Layout/Header/Header';
@@ -9,35 +10,21 @@ import About from './components/About/About';
 import Skills from './components/Skills/Skills';
 import Portfolio from './components/Portfolio/Portfolio';
 import Certificates from './components/Certificates/Certificates';
+import DonatePage from './pages/DonatePage/DonatePage';
 
-// Внутренний компонент приложения
-const AppContent = () => {
+// Главная страница
+const HomePage = () => {
   const { translations } = useContext(LanguageContext);
-  
+
   return (
     <div className="page">
-      {/* Header с навигацией и переключателем языка */}
       <Header />
-      
-      {/* Hero Section */}
       <Hero />
-      
-      {/* About Section */}
       <About />
-      
-      {/* Skills Section */}
       <Skills />
-      
-      {/* Portfolio Section */}
       <Portfolio />
-      
-      {/* Certificates Section */}
       <Certificates />
-      
-      {/* Footer с контактами */}
       <Footer />
-      
-      {/* Кнопка "Вверх" */}
       <ScrollToTop />
     </div>
   );
@@ -47,7 +34,10 @@ function App() {
   return (
     <LanguageProvider>
       <AdminProvider>
-        <AppContent />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/donate" element={<DonatePage />} />
+        </Routes>
       </AdminProvider>
     </LanguageProvider>
   );
