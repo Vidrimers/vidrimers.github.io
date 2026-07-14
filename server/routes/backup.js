@@ -235,4 +235,149 @@ router.delete('/:filename', requireAuth, (req, res) => {
   }
 });
 
+// GET /api/backup/stats — статистика БД
+router.get('/stats', requireAuth, async (req, res) => {
+  try {
+    const { getDbService } = require('../services');
+    const dbService = getDbService();
+
+    const dbSize = fs.existsSync(DB_PATH) ? fs.statSync(DB_PATH).size : 0;
+
+    let uploadsSize = 0;
+    let uploadsFiles = 0;
+    function calcDirSize(dir) {
+      if (!fs.existsSync(dir)) return;
+      const items = fs.readdirSync(dir);
+      for (const item of items) {
+        const full = path.join(dir, item);
+        const stat = fs.statSync(full);
+        if (stat.isDirectory()) calcDirSize(full);
+        else { uploadsSize += stat.size; uploadsFiles++; }
+      }
+    }
+    calcDirSize(UPLOADS_DIR);
+
+    const tables = ['projects', 'categories', 'skills', 'certificates', 'likes', 'user_likes', 'activity_logs', 'site_settings'];
+    const stats = {};
+    for (const table of tables) {
+      try {
+        const row = await dbService.getQuery(`SELECT COUNT(*) as count FROM ${table}`);
+        stats[table] = row ? row.count : 0;
+      } catch { stats[table] = 0; }
+    }
+
+    res.json({
+      dbSize,
+      dbSizeFormatted: (dbSize / 1024).toFixed(1) + ' KB',
+      uploadsSize,
+      uploadsSizeFormatted: (uploadsSize / 1024).toFixed(1) + ' KB',
+      uploadsFiles,
+      tables: stats
+    });
+  } catch (error) {
+    console.error('Ошибка статистики:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/backup/orphans — список orphan-изображений
+router.get('/orphans', requireAuth, async (req, res) => {
+  try {
+    const { getDbService } = require('../services');
+    const dbService = getDbService();
+
+    // Собираем все пути из БД
+    const usedPaths = new Set();
+
+    const projects = await dbService.allQuery('SELECT image_path FROM projects WHERE image_path LIKE "/uploads/%"');
+    (projects || []).forEach(p => { if (p.image_path) usedPaths.add(p.image_path); });
+
+    const skills = await dbService.allQuery('SELECT icon_path FROM skills WHERE icon_path LIKE "/uploads/%"');
+    (skills || []).forEach(s => { if (s.icon_path) usedPaths.add(s.icon_path); });
+
+    const certs = await dbService.allQuery('SELECT image_path FROM certificates WHERE image_path LIKE "/uploads/%"');
+    (certs || []).forEach(c => { if (c.image_path) usedPaths.add(c.image_path); });
+
+    // Сканируем uploads/
+    const orphans = [];
+    function scanDir(dir) {
+      if (!fs.existsSync(dir)) return;
+      const items = fs.readdirSync(dir);
+      for (const item of items) {
+        const full = path.join(dir, item);
+        const stat = fs.statSync(full);
+        if (stat.isDirectory()) { scanDir(full); continue; }
+        const webPath = full.replace(ROOT_DIR, '').replace(/\\/g, '/');
+        if (!usedPaths.has(webPath)) {
+          orphans.push({ path: webPath, size: stat.size, sizeFormatted: (stat.size / 1024).toFixed(1) + ' KB' });
+        }
+      }
+    }
+    scanDir(UPLOADS_DIR);
+
+    res.json(orphans);
+  } catch (error) {
+    console.error('Ошибка поиска orphan:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /api/backup/orphans — удалить orphan-изображения
+router.delete('/orphans', requireAuth, async (req, res) => {
+  try {
+    const { getDbService } = require('../services');
+    const dbService = getDbService();
+
+    const usedPaths = new Set();
+    const projects = await dbService.allQuery('SELECT image_path FROM projects WHERE image_path LIKE "/uploads/%"');
+    (projects || []).forEach(p => { if (p.image_path) usedPaths.add(p.image_path); });
+    const skills = await dbService.allQuery('SELECT icon_path FROM skills WHERE icon_path LIKE "/uploads/%"');
+    (skills || []).forEach(s => { if (s.icon_path) usedPaths.add(s.icon_path); });
+    const certs = await dbService.allQuery('SELECT image_path FROM certificates WHERE image_path LIKE "/uploads/%"');
+    (certs || []).forEach(c => { if (c.image_path) usedPaths.add(c.image_path); });
+
+    let deleted = 0;
+    function scanAndDelete(dir) {
+      if (!fs.existsSync(dir)) return;
+      const items = fs.readdirSync(dir);
+      for (const item of items) {
+        const full = path.join(dir, item);
+        const stat = fs.statSync(full);
+        if (stat.isDirectory()) { scanAndDelete(full); continue; }
+        const webPath = full.replace(ROOT_DIR, '').replace(/\\/g, '/');
+        if (!usedPaths.has(webPath)) {
+          fs.unlinkSync(full);
+          deleted++;
+        }
+      }
+    }
+    scanAndDelete(UPLOADS_DIR);
+
+    console.log(`✓ Удалено orphan-изображений: ${deleted}`);
+    res.json({ success: true, deleted });
+  } catch (error) {
+    console.error('Ошибка удаления orphan:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/backup/logs — логи активности
+router.get('/logs', requireAuth, async (req, res) => {
+  try {
+    const { getDbService } = require('../services');
+    const dbService = getDbService();
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+
+    const logs = await dbService.allQuery(
+      'SELECT id, user_id, action, entity_type, entity_id, details, created_at FROM activity_logs ORDER BY created_at DESC LIMIT ?',
+      [limit]
+    );
+
+    res.json(logs || []);
+  } catch (error) {
+    console.error('Ошибка получения логов:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

@@ -1,17 +1,17 @@
 import { useContext, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LanguageContext } from '../../context/LanguageContext';
 import { useAdmin } from '../Admin/AdminProvider';
 import AuthModal from '../Admin/AuthModal';
 import AdminLogout from '../Admin/AdminLogout';
-import BackupAdmin from '../Admin/BackupAdmin';
 import styles from './Hero.module.css';
 import photoImg from '../../assets/img/photo.jpg';
 
 const Hero = () => {
   const { language, translations, changeLanguage } = useContext(LanguageContext);
   const { isAuthenticated } = useAdmin();
+  const navigate = useNavigate();
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showBackupModal, setShowBackupModal] = useState(false);
 
   const toggleLanguage = () => {
     changeLanguage(language === 'ru' ? 'en' : 'ru');
@@ -59,7 +59,7 @@ const Hero = () => {
                 {isAuthenticated && (
                   <button
                     className={styles.settingsButton}
-                    onClick={() => setShowBackupModal(true)}
+                    onClick={() => navigate('/settings')}
                     title="Настройки"
                     aria-label="Настройки"
                   >
@@ -105,12 +105,6 @@ const Hero = () => {
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
-      />
-
-      {/* Модальное окно бэкапов */}
-      <BackupAdmin
-        isOpen={showBackupModal}
-        onClose={() => setShowBackupModal(false)}
       />
     </section>
   );

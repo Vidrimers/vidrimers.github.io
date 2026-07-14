@@ -11,6 +11,7 @@ import Skills from './components/Skills/Skills';
 import Portfolio from './components/Portfolio/Portfolio';
 import Certificates from './components/Certificates/Certificates';
 import DonatePage from './pages/DonatePage/DonatePage';
+import SettingsPage from './pages/SettingsPage/SettingsPage';
 
 // Главная страница
 const HomePage = () => {
@@ -37,6 +38,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/donate" element={<DonatePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       </AdminProvider>
     </LanguageProvider>
