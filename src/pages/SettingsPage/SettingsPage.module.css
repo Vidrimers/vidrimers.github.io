@@ -46,14 +46,14 @@
   border: 1px solid transparent;
   border-radius: 6px;
   background: none;
-  color: #aaa;
+  color: #666;
   cursor: pointer;
   font-size: 0.95rem;
   transition: all 0.2s;
 }
 .tab:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
+  color: #1a1a1a;
+  background: rgba(0, 0, 0, 0.05);
 }
 .tabActive {
   color: #fc285b;
