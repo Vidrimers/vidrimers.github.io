@@ -18,8 +18,6 @@ import { trackVisit } from './utils/tracking';
 const HomePage = () => {
   const { translations } = useContext(LanguageContext);
 
-  useEffect(() => { trackVisit(); }, []);
-
   return (
     <div className="page">
       <Header />
@@ -35,6 +33,9 @@ const HomePage = () => {
 };
 
 function App() {
+  // Трекинг визита на каждой странице
+  useEffect(() => { trackVisit(); }, []);
+
   return (
     <LanguageProvider>
       <AdminProvider>
