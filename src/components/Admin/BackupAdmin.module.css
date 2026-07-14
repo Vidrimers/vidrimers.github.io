@@ -78,6 +78,16 @@
   overflow-y: auto;
 }
 
+.backupListHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #888;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 2px;
+}
+
 .empty {
   text-align: center;
   padding: 30px;

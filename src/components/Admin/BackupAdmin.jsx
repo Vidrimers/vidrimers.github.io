@@ -153,6 +153,14 @@ const BackupAdmin = ({ isOpen, onClose }) => {
 
         {/* Список бэкапов */}
         <div className={styles.backupList}>
+          {backups.length > 0 && (
+            <div className={styles.backupListHeader}>
+              <span>{backups.length} бэкап(ов)</span>
+              <span>
+                {(backups.reduce((sum, b) => sum + b.size, 0) / 1024).toFixed(1)} KB
+              </span>
+            </div>
+          )}
           {loading ? (
             <div className={styles.empty}>Загрузка...</div>
           ) : backups.length === 0 ? (
