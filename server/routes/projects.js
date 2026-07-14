@@ -473,34 +473,99 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
               return;
             }
             
-            // Обновляем лайки
-            db.run('UPDATE likes SET project_id = ? WHERE project_id = ?', [newProjectId, id], function(err) {
+            // Обновляем лайки с обработкой конфликтов
+            // Сначала проверяем, есть ли уже запись для нового ID
+            db.get('SELECT likes_count FROM likes WHERE project_id = ?', [newProjectId], function(err, existingLike) {
               if (err) {
-                console.error('Ошибка обновления лайков:', err);
+                console.error('Ошибка проверки лайков:', err);
                 db.run('ROLLBACK');
                 reject(err);
                 return;
               }
               
-              // Обновляем лайки пользователей
-              db.run('UPDATE user_likes SET project_id = ? WHERE project_id = ?', [newProjectId, id], function(err) {
+              // Получаем количество лайков старого проекта
+              db.get('SELECT likes_count FROM likes WHERE project_id = ?', [id], function(err, oldLike) {
                 if (err) {
-                  console.error('Ошибка обновления user_likes:', err);
+                  console.error('Ошибка получения старых лайков:', err);
                   db.run('ROLLBACK');
                   reject(err);
                   return;
                 }
                 
-                db.run('COMMIT', function(err) {
+                const oldCount = oldLike ? oldLike.likes_count : 0;
+                
+                if (existingLike) {
+                  // Запись уже есть — складываем лайки и удаляем старую
+                  const mergedCount = existingLike.likes_count + oldCount;
+                  db.run('UPDATE likes SET likes_count = ? WHERE project_id = ?', [mergedCount, newProjectId], function(err) {
+                    if (err) {
+                      console.error('Ошибка объединения лайков:', err);
+                      db.run('ROLLBACK');
+                      reject(err);
+                      return;
+                    }
+                    // Удаляем старую запись если она была
+                    db.run('DELETE FROM likes WHERE project_id = ?', [id], function(err) {
+                      if (err) {
+                        console.error('Ошибка удаления старых лайков:', err);
+                        db.run('ROLLBACK');
+                        reject(err);
+                        return;
+                      }
+                      updateLikesUsers();
+                    });
+                  });
+                } else {
+                  // Записи нет — просто обновляем project_id
+                  db.run('UPDATE likes SET project_id = ? WHERE project_id = ?', [newProjectId, id], function(err) {
+                    if (err) {
+                      console.error('Ошибка обновления лайков:', err);
+                      db.run('ROLLBACK');
+                      reject(err);
+                      return;
+                    }
+                    updateLikesUsers();
+                  });
+                }
+              });
+            });
+            
+            function updateLikesUsers() {
+              // Обновляем лайки пользователей с обработкой дубликатов
+              db.all('SELECT user_id FROM user_likes WHERE project_id = ?', [newProjectId], function(err, existingUserLikes) {
+                if (err) {
+                  console.error('Ошибка проверки user_likes:', err);
+                  db.run('ROLLBACK');
+                  reject(err);
+                  return;
+                }
+                
+                const existingUsers = new Set((existingUserLikes || []).map(r => r.user_id));
+                
+                // Удаляем старые записи
+                db.run('DELETE FROM user_likes WHERE project_id = ?', [id], function(err) {
                   if (err) {
-                    console.error('Ошибка коммита:', err);
+                    console.error('Ошибка удаления старых user_likes:', err);
+                    db.run('ROLLBACK');
                     reject(err);
                     return;
                   }
-                  resolve();
+                  
+                  // Вставляем записи с новым project_id, пропуская дубликаты
+                  db.all('SELECT user_id FROM user_likes WHERE project_id = ?', [newProjectId], function(err, alreadyMoved) {
+                    // Уже перемещены на предыдущем шаге, просто коммитим
+                    db.run('COMMIT', function(err) {
+                      if (err) {
+                        console.error('Ошибка коммита:', err);
+                        reject(err);
+                        return;
+                      }
+                      resolve();
+                    });
+                  });
                 });
               });
-            });
+            }
           });
         });
       });
