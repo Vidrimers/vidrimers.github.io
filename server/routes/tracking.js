@@ -31,7 +31,9 @@ async function getCountry(ip) {
 // GET /api/track/visit — логирование визита (вызывается клиентом при загрузке)
 router.post('/visit', async (req, res) => {
   try {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+    // Приоритет: X-Real-IP > X-Forwarded-For > remoteAddress
+    const rawIp = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+    const ip = rawIp.split(',')[0].trim(); // X-Forwarded-For может содержать несколько IP
     const country = await getCountry(ip);
     const { path: visitPath } = req.body;
 
@@ -67,7 +69,8 @@ router.post('/visit', async (req, res) => {
 // POST /api/track/click — логирование клика по ссылке
 router.post('/click', async (req, res) => {
   try {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+    const rawIp = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+    const ip = rawIp.split(',')[0].trim();
     const country = await getCountry(ip);
     const { type, entityId, linkUrl } = req.body;
 
