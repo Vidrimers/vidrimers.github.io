@@ -70,15 +70,23 @@ router.post('/click', async (req, res) => {
     const { type, entityId, linkUrl } = req.body;
 
     const dbService = getDbService();
+
+    // Подтягиваем название проекта из БД
+    let entityName = '';
+    if (entityId && type === 'project') {
+      const project = await dbService.getQuery('SELECT title_ru FROM projects WHERE id = ?', [entityId]);
+      entityName = project ? project.title_ru : entityId;
+    }
+
     await dbService.runQuery(
-      'INSERT INTO link_clicks (type, entity_id, link_url, ip, country) VALUES (?, ?, ?, ?, ?)',
-      [type || 'project', entityId || null, linkUrl || '', ip, country]
+      'INSERT INTO link_clicks (type, entity_id, entity_name, link_url, ip, country) VALUES (?, ?, ?, ?, ?, ?)',
+      [type || 'project', entityId || null, entityName, linkUrl || '', ip, country]
     );
 
     // Telegram: клик по проекту
     const telegramService = getTelegramService();
     if (telegramService && entityId) {
-      const label = type === 'donate' ? '💰 Donate нажат' : `🔗 ${entityId} открыт`;
+      const label = type === 'donate' ? '💰 Donate нажат' : `🔗 ${entityName || entityId} открыт`;
       await telegramService.sendActivityNotification(label, {
         entityType: type,
         entityId,
@@ -109,7 +117,7 @@ router.get('/stats', async (req, res) => {
     );
 
     const topProjects = await dbService.allQuery(
-      "SELECT entity_id, COUNT(*) as cnt FROM link_clicks WHERE type = 'project' AND entity_id IS NOT NULL GROUP BY entity_id ORDER BY cnt DESC LIMIT 10"
+      "SELECT entity_id, entity_name, COUNT(*) as cnt FROM link_clicks WHERE type = 'project' AND entity_id IS NOT NULL GROUP BY entity_id ORDER BY cnt DESC LIMIT 10"
     );
 
     const recentVisits = await dbService.allQuery(
@@ -117,14 +125,14 @@ router.get('/stats', async (req, res) => {
     );
 
     const likesByIp = await dbService.allQuery(
-      'SELECT u.project_id, u.ip, u.country FROM user_likes u WHERE u.ip != \'\' GROUP BY u.ip, u.project_id ORDER BY u.ip'
+      "SELECT u.project_id, u.ip, u.country, p.title_ru FROM user_likes u LEFT JOIN projects p ON u.project_id = p.id WHERE u.ip != '' ORDER BY u.ip"
     );
 
     // Группируем лайки по IP
     const ipLikes = {};
     for (const row of likesByIp) {
       if (!ipLikes[row.ip]) ipLikes[row.ip] = { country: row.country, projects: [] };
-      ipLikes[row.ip].projects.push(row.project_id);
+      ipLikes[row.ip].projects.push(row.title_ru || row.project_id);
     }
 
     res.json({
@@ -134,7 +142,7 @@ router.get('/stats', async (req, res) => {
       totalLikes,
       donateClicks,
       topCountries: topCountries || [],
-      topProjects: (topProjects || []).map(p => ({ project_id: p.entity_id, count: p.cnt })),
+      topProjects: (topProjects || []).map(p => ({ project_id: p.entity_id, name: p.entity_name || p.entity_id, count: p.cnt })),
       recentVisits: recentVisits || [],
       likesByIp: Object.entries(ipLikes).map(([ip, data]) => ({
         ip,

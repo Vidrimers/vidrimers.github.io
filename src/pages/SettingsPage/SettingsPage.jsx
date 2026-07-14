@@ -424,7 +424,7 @@ const TabVisitors = () => {
           <div className={styles.list}>
             {stats.topProjects.map((p, i) => (
               <div key={i} className={styles.listItem}>
-                <span className={styles.itemName}>{p.project_id}</span>
+                <span className={styles.itemName}>{p.name}</span>
                 <span className={styles.itemMeta}>{p.count} кликов</span>
               </div>
             ))}
