@@ -16,6 +16,7 @@ const PortfolioAdmin = ({ isOpen, onClose, onCategoriesUpdate }) => {
   const [editingProject, setEditingProject] = useState(null);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
   
   // Состояние настроек сортировки
   const [sortSettings, setSortSettings] = useState({
@@ -47,6 +48,7 @@ const PortfolioAdmin = ({ isOpen, onClose, onCategoriesUpdate }) => {
   useEffect(() => {
     if (isOpen && isAuthenticated) {
       loadData();
+      setActiveTab('all');
     }
   }, [isOpen, isAuthenticated]);
 
@@ -472,8 +474,32 @@ const PortfolioAdmin = ({ isOpen, onClose, onCategoriesUpdate }) => {
               </div>
             </div>
 
+            {/* Табы категорий */}
+            <div className={styles.tabs}>
+              <button
+                className={`${styles.tab} ${activeTab === 'all' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('all')}
+              >
+                Все ({projects.length})
+              </button>
+              {categories.map(category => {
+                const count = projects.filter(p => p.category_id === category.id).length;
+                return (
+                  <button
+                    key={category.id}
+                    className={`${styles.tab} ${activeTab === category.id ? styles.tabActive : ''}`}
+                    onClick={() => setActiveTab(category.id)}
+                  >
+                    {category.name_ru} ({count})
+                  </button>
+                );
+              })}
+            </div>
+
             <div className={styles.projects}>
-              {projects.map(project => (
+              {projects
+                .filter(project => activeTab === 'all' || project.category_id === activeTab)
+                .map(project => (
                 <div 
                   key={project.id} 
                   className={`${styles.projectCard} ${project.is_hidden ? styles.hidden : ''}`}
@@ -530,9 +556,11 @@ const PortfolioAdmin = ({ isOpen, onClose, onCategoriesUpdate }) => {
                 </div>
               ))}
 
-              {projects.length === 0 && !loading && (
+              {projects.filter(p => activeTab === 'all' || p.category_id === activeTab).length === 0 && !loading && (
                 <div className={styles.emptyState}>
-                  Проекты не найдены. Создайте первый проект.
+                  {activeTab === 'all'
+                    ? 'Проекты не найдены. Создайте первый проект.'
+                    : 'В этой категории нет проектов.'}
                 </div>
               )}
             </div>

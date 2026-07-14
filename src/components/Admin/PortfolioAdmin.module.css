@@ -118,6 +118,45 @@
   cursor: not-allowed;
 }
 
+/* Табы категорий */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eee;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background-color: #f8f9fa;
+  color: #495057;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.tabActive {
+  background-color: #fc285b;
+  color: white;
+  border-color: #fc285b;
+}
+
+.tabActive:hover {
+  background-color: #e02050;
+  border-color: #e02050;
+}
+
 /* Список проектов */
 .projects {
   display: flex;
