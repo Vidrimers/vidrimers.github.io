@@ -488,6 +488,17 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
       `, updateValues);
     }
 
+    // Удаляем старое изображение если оно заменено и было в /uploads/
+    if (updates.imagePath && existingProject.image_path &&
+        updates.imagePath !== existingProject.image_path &&
+        existingProject.image_path.startsWith('/uploads/')) {
+      const fileService = getFileService();
+      const result = fileService.deleteFileByWebPath(existingProject.image_path);
+      if (result.success) {
+        console.log('Удалено старое изображение:', existingProject.image_path);
+      }
+    }
+
     // Логируем активность
     await dbService.logActivity(
       req.user.userId,
