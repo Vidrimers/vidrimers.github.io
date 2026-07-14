@@ -17,6 +17,7 @@ const PortfolioAdmin = ({ isOpen, onClose, onCategoriesUpdate }) => {
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [previewId, setPreviewId] = useState(null);
   
   // Состояние настроек сортировки
   const [sortSettings, setSortSettings] = useState({
@@ -174,6 +175,7 @@ const PortfolioAdmin = ({ isOpen, onClose, onCategoriesUpdate }) => {
       sortOrder: 0
     });
     setEditingProject(null);
+    setPreviewId(null);
   };
 
   // Открытие формы создания проекта
@@ -231,6 +233,7 @@ const PortfolioAdmin = ({ isOpen, onClose, onCategoriesUpdate }) => {
       sortOrder: project.sort_order
     });
     setEditingProject(project);
+    setPreviewId(null);
     setShowProjectForm(true);
   };
 
@@ -241,13 +244,20 @@ const PortfolioAdmin = ({ isOpen, onClose, onCategoriesUpdate }) => {
       [field]: value
     }));
 
-    // Автогенерация ID при изменении категории (только для новых проектов)
-    if (field === 'categoryId' && !editingProject && value) {
-      const generatedId = generateProjectId(value, projects);
-      setProjectForm(prev => ({
-        ...prev,
-        id: generatedId
-      }));
+    // Автогенерация ID при изменении категории
+    if (field === 'categoryId' && value) {
+      if (editingProject) {
+        // При редактировании — показываем предпросмотр нового ID
+        const newId = generateProjectId(value, projects);
+        setPreviewId(newId);
+      } else {
+        // При создании — сразу устанавливаем ID
+        const generatedId = generateProjectId(value, projects);
+        setProjectForm(prev => ({
+          ...prev,
+          id: generatedId
+        }));
+      }
     }
   };
 
@@ -620,6 +630,12 @@ const PortfolioAdmin = ({ isOpen, onClose, onCategoriesUpdate }) => {
                     ) : (
                       <span className={styles.idUnavailable}>✗ ID уже используется</span>
                     )}
+                  </div>
+                )}
+                {editingProject && previewId && (
+                  <div className={styles.idPreview}>
+                    <span className={styles.idPreviewLabel}>Новый ID:</span>
+                    <span className={styles.idPreviewValue}>{previewId}</span>
                   </div>
                 )}
               </div>
