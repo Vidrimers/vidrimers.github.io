@@ -59,6 +59,17 @@ class DatabaseService {
   }
 
   /**
+   * Получить сырое подключение к базе данных (для транзакций)
+   * @returns {sqlite3.Database} Экземпляр базы данных
+   */
+  getDb() {
+    if (!this.db) {
+      throw new Error('Database not initialized');
+    }
+    return this.db;
+  }
+
+  /**
    * Закрыть соединение с базой данных
    * @returns {Promise<void>}
    */

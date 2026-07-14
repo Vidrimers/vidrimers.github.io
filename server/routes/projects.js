@@ -6,6 +6,7 @@ const express = require('express');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { validateProject, sanitizeProject } = require('../middleware/validation');
 const { getDbService, getTelegramService, getFileService } = require('../services');
+const { generateProjectId } = require('../utils/idGenerator');
 
 const router = express.Router();
 
@@ -387,6 +388,20 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
       }
     }
 
+    // Определяем, меняется ли категория
+    const newCategoryId = updates.categoryId || existingProject.category_id;
+    const isCategoryChanged = updates.categoryId && updates.categoryId !== existingProject.category_id;
+
+    // Если категория меняется, генерируем новый ID
+    let newProjectId = id;
+    if (isCategoryChanged) {
+      // Получаем все проекты для генерации нового ID
+      const allProjects = await dbService.allQuery('SELECT id FROM projects');
+      newProjectId = generateProjectId(newCategoryId, allProjects);
+      
+      console.log(`Смена категории: ${id} -> ${newProjectId} (категория: ${newCategoryId})`);
+    }
+
     // Формируем SQL для обновления
     const allowedFields = [
       'title_ru', 'title_en', 'description_ru', 'description_en',
@@ -411,7 +426,7 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
       }
     }
 
-    if (updateFields.length === 0) {
+    if (updateFields.length === 0 && !isCategoryChanged) {
       return res.status(400).json({
         success: false,
         error: {
@@ -422,43 +437,117 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
       });
     }
 
-    updateValues.push(id);
-
-    await dbService.runQuery(`
-      UPDATE projects SET ${updateFields.join(', ')} WHERE id = ?
-    `, updateValues);
+    // Если категория меняется, используем транзакцию для обновления всех связанных таблиц
+    if (isCategoryChanged) {
+      const db = dbService.getDb();
+      
+      await new Promise((resolve, reject) => {
+        db.serialize(() => {
+          db.run('BEGIN TRANSACTION');
+          
+          // Обновляем ID проекта и категорию
+          const projectFields = [...updateFields];
+          const projectValues = [...updateValues];
+          
+          // Добавляем обновление ID и category_id
+          if (!projectFields.some(f => f.includes('category_id'))) {
+            projectFields.push('category_id = ?');
+            projectValues.push(newCategoryId);
+          }
+          projectFields.unshift('id = ?');
+          projectValues.unshift(newProjectId);
+          
+          // Убираем старый id из конца (был из updateValues)
+          projectValues.pop();
+          
+          const sql = `UPDATE projects SET ${projectFields.join(', ')} WHERE id = ?`;
+          projectValues.push(id);
+          
+          console.log('SQL обновления проекта:', sql, projectValues);
+          
+          db.run(sql, projectValues, function(err) {
+            if (err) {
+              console.error('Ошибка обновления проекта:', err);
+              db.run('ROLLBACK');
+              reject(err);
+              return;
+            }
+            
+            // Обновляем лайки
+            db.run('UPDATE likes SET project_id = ? WHERE project_id = ?', [newProjectId, id], function(err) {
+              if (err) {
+                console.error('Ошибка обновления лайков:', err);
+                db.run('ROLLBACK');
+                reject(err);
+                return;
+              }
+              
+              // Обновляем лайки пользователей
+              db.run('UPDATE user_likes SET project_id = ? WHERE project_id = ?', [newProjectId, id], function(err) {
+                if (err) {
+                  console.error('Ошибка обновления user_likes:', err);
+                  db.run('ROLLBACK');
+                  reject(err);
+                  return;
+                }
+                
+                db.run('COMMIT', function(err) {
+                  if (err) {
+                    console.error('Ошибка коммита:', err);
+                    reject(err);
+                    return;
+                  }
+                  resolve();
+                });
+              });
+            });
+          });
+        });
+      });
+    } else {
+      // Обычное обновление без смены ID
+      updateValues.push(id);
+      await dbService.runQuery(`
+        UPDATE projects SET ${updateFields.join(', ')} WHERE id = ?
+      `, updateValues);
+    }
 
     // Логируем активность
     await dbService.logActivity(
       req.user.userId,
       'UPDATE_PROJECT',
       'project',
-      id,
-      updates,
+      isCategoryChanged ? newProjectId : id,
+      { ...updates, oldId: isCategoryChanged ? id : undefined, newId: isCategoryChanged ? newProjectId : undefined },
       req.ip,
       req.get('User-Agent')
     );
 
     // Отправляем уведомление в Telegram
     if (telegramService) {
-      await telegramService.sendActivityNotification('Обновлен проект', {
+      const notificationText = isCategoryChanged 
+        ? `Проект перемещён в другую категорию (${id} -> ${newProjectId})`
+        : 'Обновлен проект';
+      await telegramService.sendActivityNotification(notificationText, {
         entityType: 'Проект',
-        entityId: id,
+        entityId: isCategoryChanged ? newProjectId : id,
         title: updates.titleRu || existingProject.title_ru
       });
     }
 
-    // Получаем обновленный проект
+    // Получаем обновленный проект с новым ID
+    const finalId = isCategoryChanged ? newProjectId : id;
     const updatedProject = await dbService.getQuery(`
       SELECT p.*, c.name_ru as category_name_ru, c.name_en as category_name_en
       FROM projects p
       LEFT JOIN categories c ON p.category_id = c.id
       WHERE p.id = ?
-    `, [id]);
+    `, [finalId]);
 
     res.json({
       success: true,
       data: updatedProject,
+      moved: isCategoryChanged ? { from: id, to: newProjectId } : null,
       timestamp: new Date().toISOString()
     });
 
