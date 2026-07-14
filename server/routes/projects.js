@@ -439,22 +439,8 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
 
     // Если категория меняется, используем транзакцию для обновления всех связанных таблиц
     if (isCategoryChanged) {
-      const db = dbService.getDb();
 
-      // Промисификация callback API sqlite3
-      const dbRun = (sql, params = []) => new Promise((resolve, reject) => {
-        db.run(sql, params, function(err) {
-          if (err) reject(err);
-          else resolve({ changes: this.changes });
-        });
-      });
-      const dbGet = (sql, params = []) => new Promise((resolve, reject) => {
-        db.get(sql, params, (err, row) => err ? reject(err) : resolve(row));
-      });
-
-      try {
-        await dbRun('BEGIN TRANSACTION');
-
+      await dbService.transaction(async (svc) => {
         // Обновляем ID проекта и категорию
         const projectFields = [...updateFields];
         const projectValues = [...updateValues];
@@ -471,7 +457,7 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
         projectValues.push(id);
 
         console.log('SQL обновления проекта:', sql, projectValues);
-        const updateResult = await dbRun(sql, projectValues);
+        const updateResult = await svc.runQuery(sql, projectValues);
         console.log('Обновлено строк projects:', updateResult.changes);
 
         if (updateResult.changes === 0) {
@@ -479,35 +465,22 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
         }
 
         // Обновляем лайки с обработкой конфликтов
-        const existingLike = await dbGet('SELECT likes_count FROM likes WHERE project_id = ?', [newProjectId]);
-        const oldLike = await dbGet('SELECT likes_count FROM likes WHERE project_id = ?', [id]);
+        const existingLike = await svc.getQuery('SELECT likes_count FROM likes WHERE project_id = ?', [newProjectId]);
+        const oldLike = await svc.getQuery('SELECT likes_count FROM likes WHERE project_id = ?', [id]);
         const oldCount = oldLike ? oldLike.likes_count : 0;
 
         if (existingLike) {
           const mergedCount = existingLike.likes_count + oldCount;
-          await dbRun('UPDATE likes SET likes_count = ? WHERE project_id = ?', [mergedCount, newProjectId]);
-          await dbRun('DELETE FROM likes WHERE project_id = ?', [id]);
+          await svc.runQuery('UPDATE likes SET likes_count = ? WHERE project_id = ?', [mergedCount, newProjectId]);
+          await svc.runQuery('DELETE FROM likes WHERE project_id = ?', [id]);
         } else {
-          await dbRun('UPDATE likes SET project_id = ? WHERE project_id = ?', [newProjectId, id]);
+          await svc.runQuery('UPDATE likes SET project_id = ? WHERE project_id = ?', [newProjectId, id]);
         }
 
-        await dbRun('DELETE FROM user_likes WHERE project_id = ?', [id]);
+        await svc.runQuery('DELETE FROM user_likes WHERE project_id = ?', [id]);
 
-        // Верификация перед коммитом
-        const verifyProject = await dbGet('SELECT id, category_id FROM projects WHERE id = ?', [newProjectId]);
-        console.log('Верификация до COMMIT:', verifyProject);
-
-        await dbRun('COMMIT');
-        console.log('COMMIT выполнен. Транзакция:', id, '->', newProjectId);
-
-        // Проверка после коммита
-        const afterCommit = await dbGet('SELECT id, category_id FROM projects WHERE id = ?', [newProjectId]);
-        console.log('После COMMIT:', afterCommit);
-      } catch (txErr) {
-        console.error('Ошибка транзакции, откат:', txErr);
-        try { await dbRun('ROLLBACK'); } catch (_) {}
-        throw txErr;
-      }
+        console.log('Транзакция завершена:', id, '->', newProjectId);
+      });
     } else {
       // Обычное обновление без смены ID
       updateValues.push(id);
