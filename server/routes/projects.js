@@ -474,6 +474,10 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
         const updateResult = await dbRun(sql, projectValues);
         console.log('Обновлено строк projects:', updateResult.changes);
 
+        if (updateResult.changes === 0) {
+          throw new Error(`Проект с ID "${id}" не найден в базе данных`);
+        }
+
         // Обновляем лайки с обработкой конфликтов
         const existingLike = await dbGet('SELECT likes_count FROM likes WHERE project_id = ?', [newProjectId]);
         const oldLike = await dbGet('SELECT likes_count FROM likes WHERE project_id = ?', [id]);
