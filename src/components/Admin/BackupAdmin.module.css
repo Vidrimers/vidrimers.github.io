@@ -107,6 +107,11 @@
   border-color: rgba(252, 40, 91, 0.3);
 }
 
+.selected:hover {
+  background: rgba(252, 40, 91, 0.12);
+  border-color: rgba(252, 40, 91, 0.4);
+}
+
 .backupInfo {
   display: flex;
   flex-direction: column;
@@ -118,7 +123,7 @@
 .backupName {
   font-weight: 600;
   font-size: 0.9rem;
-  color: #e0e0e0;
+  color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
