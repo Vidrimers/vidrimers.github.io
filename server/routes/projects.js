@@ -451,7 +451,6 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
         }
         projectFields.unshift('id = ?');
         projectValues.unshift(newProjectId);
-        projectValues.pop();
 
         const sql = `UPDATE projects SET ${projectFields.join(', ')} WHERE id = ?`;
         projectValues.push(id);
