@@ -441,7 +441,7 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
     if (isCategoryChanged) {
       const db = dbService.getDb();
 
-      // Хелперы для промисификации callback API
+      // Промисификация callback API sqlite3
       const dbRun = (sql, params = []) => new Promise((resolve, reject) => {
         db.run(sql, params, function(err) {
           if (err) reject(err);
@@ -450,9 +450,6 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
       });
       const dbGet = (sql, params = []) => new Promise((resolve, reject) => {
         db.get(sql, params, (err, row) => err ? reject(err) : resolve(row));
-      });
-      const dbAll = (sql, params = []) => new Promise((resolve, reject) => {
-        db.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows));
       });
 
       try {
@@ -468,13 +465,14 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
         }
         projectFields.unshift('id = ?');
         projectValues.unshift(newProjectId);
-        projectValues.pop(); // Убираем старый id из конца
+        projectValues.pop();
 
         const sql = `UPDATE projects SET ${projectFields.join(', ')} WHERE id = ?`;
         projectValues.push(id);
 
         console.log('SQL обновления проекта:', sql, projectValues);
-        await dbRun(sql, projectValues);
+        const updateResult = await dbRun(sql, projectValues);
+        console.log('Обновлено строк projects:', updateResult.changes);
 
         // Обновляем лайки с обработкой конфликтов
         const existingLike = await dbGet('SELECT likes_count FROM likes WHERE project_id = ?', [newProjectId]);
@@ -489,11 +487,18 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
           await dbRun('UPDATE likes SET project_id = ? WHERE project_id = ?', [newProjectId, id]);
         }
 
-        // Обновляем user_likes — удаляем старые (новые уже ссылается на новый id если были дубли)
         await dbRun('DELETE FROM user_likes WHERE project_id = ?', [id]);
 
+        // Верификация перед коммитом
+        const verifyProject = await dbGet('SELECT id, category_id FROM projects WHERE id = ?', [newProjectId]);
+        console.log('Верификация до COMMIT:', verifyProject);
+
         await dbRun('COMMIT');
-        console.log('Транзакция завершена успешно:', id, '->', newProjectId);
+        console.log('COMMIT выполнен. Транзакция:', id, '->', newProjectId);
+
+        // Проверка после коммита
+        const afterCommit = await dbGet('SELECT id, category_id FROM projects WHERE id = ?', [newProjectId]);
+        console.log('После COMMIT:', afterCommit);
       } catch (txErr) {
         console.error('Ошибка транзакции, откат:', txErr);
         try { await dbRun('ROLLBACK'); } catch (_) {}
