@@ -198,6 +198,10 @@ const TabDB = () => {
 
 // ===== ТАБ "НАСТРОЙКИ САЙТА" =====
 const TabSite = () => {
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
+  const [seoKeywords, setSeoKeywords] = useState('');
+  const [seoSaved, setSeoSaved] = useState(false);
   const [orphans, setOrphans] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -206,6 +210,33 @@ const TabSite = () => {
   const token = localStorage.getItem('admin_token');
   const authHeaders = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
+  // Загрузка SEO настроек
+  useEffect(() => {
+    fetch('/api/settings', { headers: authHeaders })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && d.data) {
+          setSeoTitle(d.data.seo_title || '');
+          setSeoDescription(d.data.seo_description || '');
+          setSeoKeywords(d.data.seo_keywords || '');
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleSeoSave = async () => {
+    try {
+      await fetch('/api/settings', {
+        method: 'PUT',
+        headers: authHeaders,
+        body: JSON.stringify({ seoTitle, seoDescription, seoKeywords })
+      });
+      setSeoSaved(true);
+      setTimeout(() => setSeoSaved(false), 2000);
+    } catch (e) { setError(e.message); }
+  };
+
+  // Загрузка orphan-файлов
   const loadOrphans = useCallback(async () => {
     setLoading(true);
     try {
@@ -230,7 +261,31 @@ const TabSite = () => {
     <div className={styles.tabContent}>
       {error && <div className={styles.error}>{error}</div>}
 
-      <h3 className={styles.sectionTitle}>Очистка orphan-изображений</h3>
+      {/* SEO */}
+      <h3 className={styles.sectionTitle}>SEO настройки</h3>
+      <div className={styles.seoForm}>
+        <label className={styles.fieldLabel}>
+          Заголовок страницы
+          <input className={styles.input} type="text" value={seoTitle} onChange={e => setSeoTitle(e.target.value)}
+            placeholder="Vidrimers — Frontend разработчик" maxLength={100} />
+        </label>
+        <label className={styles.fieldLabel}>
+          Описание
+          <textarea className={styles.textarea} value={seoDescription} onChange={e => setSeoDescription(e.target.value)}
+            placeholder="Портфолио frontend разработчика" maxLength={300} rows={3} />
+        </label>
+        <label className={styles.fieldLabel}>
+          Ключевые слова (через запятую)
+          <input className={styles.input} type="text" value={seoKeywords} onChange={e => setSeoKeywords(e.target.value)}
+            placeholder="frontend, react, разработчик" maxLength={300} />
+        </label>
+        <button className={`${styles.btn} ${styles.btnCreate}`} onClick={handleSeoSave}>
+          {seoSaved ? '✓ Сохранено' : '💾 Сохранить'}
+        </button>
+      </div>
+
+      {/* Orphan-очистка */}
+      <h3 className={styles.sectionTitle} style={{ marginTop: 30 }}>Очистка orphan-изображений</h3>
       {deletedCount !== null && <div className={styles.success}>Удалено файлов: {deletedCount}</div>}
 
       {orphans.length > 0 && (

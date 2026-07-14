@@ -265,3 +265,42 @@
   margin: 0 0 16px;
   font-size: 1.1rem;
 }
+
+/* SEO форма */
+.seoForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fieldLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #aaa;
+  font-weight: 500;
+}
+
+.input,
+.textarea {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #1a1a1a;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #fc285b;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
