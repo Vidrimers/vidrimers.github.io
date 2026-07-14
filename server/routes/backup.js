@@ -1,29 +1,67 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const AdmZip = require('adm-zip');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
 const ROOT_DIR = path.join(__dirname, '..', '..');
 const DB_PATH = path.join(ROOT_DIR, 'database', 'vidrimers.db');
+const UPLOADS_DIR = path.join(ROOT_DIR, 'uploads');
 const BACKUPS_DIR = path.join(ROOT_DIR, 'backups');
 
-// POST /api/backup — создать бэкап
+function ensureDir(dir) {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+}
+
+// Рекурсивно добавляем папку в ZIP
+function addDirToZip(zip, dirPath, zipBasePath) {
+  if (!fs.existsSync(dirPath)) return;
+  const items = fs.readdirSync(dirPath);
+  for (const item of items) {
+    const fullPath = path.join(dirPath, item);
+    const zipPath = path.join(zipBasePath, item).replace(/\\/g, '/');
+    const stat = fs.statSync(fullPath);
+    if (stat.isDirectory()) {
+      addDirToZip(zip, fullPath, zipPath);
+    } else {
+      zip.addLocalFile(fullPath, path.dirname(zipPath));
+    }
+  }
+}
+
+// Рекурсивно удаляем папку
+function removeDir(dirPath) {
+  if (!fs.existsSync(dirPath)) return;
+  fs.rmSync(dirPath, { recursive: true, force: true });
+}
+
+// POST /api/backup — создать ZIP-бэкап
 router.post('/', requireAuth, async (req, res) => {
   try {
-    if (!fs.existsSync(BACKUPS_DIR)) {
-      fs.mkdirSync(BACKUPS_DIR, { recursive: true });
-    }
+    ensureDir(BACKUPS_DIR);
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-    const filename = `vidrimers_backup_${timestamp}.db`;
+    const filename = `vidrimers_backup_${timestamp}.zip`;
     const backupPath = path.join(BACKUPS_DIR, filename);
 
-    fs.copyFileSync(DB_PATH, backupPath);
+    const zip = new AdmZip();
+
+    // Добавляем БД
+    if (fs.existsSync(DB_PATH)) {
+      zip.addLocalFile(DB_PATH, '', 'vidrimers.db');
+    }
+
+    // Добавляем uploads/
+    if (fs.existsSync(UPLOADS_DIR)) {
+      addDirToZip(zip, UPLOADS_DIR, 'uploads');
+    }
+
+    zip.writeZip(backupPath);
 
     const stats = fs.statSync(backupPath);
-    console.log(`✓ Бэкап создан: ${filename} (${(stats.size / 1024).toFixed(1)} KB)`);
+    console.log(`✓ ZIP-бэкап создан: ${filename} (${(stats.size / 1024).toFixed(1)} KB)`);
 
     res.json({
       success: true,
@@ -45,7 +83,7 @@ router.get('/list', requireAuth, (req, res) => {
       return res.json([]);
     }
 
-    const files = fs.readdirSync(BACKUPS_DIR).filter(f => f.endsWith('.db'));
+    const files = fs.readdirSync(BACKUPS_DIR).filter(f => f.endsWith('.zip'));
 
     const backups = files.map(file => {
       const filePath = path.join(BACKUPS_DIR, file);
@@ -73,7 +111,6 @@ router.get('/download/:filename', (req, res) => {
   try {
     const { filename } = req.params;
 
-    // Токен может быть в заголовке или query (для window.open)
     const token = req.query.token || (req.headers.authorization || '').replace('Bearer ', '');
     if (!token) {
       return res.status(401).json({ error: 'Не авторизован' });
@@ -84,7 +121,7 @@ router.get('/download/:filename', (req, res) => {
       return res.status(401).json({ error: 'Недействительный токен' });
     }
 
-    if (!/^[a-zA-Z0-9_-]+\.db$/.test(filename)) {
+    if (!/^[a-zA-Z0-9_-]+\.zip$/.test(filename)) {
       return res.status(400).json({ error: 'Неверное имя файла' });
     }
 
@@ -108,7 +145,7 @@ router.post('/restore', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Имя файла не указано' });
     }
 
-    if (!/^[a-zA-Z0-9_-]+\.db$/.test(filename)) {
+    if (!/^[a-zA-Z0-9_-]+\.zip$/.test(filename)) {
       return res.status(400).json({ error: 'Неверное имя файла' });
     }
 
@@ -117,24 +154,54 @@ router.post('/restore', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Файл бэкапа не найден' });
     }
 
-    // Создаём бэкап текущей БД перед восстановлением
+    ensureDir(BACKUPS_DIR);
+
+    // Создаём бэкап текущего состояния перед восстановлением
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-    const beforeRestoreFilename = `vidrimers_before_restore_${timestamp}.db`;
+    const beforeRestoreFilename = `vidrimers_before_restore_${timestamp}.zip`;
     const beforeRestorePath = path.join(BACKUPS_DIR, beforeRestoreFilename);
 
-    if (!fs.existsSync(BACKUPS_DIR)) {
-      fs.mkdirSync(BACKUPS_DIR, { recursive: true });
+    const preZip = new AdmZip();
+    if (fs.existsSync(DB_PATH)) {
+      preZip.addLocalFile(DB_PATH, '', 'vidrimers.db');
     }
-    fs.copyFileSync(DB_PATH, beforeRestorePath);
+    if (fs.existsSync(UPLOADS_DIR)) {
+      addDirToZip(preZip, UPLOADS_DIR, 'uploads');
+    }
+    preZip.writeZip(beforeRestorePath);
+    console.log(`✓ Бэкап перед восстановлением: ${beforeRestoreFilename}`);
 
-    // Восстанавливаем
-    fs.copyFileSync(backupPath, DB_PATH);
+    // Распаковываем бэкап
+    const zip = new AdmZip(backupPath);
+    const entries = zip.getEntries();
 
-    console.log(`✓ БД восстановлена из ${filename}. Бэкап перед восстановлением: ${beforeRestoreFilename}`);
+    for (const entry of entries) {
+      const entryName = entry.entryName;
+
+      if (entryName === 'vidrimers.db') {
+        // Замена БД
+        const dbDir = path.dirname(DB_PATH);
+        ensureDir(dbDir);
+        zip.extractEntryTo(entryName, dbDir, true, true);
+        // Переименовываем обратно (extractEntryTo может создать с другим именем)
+        const extractedPath = path.join(dbDir, 'vidrimers.db');
+        if (fs.existsSync(extractedPath)) {
+          fs.copyFileSync(extractedPath, DB_PATH);
+        }
+      } else if (entryName.startsWith('uploads/')) {
+        // Распаковка uploads
+        const targetPath = path.join(ROOT_DIR, entryName);
+        const targetDir = path.dirname(targetPath);
+        ensureDir(targetDir);
+        zip.extractEntryTo(entryName, ROOT_DIR, true, true);
+      }
+    }
+
+    console.log(`✓ БД и uploads восстановлены из ${filename}`);
 
     res.json({
       success: true,
-      message: 'БД успешно восстановлена',
+      message: 'БД и uploads успешно восстановлены',
       restored_from: filename,
       backup_created: beforeRestoreFilename
     });
@@ -149,13 +216,8 @@ router.delete('/:filename', requireAuth, (req, res) => {
   try {
     const { filename } = req.params;
 
-    if (!/^[a-zA-Z0-9_-]+\.db$/.test(filename)) {
+    if (!/^[a-zA-Z0-9_-]+\.zip$/.test(filename)) {
       return res.status(400).json({ error: 'Неверное имя файла' });
-    }
-
-    // Запрет удаления текущей БД
-    if (filename === path.basename(DB_PATH)) {
-      return res.status(400).json({ error: 'Нельзя удалить текущую БД' });
     }
 
     const backupPath = path.join(BACKUPS_DIR, filename);
