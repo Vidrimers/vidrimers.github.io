@@ -43,7 +43,7 @@ router.post('/visit', async (req, res) => {
       [ip, country, (req.headers['user-agent'] || '').slice(0, 200), visitPath || '/']
     );
 
-    // Telegram: новый или повторный IP
+    console.log('Visit tracked:', { ip, rawIp, xRealIp: req.headers['x-real-ip'], xForwarded: req.headers['x-forwarded-for'], remoteAddr: req.socket.remoteAddress, path: visitPath });
     const existing = await dbService.getQuery(
       'SELECT COUNT(*) as cnt FROM visits WHERE ip = ? AND id != (SELECT MAX(id) FROM visits WHERE ip = ?)',
       [ip, ip]
@@ -73,6 +73,8 @@ router.post('/click', async (req, res) => {
     const ip = rawIp.split(',')[0].trim();
     const country = await getCountry(ip);
     const { type, entityId, linkUrl } = req.body;
+
+    console.log('Click tracked:', { ip, rawIp, xRealIp: req.headers['x-real-ip'], xForwarded: req.headers['x-forwarded-for'], remoteAddr: req.socket.remoteAddress });
 
     const dbService = getDbService();
 
