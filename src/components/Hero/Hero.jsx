@@ -3,6 +3,7 @@ import { LanguageContext } from '../../context/LanguageContext';
 import { useAdmin } from '../Admin/AdminProvider';
 import AuthModal from '../Admin/AuthModal';
 import AdminLogout from '../Admin/AdminLogout';
+import BackupAdmin from '../Admin/BackupAdmin';
 import styles from './Hero.module.css';
 import photoImg from '../../assets/img/photo.jpg';
 
@@ -10,6 +11,7 @@ const Hero = () => {
   const { language, translations, changeLanguage } = useContext(LanguageContext);
   const { isAuthenticated } = useAdmin();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showBackupModal, setShowBackupModal] = useState(false);
 
   const toggleLanguage = () => {
     changeLanguage(language === 'ru' ? 'en' : 'ru');
@@ -54,6 +56,16 @@ const Hero = () => {
                   {translations.hero.subtitle}
                 </p>
                 <AdminLogout />
+                {isAuthenticated && (
+                  <button
+                    className={styles.settingsButton}
+                    onClick={() => setShowBackupModal(true)}
+                    title="Настройки"
+                    aria-label="Настройки"
+                  >
+                    ⚙
+                  </button>
+                )}
               </div>
               <div className={styles.heroLang}>
                 <a 
@@ -90,9 +102,15 @@ const Hero = () => {
       </div>
 
       {/* Модальное окно аутентификации */}
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
+
+      {/* Модальное окно бэкапов */}
+      <BackupAdmin
+        isOpen={showBackupModal}
+        onClose={() => setShowBackupModal(false)}
       />
     </section>
   );

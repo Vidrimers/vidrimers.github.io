@@ -253,3 +253,42 @@
     background-size: cover;
   }
 }
+
+/* Кнопка настроек (⚙) рядом с крестиком выхода */
+.settingsButton {
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: absolute;
+  top: -15px;
+  right: 12px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  font-size: 11px;
+  line-height: 1;
+  padding: 0;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.settingsButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.settingsButton:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+  .settingsButton {
+    top: -8px;
+    right: 12px;
+  }
+}
