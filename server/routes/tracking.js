@@ -41,14 +41,16 @@ router.post('/visit', async (req, res) => {
       [ip, country, (req.headers['user-agent'] || '').slice(0, 200), visitPath || '/']
     );
 
-    // Telegram: новый IP?
+    // Telegram: новый или повторный IP
     const existing = await dbService.getQuery(
       'SELECT COUNT(*) as cnt FROM visits WHERE ip = ? AND id != (SELECT MAX(id) FROM visits WHERE ip = ?)',
       [ip, ip]
     );
     const telegramService = getTelegramService();
-    if (telegramService && existing && existing.cnt === 0 && ip !== '127.0.0.1' && ip !== '::1') {
-      await telegramService.sendActivityNotification('🌐 Новый посетитель', {
+    if (telegramService && ip !== '127.0.0.1' && ip !== '::1') {
+      const isNew = existing && existing.cnt === 0;
+      const label = isNew ? '🌐 Новый посетитель' : '🔄 Повторный визит';
+      await telegramService.sendActivityNotification(label, {
         entityType: 'IP',
         entityId: ip,
         title: `${country} — ${visitPath || '/'}`
