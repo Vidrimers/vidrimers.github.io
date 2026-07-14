@@ -5,6 +5,7 @@ import styles from './SettingsPage.module.css';
 
 const TABS = [
   { id: 'db', label: 'БД' },
+  { id: 'visitors', label: 'Посетители' },
   { id: 'site', label: 'Настройки сайта' },
   { id: 'logs', label: 'Логи активности' },
 ];
@@ -57,6 +58,7 @@ const SettingsPage = () => {
       <div className={styles.content}>
         {activeTab === 'db' && <TabDB />}
         {activeTab === 'site' && <TabSite />}
+        {activeTab === 'visitors' && <TabVisitors />}
         {activeTab === 'logs' && <TabLogs />}
       </div>
     </div>
@@ -348,6 +350,121 @@ const TabLogs = () => {
           ))
         }
       </div>
+    </div>
+  );
+};
+
+// ===== ТАБ "ПОСЕТИТЕЛИ" =====
+const TabVisitors = () => {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const token = localStorage.getItem('admin_token');
+  const authHeaders = { 'Authorization': `Bearer ${token}` };
+
+  useEffect(() => {
+    setLoading(true);
+    fetch('/api/track/stats', { headers: authHeaders })
+      .then(r => r.json())
+      .then(setStats)
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className={styles.empty}>Загрузка...</div>;
+  if (error) return <div className={styles.error}>{error}</div>;
+  if (!stats) return null;
+
+  return (
+    <div className={styles.tabContent}>
+      {/* Статистика */}
+      <div className={styles.statsGrid}>
+        <div className={styles.statCard}>
+          <div className={styles.statValue}>{stats.totalVisits}</div>
+          <div className={styles.statLabel}>Визитов</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statValue}>{stats.uniqueIps}</div>
+          <div className={styles.statLabel}>Уникальных IP</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statValue}>{stats.totalClicks}</div>
+          <div className={styles.statLabel}>Кликов</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statValue}>{stats.totalLikes}</div>
+          <div className={styles.statLabel}>Лайков</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statValue}>{stats.donateClicks}</div>
+          <div className={styles.statLabel}>Donate</div>
+        </div>
+      </div>
+
+      {/* Топ стран */}
+      {stats.topCountries.length > 0 && (
+        <>
+          <h3 className={styles.sectionTitle}>Топ стран</h3>
+          <div className={styles.list}>
+            {stats.topCountries.map((c, i) => (
+              <div key={i} className={styles.listItem}>
+                <span className={styles.itemName}>{c.country}</span>
+                <span className={styles.itemMeta}>{c.cnt} визитов</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Топ проектов по кликам */}
+      {stats.topProjects.length > 0 && (
+        <>
+          <h3 className={styles.sectionTitle}>Топ проектов по кликам</h3>
+          <div className={styles.list}>
+            {stats.topProjects.map((p, i) => (
+              <div key={i} className={styles.listItem}>
+                <span className={styles.itemName}>{p.project_id}</span>
+                <span className={styles.itemMeta}>{p.count} кликов</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Лайки по IP */}
+      {stats.likesByIp.length > 0 && (
+        <>
+          <h3 className={styles.sectionTitle}>Лайки по IP</h3>
+          <div className={styles.list}>
+            {stats.likesByIp.map((item, i) => (
+              <div key={i} className={styles.listItem}>
+                <div className={styles.itemInfo}>
+                  <span className={styles.itemName}>{item.ip}</span>
+                  <span className={styles.itemMeta}>{item.country} — лайкнул: {item.projects.join(', ')}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Последние визиты */}
+      {stats.recentVisits.length > 0 && (
+        <>
+          <h3 className={styles.sectionTitle}>Последние визиты</h3>
+          <div className={styles.list}>
+            {stats.recentVisits.map((v, i) => (
+              <div key={i} className={styles.listItem}>
+                <div className={styles.itemInfo}>
+                  <span className={styles.itemName}>{v.ip}</span>
+                  <span className={styles.itemMeta}>{v.country} — {v.path} — {new Date(v.created_at).toLocaleString('ru-RU')}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };

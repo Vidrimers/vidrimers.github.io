@@ -144,7 +144,7 @@ function isUserLiked(db, userId, projectId) {
  * @param {string} projectId - ID проекта
  * @returns {Promise<{likes: number, isLiked: boolean}>} - Новое состояние лайков
  */
-function toggleUserLike(db, userId, projectId) {
+function toggleUserLike(db, userId, projectId, ip = '', country = '') {
   return new Promise(async (resolve, reject) => {
     try {
       // Проверяем, лайкал ли пользователь уже этот проект
@@ -169,10 +169,10 @@ function toggleUserLike(db, userId, projectId) {
             [projectId]
           );
         } else {
-          // Добавляем лайк пользователя
+          // Добавляем лайк пользователя с IP и страной
           db.run(
-            'INSERT INTO user_likes (user_id, project_id) VALUES (?, ?)',
-            [userId, projectId]
+            'INSERT INTO user_likes (user_id, project_id, ip, country) VALUES (?, ?, ?, ?)',
+            [userId, projectId, ip, country]
           );
           
           // Увеличиваем счетчик

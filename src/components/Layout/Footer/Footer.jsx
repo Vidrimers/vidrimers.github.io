@@ -119,6 +119,7 @@ const Footer = () => {
   const openDonateModal = async () => {
     setIsDonateModalOpen(true);
     await sendDonateModalNotification();
+    import('../../../utils/tracking').then(m => m.trackDonateClick());
   };
 
   return (

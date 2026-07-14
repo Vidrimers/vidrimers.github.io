@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { LanguageProvider, LanguageContext } from './context/LanguageContext';
 import { AdminProvider } from './components/Admin/AdminProvider';
@@ -12,10 +12,13 @@ import Portfolio from './components/Portfolio/Portfolio';
 import Certificates from './components/Certificates/Certificates';
 import DonatePage from './pages/DonatePage/DonatePage';
 import SettingsPage from './pages/SettingsPage/SettingsPage';
+import { trackVisit } from './utils/tracking';
 
 // Главная страница
 const HomePage = () => {
   const { translations } = useContext(LanguageContext);
+
+  useEffect(() => { trackVisit(); }, []);
 
   return (
     <div className="page">

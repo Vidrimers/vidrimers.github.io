@@ -38,6 +38,7 @@ const settingsRoutes = require('./routes/settings');
 const donateWalletsRoutes = require('./routes/donate-wallets');
 const footerRoutes = require('./routes/footer');
 const backupRoutes = require('./routes/backup');
+const trackingRoutes = require('./routes/tracking');
 
 const app = express();
 const PORT = process.env.PORT || 1989;
@@ -135,6 +136,7 @@ app.use('/api/settings', apiRateLimiter, settingsRoutes);
 app.use('/api/donate-wallets', apiRateLimiter, donateWalletsRoutes);
 app.use('/api/footer', apiRateLimiter, footerRoutes);
 app.use('/api/backup', apiRateLimiter, backupRoutes);
+app.use('/api/track', apiRateLimiter, trackingRoutes);
 
 // Получить лайки для конкретного проекта
 app.get('/api/likes/:projectId', async (req, res) => {
@@ -237,7 +239,8 @@ app.post('/api/likes/:projectId', async (req, res) => {
       
     } else if (userId) {
       // Старый формат с userId
-      const result = await toggleUserLike(db, userId, projectId);
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+      const result = await toggleUserLike(db, userId, projectId, ip, '');
       
       // Отправляем уведомление в Telegram только при добавлении лайка
       if (telegram && result.isLiked) {
