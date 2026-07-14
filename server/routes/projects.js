@@ -440,135 +440,65 @@ router.put('/:id', requireAuth, sanitizeProject, async (req, res) => {
     // Если категория меняется, используем транзакцию для обновления всех связанных таблиц
     if (isCategoryChanged) {
       const db = dbService.getDb();
-      
-      await new Promise((resolve, reject) => {
-        db.serialize(() => {
-          db.run('BEGIN TRANSACTION');
-          
-          // Обновляем ID проекта и категорию
-          const projectFields = [...updateFields];
-          const projectValues = [...updateValues];
-          
-          // Добавляем обновление ID и category_id
-          if (!projectFields.some(f => f.includes('category_id'))) {
-            projectFields.push('category_id = ?');
-            projectValues.push(newCategoryId);
-          }
-          projectFields.unshift('id = ?');
-          projectValues.unshift(newProjectId);
-          
-          // Убираем старый id из конца (был из updateValues)
-          projectValues.pop();
-          
-          const sql = `UPDATE projects SET ${projectFields.join(', ')} WHERE id = ?`;
-          projectValues.push(id);
-          
-          console.log('SQL обновления проекта:', sql, projectValues);
-          
-          db.run(sql, projectValues, function(err) {
-            if (err) {
-              console.error('Ошибка обновления проекта:', err);
-              db.run('ROLLBACK');
-              reject(err);
-              return;
-            }
-            
-            // Обновляем лайки с обработкой конфликтов
-            // Сначала проверяем, есть ли уже запись для нового ID
-            db.get('SELECT likes_count FROM likes WHERE project_id = ?', [newProjectId], function(err, existingLike) {
-              if (err) {
-                console.error('Ошибка проверки лайков:', err);
-                db.run('ROLLBACK');
-                reject(err);
-                return;
-              }
-              
-              // Получаем количество лайков старого проекта
-              db.get('SELECT likes_count FROM likes WHERE project_id = ?', [id], function(err, oldLike) {
-                if (err) {
-                  console.error('Ошибка получения старых лайков:', err);
-                  db.run('ROLLBACK');
-                  reject(err);
-                  return;
-                }
-                
-                const oldCount = oldLike ? oldLike.likes_count : 0;
-                
-                if (existingLike) {
-                  // Запись уже есть — складываем лайки и удаляем старую
-                  const mergedCount = existingLike.likes_count + oldCount;
-                  db.run('UPDATE likes SET likes_count = ? WHERE project_id = ?', [mergedCount, newProjectId], function(err) {
-                    if (err) {
-                      console.error('Ошибка объединения лайков:', err);
-                      db.run('ROLLBACK');
-                      reject(err);
-                      return;
-                    }
-                    // Удаляем старую запись если она была
-                    db.run('DELETE FROM likes WHERE project_id = ?', [id], function(err) {
-                      if (err) {
-                        console.error('Ошибка удаления старых лайков:', err);
-                        db.run('ROLLBACK');
-                        reject(err);
-                        return;
-                      }
-                      updateLikesUsers();
-                    });
-                  });
-                } else {
-                  // Записи нет — просто обновляем project_id
-                  db.run('UPDATE likes SET project_id = ? WHERE project_id = ?', [newProjectId, id], function(err) {
-                    if (err) {
-                      console.error('Ошибка обновления лайков:', err);
-                      db.run('ROLLBACK');
-                      reject(err);
-                      return;
-                    }
-                    updateLikesUsers();
-                  });
-                }
-              });
-            });
-            
-            function updateLikesUsers() {
-              // Обновляем лайки пользователей с обработкой дубликатов
-              db.all('SELECT user_id FROM user_likes WHERE project_id = ?', [newProjectId], function(err, existingUserLikes) {
-                if (err) {
-                  console.error('Ошибка проверки user_likes:', err);
-                  db.run('ROLLBACK');
-                  reject(err);
-                  return;
-                }
-                
-                const existingUsers = new Set((existingUserLikes || []).map(r => r.user_id));
-                
-                // Удаляем старые записи
-                db.run('DELETE FROM user_likes WHERE project_id = ?', [id], function(err) {
-                  if (err) {
-                    console.error('Ошибка удаления старых user_likes:', err);
-                    db.run('ROLLBACK');
-                    reject(err);
-                    return;
-                  }
-                  
-                  // Вставляем записи с новым project_id, пропуская дубликаты
-                  db.all('SELECT user_id FROM user_likes WHERE project_id = ?', [newProjectId], function(err, alreadyMoved) {
-                    // Уже перемещены на предыдущем шаге, просто коммитим
-                    db.run('COMMIT', function(err) {
-                      if (err) {
-                        console.error('Ошибка коммита:', err);
-                        reject(err);
-                        return;
-                      }
-                      resolve();
-                    });
-                  });
-                });
-              });
-            }
-          });
+
+      // Хелперы для промисификации callback API
+      const dbRun = (sql, params = []) => new Promise((resolve, reject) => {
+        db.run(sql, params, function(err) {
+          if (err) reject(err);
+          else resolve({ changes: this.changes });
         });
       });
+      const dbGet = (sql, params = []) => new Promise((resolve, reject) => {
+        db.get(sql, params, (err, row) => err ? reject(err) : resolve(row));
+      });
+      const dbAll = (sql, params = []) => new Promise((resolve, reject) => {
+        db.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows));
+      });
+
+      try {
+        await dbRun('BEGIN TRANSACTION');
+
+        // Обновляем ID проекта и категорию
+        const projectFields = [...updateFields];
+        const projectValues = [...updateValues];
+
+        if (!projectFields.some(f => f.includes('category_id'))) {
+          projectFields.push('category_id = ?');
+          projectValues.push(newCategoryId);
+        }
+        projectFields.unshift('id = ?');
+        projectValues.unshift(newProjectId);
+        projectValues.pop(); // Убираем старый id из конца
+
+        const sql = `UPDATE projects SET ${projectFields.join(', ')} WHERE id = ?`;
+        projectValues.push(id);
+
+        console.log('SQL обновления проекта:', sql, projectValues);
+        await dbRun(sql, projectValues);
+
+        // Обновляем лайки с обработкой конфликтов
+        const existingLike = await dbGet('SELECT likes_count FROM likes WHERE project_id = ?', [newProjectId]);
+        const oldLike = await dbGet('SELECT likes_count FROM likes WHERE project_id = ?', [id]);
+        const oldCount = oldLike ? oldLike.likes_count : 0;
+
+        if (existingLike) {
+          const mergedCount = existingLike.likes_count + oldCount;
+          await dbRun('UPDATE likes SET likes_count = ? WHERE project_id = ?', [mergedCount, newProjectId]);
+          await dbRun('DELETE FROM likes WHERE project_id = ?', [id]);
+        } else {
+          await dbRun('UPDATE likes SET project_id = ? WHERE project_id = ?', [newProjectId, id]);
+        }
+
+        // Обновляем user_likes — удаляем старые (новые уже ссылается на новый id если были дубли)
+        await dbRun('DELETE FROM user_likes WHERE project_id = ?', [id]);
+
+        await dbRun('COMMIT');
+        console.log('Транзакция завершена успешно:', id, '->', newProjectId);
+      } catch (txErr) {
+        console.error('Ошибка транзакции, откат:', txErr);
+        try { await dbRun('ROLLBACK'); } catch (_) {}
+        throw txErr;
+      }
     } else {
       // Обычное обновление без смены ID
       updateValues.push(id);
