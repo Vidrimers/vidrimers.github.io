@@ -287,6 +287,18 @@
   margin: 0 0 12px;
 }
 
+/* Двухколоночный макет */
+.twoColumns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.column {
+  min-width: 0;
+}
+
 .fieldLabel {
   display: flex;
   flex-direction: column;

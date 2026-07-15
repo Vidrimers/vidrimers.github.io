@@ -205,8 +205,11 @@ const TabSite = () => {
   const [seoKeywords, setSeoKeywords] = useState('');
   const [seoSaved, setSeoSaved] = useState(false);
   const [excluded, setExcluded] = useState([]);
+  const [named, setNamed] = useState([]);
   const [newVisitorId, setNewVisitorId] = useState('');
   const [newVisitorName, setNewVisitorName] = useState('');
+  const [namedVisitorId, setNamedVisitorId] = useState('');
+  const [namedVisitorName, setNamedVisitorName] = useState('');
   const [orphans, setOrphans] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -272,6 +275,37 @@ const TabSite = () => {
     } catch (e) { setError(e.message); }
   };
 
+  // Именованные посетители
+  const loadNamed = useCallback(async () => {
+    try {
+      const res = await fetch('/api/track/named', { headers: authHeaders });
+      if (res.ok) setNamed(await res.json());
+    } catch {}
+  }, []);
+
+  useEffect(() => { loadNamed(); }, [loadNamed]);
+
+  const handleAddNamed = async () => {
+    if (!namedVisitorId.trim() || !namedVisitorName.trim()) return;
+    try {
+      await fetch('/api/track/named', {
+        method: 'POST', headers: authHeaders,
+        body: JSON.stringify({ visitorId: namedVisitorId, name: namedVisitorName })
+      });
+      setNamedVisitorId('');
+      setNamedVisitorName('');
+      loadNamed();
+    } catch (e) { setError(e.message); }
+  };
+
+  const handleDeleteNamed = async (id) => {
+    if (!window.confirm('Удалить имя?')) return;
+    try {
+      await fetch(`/api/track/named/${id}`, { method: 'DELETE', headers: authHeaders });
+      loadNamed();
+    } catch (e) { setError(e.message); }
+  };
+
   // Orphan-очистка
   const loadOrphans = useCallback(async () => {
     setLoading(true);
@@ -320,29 +354,61 @@ const TabSite = () => {
         </button>
       </div>
 
-      {/* Исключённые посетители */}
-      <h3 className={styles.sectionTitle} style={{ marginTop: 30 }}>Исключённые посетители</h3>
-      <p className={styles.hint}>Эти visitorId не будут получать уведомления в Telegram</p>
-      <div className={styles.excludedForm}>
-        <input className={styles.input} type="text" value={newVisitorId} onChange={e => setNewVisitorId(e.target.value)}
-          placeholder="Visitor ID (v_71k26n)" style={{ flex: 1 }} />
-        <input className={styles.input} type="text" value={newVisitorName} onChange={e => setNewVisitorName(e.target.value)}
-          placeholder="Имя (Мой телефон)" style={{ flex: 1 }} />
-        <button className={`${styles.btn} ${styles.btnCreate}`} onClick={handleAddExcluded}
-          disabled={!newVisitorId.trim()}>+ Добавить</button>
-      </div>
-      <div className={styles.list}>
-        {excluded.map(e => (
-          <div key={e.id} className={styles.listItem}>
-            <div className={styles.itemInfo}>
-              <span className={styles.itemName}>{e.visitor_id}</span>
-              <span className={styles.itemMeta}>{e.name || 'Без имени'}</span>
-            </div>
-            <button className={`${styles.btn} ${styles.btnDelete}`} onClick={() => handleDeleteExcluded(e.id)}
-              style={{ padding: '4px 10px', fontSize: '0.8rem' }}>✕</button>
+      {/* Исключённые + Именованные — два блока по 50% */}
+      <div className={styles.twoColumns}>
+        {/* Исключённые */}
+        <div className={styles.column}>
+          <h3 className={styles.sectionTitle}>Исключённые посетители</h3>
+          <p className={styles.hint}>Полностью пропускают трекинг (нет БД, нет Telegram)</p>
+          <div className={styles.excludedForm}>
+            <input className={styles.input} type="text" value={newVisitorId} onChange={e => setNewVisitorId(e.target.value)}
+              placeholder="Visitor ID" />
+            <input className={styles.input} type="text" value={newVisitorName} onChange={e => setNewVisitorName(e.target.value)}
+              placeholder="Имя (Мой телефон)" />
+            <button className={`${styles.btn} ${styles.btnCreate}`} onClick={handleAddExcluded}
+              disabled={!newVisitorId.trim()}>+</button>
           </div>
-        ))}
-        {excluded.length === 0 && <div className={styles.empty}>Нет исключённых</div>}
+          <div className={styles.list}>
+            {excluded.map(e => (
+              <div key={e.id} className={styles.listItem}>
+                <div className={styles.itemInfo}>
+                  <span className={styles.itemName}>{e.visitor_id}</span>
+                  <span className={styles.itemMeta}>{e.name || 'Без имени'}</span>
+                </div>
+                <button className={`${styles.btn} ${styles.btnDelete}`} onClick={() => handleDeleteExcluded(e.id)}
+                  style={{ padding: '4px 8px', fontSize: '0.75rem' }}>✕</button>
+              </div>
+            ))}
+            {excluded.length === 0 && <div className={styles.empty}>Пусто</div>}
+          </div>
+        </div>
+
+        {/* Именованные */}
+        <div className={styles.column}>
+          <h3 className={styles.sectionTitle}>Именованные посетители</h3>
+          <p className={styles.hint}>Трекинг работает, но в Telegram пишется имя</p>
+          <div className={styles.excludedForm}>
+            <input className={styles.input} type="text" value={namedVisitorId} onChange={e => setNamedVisitorId(e.target.value)}
+              placeholder="Visitor ID" />
+            <input className={styles.input} type="text" value={namedVisitorName} onChange={e => setNamedVisitorName(e.target.value)}
+              placeholder="Имя (Мой телефон)" />
+            <button className={`${styles.btn} ${styles.btnCreate}`} onClick={handleAddNamed}
+              disabled={!namedVisitorId.trim() || !namedVisitorName.trim()}>+</button>
+          </div>
+          <div className={styles.list}>
+            {named.map(n => (
+              <div key={n.id} className={styles.listItem}>
+                <div className={styles.itemInfo}>
+                  <span className={styles.itemName}>{n.visitor_id}</span>
+                  <span className={styles.itemMeta}>{n.name}</span>
+                </div>
+                <button className={`${styles.btn} ${styles.btnDelete}`} onClick={() => handleDeleteNamed(n.id)}
+                  style={{ padding: '4px 8px', fontSize: '0.75rem' }}>✕</button>
+              </div>
+            ))}
+            {named.length === 0 && <div className={styles.empty}>Пусто</div>}
+          </div>
+        </div>
       </div>
 
       {/* Orphan-очистка */}

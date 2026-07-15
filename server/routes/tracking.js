@@ -54,10 +54,12 @@ router.post('/visit', async (req, res) => {
     if (telegramService) {
       const isNew = existing && existing.cnt === 0;
       const label = isNew ? '🌐 Новый посетитель' : '🔄 Повторный визит';
+      const visitorName = await getVisitorName(vid);
+      const nameStr = visitorName ? ` — ${visitorName}` : '';
       await telegramService.sendActivityNotification(label, {
         entityType: 'Посетитель',
         entityId: vid,
-        title: `${browser || '?'} / ${os || '?'} — ${visitPath || '/'}`
+        title: `${browser || '?'} / ${os || '?'}${nameStr} — ${visitPath || '/'}`
       });
     }
 
@@ -96,11 +98,13 @@ router.post('/click', async (req, res) => {
     // Telegram
     const telegramService = getTelegramService();
     if (telegramService && entityId) {
+      const visitorName = await getVisitorName(vid);
+      const nameStr = visitorName ? ` (${visitorName})` : '';
       const label = type === 'donate' ? '💰 Donate нажат' : `🔗 ${entityName || entityId} открыт`;
       await telegramService.sendActivityNotification(label, {
         entityType: type,
         entityId,
-        title: `${vid} — ${linkUrl || '/'}`
+        title: `${vid}${nameStr} — ${linkUrl || '/'}`
       });
     }
 
@@ -236,5 +240,70 @@ function isVisitorExcluded(visitorId) {
     }
   });
 }
+
+// Получить имя по visitorId (из named_visitors)
+function getVisitorName(visitorId) {
+  return new Promise(async (resolve) => {
+    try {
+      const dbService = getDbService();
+      const row = await dbService.getQuery('SELECT name FROM named_visitors WHERE visitor_id = ?', [visitorId]);
+      resolve(row ? row.name : '');
+    } catch {
+      resolve('');
+    }
+  });
+}
+
+// ===== Именованные посетители =====
+
+router.get('/named', async (req, res) => {
+  try {
+    const dbService = getDbService();
+    const list = await dbService.allQuery('SELECT * FROM named_visitors ORDER BY created_at DESC');
+    res.json(list || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/named', async (req, res) => {
+  try {
+    const { visitorId, name } = req.body;
+    if (!visitorId || !name) return res.status(400).json({ error: 'visitorId и name обязательны' });
+    const dbService = getDbService();
+    await dbService.runQuery(
+      'INSERT OR REPLACE INTO named_visitors (visitor_id, name) VALUES (?, ?)',
+      [visitorId.trim(), name.trim()]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.put('/named/:id', async (req, res) => {
+  try {
+    const { visitorId, name } = req.body;
+    const { id } = req.params;
+    const dbService = getDbService();
+    await dbService.runQuery(
+      'UPDATE named_visitors SET visitor_id = ?, name = ? WHERE id = ?',
+      [(visitorId || '').trim(), (name || '').trim(), id]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete('/named/:id', async (req, res) => {
+  try {
+    const dbService = getDbService();
+    await dbService.runQuery('DELETE FROM named_visitors WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = router;
