@@ -55,11 +55,13 @@ router.post('/visit', async (req, res) => {
       const isNew = existing && existing.cnt === 0;
       const label = isNew ? '🌐 Новый посетитель' : '🔄 Повторный визит';
       const visitorName = await getVisitorName(vid);
-      const nameStr = visitorName ? ` — ${visitorName}` : '';
+      const title = visitorName
+        ? `Специальное имя: ${visitorName}\n${browser || '?'} / ${os || '?'} — ${visitPath || '/'}`
+        : `${browser || '?'} / ${os || '?'} — ${visitPath || '/'}`;
       await telegramService.sendActivityNotification(label, {
         entityType: 'Посетитель',
         entityId: vid,
-        title: `${browser || '?'} / ${os || '?'}${nameStr} — ${visitPath || '/'}`
+        title
       });
     }
 
@@ -99,12 +101,14 @@ router.post('/click', async (req, res) => {
     const telegramService = getTelegramService();
     if (telegramService && entityId) {
       const visitorName = await getVisitorName(vid);
-      const nameStr = visitorName ? ` (${visitorName})` : '';
       const label = type === 'donate' ? '💰 Donate нажат' : `🔗 ${entityName || entityId} открыт`;
+      const title = visitorName
+        ? `Специальное имя: ${visitorName}\n${vid} — ${linkUrl || '/'}`
+        : `${vid} — ${linkUrl || '/'}`;
       await telegramService.sendActivityNotification(label, {
         entityType: type,
         entityId,
-        title: `${vid}${nameStr} — ${linkUrl || '/'}`
+        title
       });
     }
 
