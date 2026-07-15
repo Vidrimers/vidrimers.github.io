@@ -31,7 +31,7 @@ async function getCountry(ip) {
 // POST /api/track/visit — логирование визита
 router.post('/visit', async (req, res) => {
   try {
-    const { path: visitPath, visitorId, browser, os } = req.body;
+    const { path: visitPath, visitorId, browser, os, isAdmin } = req.body;
     const dbService = getDbService();
     const vid = visitorId || 'unknown';
 
@@ -40,20 +40,22 @@ router.post('/visit', async (req, res) => {
       [vid, `${browser || ''} / ${os || ''}`, (req.headers['user-agent'] || '').slice(0, 200), visitPath || '/']
     );
 
-    // Telegram: новый или повторный visitorId
-    const existing = await dbService.getQuery(
-      'SELECT COUNT(*) as cnt FROM visits WHERE ip = ? AND id != (SELECT MAX(id) FROM visits WHERE ip = ?)',
-      [vid, vid]
-    );
-    const telegramService = getTelegramService();
-    if (telegramService) {
-      const isNew = existing && existing.cnt === 0;
-      const label = isNew ? '🌐 Новый посетитель' : '🔄 Повторный визит';
-      await telegramService.sendActivityNotification(label, {
-        entityType: 'Посетитель',
-        entityId: vid,
-        title: `${browser || '?'} / ${os || '?'} — ${visitPath || '/'}`
-      });
+    // Telegram: только для не-админов
+    if (!isAdmin) {
+      const existing = await dbService.getQuery(
+        'SELECT COUNT(*) as cnt FROM visits WHERE ip = ? AND id != (SELECT MAX(id) FROM visits WHERE ip = ?)',
+        [vid, vid]
+      );
+      const telegramService = getTelegramService();
+      if (telegramService) {
+        const isNew = existing && existing.cnt === 0;
+        const label = isNew ? '🌐 Новый посетитель' : '🔄 Повторный визит';
+        await telegramService.sendActivityNotification(label, {
+          entityType: 'Посетитель',
+          entityId: vid,
+          title: `${browser || '?'} / ${os || '?'} — ${visitPath || '/'}`
+        });
+      }
     }
 
     res.json({ ok: true });
@@ -66,7 +68,7 @@ router.post('/visit', async (req, res) => {
 // POST /api/track/click — логирование клика по ссылке
 router.post('/click', async (req, res) => {
   try {
-    const { type, entityId, linkUrl, visitorId } = req.body;
+    const { type, entityId, linkUrl, visitorId, isAdmin } = req.body;
     const vid = visitorId || 'unknown';
     const dbService = getDbService();
 
@@ -82,15 +84,17 @@ router.post('/click', async (req, res) => {
       [type || 'project', entityId || null, entityName, linkUrl || '', vid, '']
     );
 
-    // Telegram
-    const telegramService = getTelegramService();
-    if (telegramService && entityId) {
-      const label = type === 'donate' ? '💰 Donate нажат' : `🔗 ${entityName || entityId} открыт`;
-      await telegramService.sendActivityNotification(label, {
-        entityType: type,
-        entityId,
-        title: `${vid} — ${linkUrl || '/'}`
-      });
+    // Telegram: только для не-админов
+    if (!isAdmin) {
+      const telegramService = getTelegramService();
+      if (telegramService && entityId) {
+        const label = type === 'donate' ? '💰 Donate нажат' : `🔗 ${entityName || entityId} открыт`;
+        await telegramService.sendActivityNotification(label, {
+          entityType: type,
+          entityId,
+          title: `${vid} — ${linkUrl || '/'}`
+        });
+      }
     }
 
     res.json({ ok: true });

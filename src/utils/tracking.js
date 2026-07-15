@@ -44,6 +44,7 @@ export function trackVisit() {
   try {
     const visitorId = getVisitorId();
     const info = getVisitorInfo();
+    const isAdmin = !!localStorage.getItem('admin_token');
     fetch('/api/track/visit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -52,7 +53,8 @@ export function trackVisit() {
         visitorId,
         browser: info.browser,
         os: info.os,
-        userAgent: info.ua
+        userAgent: info.ua,
+        isAdmin
       }),
       keepalive: true
     }).catch(() => {});
@@ -63,10 +65,11 @@ export function trackVisit() {
 export function trackProjectClick(projectId, linkUrl) {
   try {
     const visitorId = getVisitorId();
+    const isAdmin = !!localStorage.getItem('admin_token');
     fetch('/api/track/click', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'project', entityId: projectId, linkUrl, visitorId }),
+      body: JSON.stringify({ type: 'project', entityId: projectId, linkUrl, visitorId, isAdmin }),
       keepalive: true
     }).catch(() => {});
   } catch {}
@@ -76,10 +79,11 @@ export function trackProjectClick(projectId, linkUrl) {
 export function trackDonateClick() {
   try {
     const visitorId = getVisitorId();
+    const isAdmin = !!localStorage.getItem('admin_token');
     fetch('/api/track/click', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'donate', entityId: null, linkUrl: window.location.pathname, visitorId }),
+      body: JSON.stringify({ type: 'donate', entityId: null, linkUrl: window.location.pathname, visitorId, isAdmin }),
       keepalive: true
     }).catch(() => {});
   } catch {}
