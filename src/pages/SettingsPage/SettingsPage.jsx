@@ -204,6 +204,9 @@ const TabSite = () => {
   const [seoDescription, setSeoDescription] = useState('');
   const [seoKeywords, setSeoKeywords] = useState('');
   const [seoSaved, setSeoSaved] = useState(false);
+  const [excluded, setExcluded] = useState([]);
+  const [newVisitorId, setNewVisitorId] = useState('');
+  const [newVisitorName, setNewVisitorName] = useState('');
   const [orphans, setOrphans] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -238,7 +241,38 @@ const TabSite = () => {
     } catch (e) { setError(e.message); }
   };
 
-  // Загрузка orphan-файлов
+  // Исключённые посетители
+  const loadExcluded = useCallback(async () => {
+    try {
+      const res = await fetch('/api/track/excluded', { headers: authHeaders });
+      if (res.ok) setExcluded(await res.json());
+    } catch {}
+  }, []);
+
+  useEffect(() => { loadExcluded(); }, [loadExcluded]);
+
+  const handleAddExcluded = async () => {
+    if (!newVisitorId.trim()) return;
+    try {
+      await fetch('/api/track/excluded', {
+        method: 'POST', headers: authHeaders,
+        body: JSON.stringify({ visitorId: newVisitorId, name: newVisitorName })
+      });
+      setNewVisitorId('');
+      setNewVisitorName('');
+      loadExcluded();
+    } catch (e) { setError(e.message); }
+  };
+
+  const handleDeleteExcluded = async (id) => {
+    if (!window.confirm('Удалить из исключений?')) return;
+    try {
+      await fetch(`/api/track/excluded/${id}`, { method: 'DELETE', headers: authHeaders });
+      loadExcluded();
+    } catch (e) { setError(e.message); }
+  };
+
+  // Orphan-очистка
   const loadOrphans = useCallback(async () => {
     setLoading(true);
     try {
@@ -284,6 +318,31 @@ const TabSite = () => {
         <button className={`${styles.btn} ${styles.btnCreate}`} onClick={handleSeoSave}>
           {seoSaved ? '✓ Сохранено' : '💾 Сохранить'}
         </button>
+      </div>
+
+      {/* Исключённые посетители */}
+      <h3 className={styles.sectionTitle} style={{ marginTop: 30 }}>Исключённые посетители</h3>
+      <p className={styles.hint}>Эти visitorId не будут получать уведомления в Telegram</p>
+      <div className={styles.excludedForm}>
+        <input className={styles.input} type="text" value={newVisitorId} onChange={e => setNewVisitorId(e.target.value)}
+          placeholder="Visitor ID (v_71k26n)" style={{ flex: 1 }} />
+        <input className={styles.input} type="text" value={newVisitorName} onChange={e => setNewVisitorName(e.target.value)}
+          placeholder="Имя (Мой телефон)" style={{ flex: 1 }} />
+        <button className={`${styles.btn} ${styles.btnCreate}`} onClick={handleAddExcluded}
+          disabled={!newVisitorId.trim()}>+ Добавить</button>
+      </div>
+      <div className={styles.list}>
+        {excluded.map(e => (
+          <div key={e.id} className={styles.listItem}>
+            <div className={styles.itemInfo}>
+              <span className={styles.itemName}>{e.visitor_id}</span>
+              <span className={styles.itemMeta}>{e.name || 'Без имени'}</span>
+            </div>
+            <button className={`${styles.btn} ${styles.btnDelete}`} onClick={() => handleDeleteExcluded(e.id)}
+              style={{ padding: '4px 10px', fontSize: '0.8rem' }}>✕</button>
+          </div>
+        ))}
+        {excluded.length === 0 && <div className={styles.empty}>Нет исключённых</div>}
       </div>
 
       {/* Orphan-очистка */}

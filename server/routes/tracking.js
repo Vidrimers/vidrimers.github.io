@@ -40,8 +40,8 @@ router.post('/visit', async (req, res) => {
       [vid, `${browser || ''} / ${os || ''}`, (req.headers['user-agent'] || '').slice(0, 200), visitPath || '/']
     );
 
-    // Telegram: только для не-админов
-    if (!isAdmin) {
+    // Telegram: только для не-админов и не исключённых
+    if (!isAdmin && !(await isVisitorExcluded(vid))) {
       const existing = await dbService.getQuery(
         'SELECT COUNT(*) as cnt FROM visits WHERE ip = ? AND id != (SELECT MAX(id) FROM visits WHERE ip = ?)',
         [vid, vid]
@@ -84,8 +84,8 @@ router.post('/click', async (req, res) => {
       [type || 'project', entityId || null, entityName, linkUrl || '', vid, '']
     );
 
-    // Telegram: только для не-админов
-    if (!isAdmin) {
+    // Telegram: только для не-админов и не исключённых
+    if (!isAdmin && !(await isVisitorExcluded(vid))) {
       const telegramService = getTelegramService();
       if (telegramService && entityId) {
         const label = type === 'donate' ? '💰 Donate нажат' : `🔗 ${entityName || entityId} открыт`;
@@ -160,5 +160,74 @@ router.get('/stats', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// ===== Исключённые посетители (не получают Telegram) =====
+
+// GET /api/track/excluded — список исключённых
+router.get('/excluded', async (req, res) => {
+  try {
+    const dbService = getDbService();
+    const list = await dbService.allQuery('SELECT * FROM excluded_visitors ORDER BY created_at DESC');
+    res.json(list || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/track/excluded — добавить
+router.post('/excluded', async (req, res) => {
+  try {
+    const { visitorId, name } = req.body;
+    if (!visitorId) return res.status(400).json({ error: 'visitorId обязателен' });
+    const dbService = getDbService();
+    await dbService.runQuery(
+      'INSERT OR REPLACE INTO excluded_visitors (visitor_id, name) VALUES (?, ?)',
+      [visitorId.trim(), (name || '').trim()]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PUT /api/track/excluded/:id — обновить
+router.put('/excluded/:id', async (req, res) => {
+  try {
+    const { visitorId, name } = req.body;
+    const { id } = req.params;
+    const dbService = getDbService();
+    await dbService.runQuery(
+      'UPDATE excluded_visitors SET visitor_id = ?, name = ? WHERE id = ?',
+      [(visitorId || '').trim(), (name || '').trim(), id]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /api/track/excluded/:id — удалить
+router.delete('/excluded/:id', async (req, res) => {
+  try {
+    const dbService = getDbService();
+    await dbService.runQuery('DELETE FROM excluded_visitors WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Проверка: исключён ли visitorId
+function isVisitorExcluded(visitorId) {
+  return new Promise(async (resolve) => {
+    try {
+      const dbService = getDbService();
+      const row = await dbService.getQuery('SELECT id FROM excluded_visitors WHERE visitor_id = ?', [visitorId]);
+      resolve(!!row);
+    } catch {
+      resolve(false);
+    }
+  });
+}
 
 module.exports = router;

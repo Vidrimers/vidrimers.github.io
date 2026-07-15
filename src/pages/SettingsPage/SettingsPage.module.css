@@ -273,6 +273,20 @@
   gap: 14px;
 }
 
+/* Форма исключений */
+.excludedForm {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 0 0 12px;
+}
+
 .fieldLabel {
   display: flex;
   flex-direction: column;
