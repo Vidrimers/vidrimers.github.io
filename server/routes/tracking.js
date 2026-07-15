@@ -32,30 +32,33 @@ async function getCountry(ip) {
 router.post('/visit', async (req, res) => {
   try {
     const { path: visitPath, visitorId, browser, os, isAdmin } = req.body;
-    const dbService = getDbService();
     const vid = visitorId || 'unknown';
 
+    // Полностью пропускаем исключённых и админов
+    if (isAdmin || (await isVisitorExcluded(vid))) {
+      return res.json({ ok: true });
+    }
+
+    const dbService = getDbService();
     await dbService.runQuery(
       'INSERT INTO visits (ip, country, user_agent, path) VALUES (?, ?, ?, ?)',
       [vid, `${browser || ''} / ${os || ''}`, (req.headers['user-agent'] || '').slice(0, 200), visitPath || '/']
     );
 
-    // Telegram: только для не-админов и не исключённых
-    if (!isAdmin && !(await isVisitorExcluded(vid))) {
-      const existing = await dbService.getQuery(
-        'SELECT COUNT(*) as cnt FROM visits WHERE ip = ? AND id != (SELECT MAX(id) FROM visits WHERE ip = ?)',
-        [vid, vid]
-      );
-      const telegramService = getTelegramService();
-      if (telegramService) {
-        const isNew = existing && existing.cnt === 0;
-        const label = isNew ? '🌐 Новый посетитель' : '🔄 Повторный визит';
-        await telegramService.sendActivityNotification(label, {
-          entityType: 'Посетитель',
-          entityId: vid,
-          title: `${browser || '?'} / ${os || '?'} — ${visitPath || '/'}`
-        });
-      }
+    // Telegram
+    const existing = await dbService.getQuery(
+      'SELECT COUNT(*) as cnt FROM visits WHERE ip = ? AND id != (SELECT MAX(id) FROM visits WHERE ip = ?)',
+      [vid, vid]
+    );
+    const telegramService = getTelegramService();
+    if (telegramService) {
+      const isNew = existing && existing.cnt === 0;
+      const label = isNew ? '🌐 Новый посетитель' : '🔄 Повторный визит';
+      await telegramService.sendActivityNotification(label, {
+        entityType: 'Посетитель',
+        entityId: vid,
+        title: `${browser || '?'} / ${os || '?'} — ${visitPath || '/'}`
+      });
     }
 
     res.json({ ok: true });
@@ -70,6 +73,12 @@ router.post('/click', async (req, res) => {
   try {
     const { type, entityId, linkUrl, visitorId, isAdmin } = req.body;
     const vid = visitorId || 'unknown';
+
+    // Полностью пропускаем исключённых и админов
+    if (isAdmin || (await isVisitorExcluded(vid))) {
+      return res.json({ ok: true });
+    }
+
     const dbService = getDbService();
 
     // Подтягиваем название проекта
@@ -84,17 +93,15 @@ router.post('/click', async (req, res) => {
       [type || 'project', entityId || null, entityName, linkUrl || '', vid, '']
     );
 
-    // Telegram: только для не-админов и не исключённых
-    if (!isAdmin && !(await isVisitorExcluded(vid))) {
-      const telegramService = getTelegramService();
-      if (telegramService && entityId) {
-        const label = type === 'donate' ? '💰 Donate нажат' : `🔗 ${entityName || entityId} открыт`;
-        await telegramService.sendActivityNotification(label, {
-          entityType: type,
-          entityId,
-          title: `${vid} — ${linkUrl || '/'}`
-        });
-      }
+    // Telegram
+    const telegramService = getTelegramService();
+    if (telegramService && entityId) {
+      const label = type === 'donate' ? '💰 Donate нажат' : `🔗 ${entityName || entityId} открыт`;
+      await telegramService.sendActivityNotification(label, {
+        entityType: type,
+        entityId,
+        title: `${vid} — ${linkUrl || '/'}`
+      });
     }
 
     res.json({ ok: true });
