@@ -159,7 +159,10 @@ class TelegramService {
         message += `🆔 ID: ${details.entityId}\n`;
       }
       
-      if (details.title) {
+      if (details.body) {
+        // Произвольный текст без префикса "Название"
+        message += `${details.body}\n`;
+      } else if (details.title) {
         message += `📄 Название: ${details.title}\n`;
       }
 

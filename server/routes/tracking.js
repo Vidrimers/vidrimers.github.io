@@ -57,14 +57,13 @@ router.post('/visit', async (req, res) => {
       const visitorName = await getVisitorName(vid);
       const lines = [
         `Браузер: ${browser || '?'}`,
-        `ОС: ${os || '?'}`,
-        `Страница: ${visitPath || '/'}`
+        `ОС: ${os || '?'}`
       ];
       if (visitorName) lines.push(`Специальное имя: ${visitorName}`);
       await telegramService.sendActivityNotification(label, {
         entityType: 'Посетитель',
         entityId: vid,
-        title: lines.join('\n')
+        body: lines.join('\n')
       });
     }
 
@@ -105,12 +104,12 @@ router.post('/click', async (req, res) => {
     if (telegramService && entityId) {
       const visitorName = await getVisitorName(vid);
       const label = type === 'donate' ? '💰 Donate нажат' : `🔗 ${entityName || entityId} открыт`;
-      const lines = [`Страница: ${linkUrl || '/'}`];
+      const lines = [];
       if (visitorName) lines.push(`Специальное имя: ${visitorName}`);
       await telegramService.sendActivityNotification(label, {
         entityType: type,
         entityId,
-        title: lines.join('\n')
+        body: lines.length > 0 ? lines.join('\n') : undefined
       });
     }
 
