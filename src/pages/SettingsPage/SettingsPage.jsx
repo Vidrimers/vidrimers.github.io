@@ -385,8 +385,8 @@ const TabVisitors = () => {
           <div className={styles.statLabel}>Визитов</div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statValue}>{stats.uniqueIps}</div>
-          <div className={styles.statLabel}>Уникальных IP</div>
+          <div className={styles.statValue}>{stats.uniqueVisitors}</div>
+          <div className={styles.statLabel}>Уникальных посетителей</div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{stats.totalClicks}</div>
@@ -402,15 +402,15 @@ const TabVisitors = () => {
         </div>
       </div>
 
-      {/* Топ стран */}
-      {stats.topCountries.length > 0 && (
+      {/* Браузеры/ОС */}
+      {stats.browsers.length > 0 && (
         <>
-          <h3 className={styles.sectionTitle}>Топ стран</h3>
+          <h3 className={styles.sectionTitle}>Браузеры / ОС</h3>
           <div className={styles.list}>
-            {stats.topCountries.map((c, i) => (
+            {stats.browsers.map((b, i) => (
               <div key={i} className={styles.listItem}>
-                <span className={styles.itemName}>{c.country}</span>
-                <span className={styles.itemMeta}>{c.cnt} визитов</span>
+                <span className={styles.itemName}>{b.browser}</span>
+                <span className={styles.itemMeta}>{b.cnt} визитов</span>
               </div>
             ))}
           </div>
@@ -432,16 +432,16 @@ const TabVisitors = () => {
         </>
       )}
 
-      {/* Лайки по IP */}
-      {stats.likesByIp.length > 0 && (
+      {/* Лайки по посетителям */}
+      {stats.visitorLikes.length > 0 && (
         <>
-          <h3 className={styles.sectionTitle}>Лайки по IP</h3>
+          <h3 className={styles.sectionTitle}>Лайки по посетителям</h3>
           <div className={styles.list}>
-            {stats.likesByIp.map((item, i) => (
+            {stats.visitorLikes.map((item, i) => (
               <div key={i} className={styles.listItem}>
                 <div className={styles.itemInfo}>
-                  <span className={styles.itemName}>{item.ip}</span>
-                  <span className={styles.itemMeta}>{item.country} — лайкнул: {item.projects.join(', ')}</span>
+                  <span className={styles.itemName}>{item.visitorId}</span>
+                  <span className={styles.itemMeta}>лайкнул: {item.projects.join(', ')}</span>
                 </div>
               </div>
             ))}
@@ -457,8 +457,8 @@ const TabVisitors = () => {
             {stats.recentVisits.map((v, i) => (
               <div key={i} className={styles.listItem}>
                 <div className={styles.itemInfo}>
-                  <span className={styles.itemName}>{v.ip}</span>
-                  <span className={styles.itemMeta}>{v.country} — {v.path} — {new Date(v.created_at).toLocaleString('ru-RU')}</span>
+                  <span className={styles.itemName}>{v.visitor_id}</span>
+                  <span className={styles.itemMeta}>{v.browser_info} — {v.path} — {new Date(v.created_at).toLocaleString('ru-RU')}</span>
                 </div>
               </div>
             ))}

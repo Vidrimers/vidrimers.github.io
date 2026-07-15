@@ -28,57 +28,49 @@ async function getCountry(ip) {
   }
 }
 
-// GET /api/track/visit — логирование визита (вызывается клиентом при загрузке)
+// POST /api/track/visit — логирование визита
 router.post('/visit', async (req, res) => {
   try {
-    // Приоритет: X-Real-IP > X-Forwarded-For > remoteAddress
-    const rawIp = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
-    const ip = rawIp.split(',')[0].trim(); // X-Forwarded-For может содержать несколько IP
-    const country = await getCountry(ip);
-    const { path: visitPath } = req.body;
-
+    const { path: visitPath, visitorId, browser, os } = req.body;
     const dbService = getDbService();
+    const vid = visitorId || 'unknown';
+
     await dbService.runQuery(
       'INSERT INTO visits (ip, country, user_agent, path) VALUES (?, ?, ?, ?)',
-      [ip, country, (req.headers['user-agent'] || '').slice(0, 200), visitPath || '/']
+      [vid, `${browser || ''} / ${os || ''}`, (req.headers['user-agent'] || '').slice(0, 200), visitPath || '/']
     );
 
-    console.log('Visit tracked:', { ip, rawIp, xRealIp: req.headers['x-real-ip'], xForwarded: req.headers['x-forwarded-for'], remoteAddr: req.socket.remoteAddress, path: visitPath });
+    // Telegram: новый или повторный visitorId
     const existing = await dbService.getQuery(
       'SELECT COUNT(*) as cnt FROM visits WHERE ip = ? AND id != (SELECT MAX(id) FROM visits WHERE ip = ?)',
-      [ip, ip]
+      [vid, vid]
     );
     const telegramService = getTelegramService();
-    if (telegramService && ip !== '127.0.0.1' && ip !== '::1') {
+    if (telegramService) {
       const isNew = existing && existing.cnt === 0;
       const label = isNew ? '🌐 Новый посетитель' : '🔄 Повторный визит';
       await telegramService.sendActivityNotification(label, {
-        entityType: 'IP',
-        entityId: ip,
-        title: `${country} — ${visitPath || '/'}`
+        entityType: 'Посетитель',
+        entityId: vid,
+        title: `${browser || '?'} / ${os || '?'} — ${visitPath || '/'}`
       });
     }
 
     res.json({ ok: true });
   } catch (error) {
     console.error('Ошибка трекинга визита:', error.message);
-    res.json({ ok: true }); // Не блокируем клиента
+    res.json({ ok: true });
   }
 });
 
 // POST /api/track/click — логирование клика по ссылке
 router.post('/click', async (req, res) => {
   try {
-    const rawIp = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
-    const ip = rawIp.split(',')[0].trim();
-    const country = await getCountry(ip);
-    const { type, entityId, linkUrl } = req.body;
-
-    console.log('Click tracked:', { ip, rawIp, xRealIp: req.headers['x-real-ip'], xForwarded: req.headers['x-forwarded-for'], remoteAddr: req.socket.remoteAddress });
-
+    const { type, entityId, linkUrl, visitorId } = req.body;
+    const vid = visitorId || 'unknown';
     const dbService = getDbService();
 
-    // Подтягиваем название проекта из БД
+    // Подтягиваем название проекта
     let entityName = '';
     if (entityId && type === 'project') {
       const project = await dbService.getQuery('SELECT title_ru FROM projects WHERE id = ?', [entityId]);
@@ -87,17 +79,17 @@ router.post('/click', async (req, res) => {
 
     await dbService.runQuery(
       'INSERT INTO link_clicks (type, entity_id, entity_name, link_url, ip, country) VALUES (?, ?, ?, ?, ?, ?)',
-      [type || 'project', entityId || null, entityName, linkUrl || '', ip, country]
+      [type || 'project', entityId || null, entityName, linkUrl || '', vid, '']
     );
 
-    // Telegram: клик по проекту
+    // Telegram
     const telegramService = getTelegramService();
     if (telegramService && entityId) {
       const label = type === 'donate' ? '💰 Donate нажат' : `🔗 ${entityName || entityId} открыт`;
       await telegramService.sendActivityNotification(label, {
         entityType: type,
         entityId,
-        title: `${country} — ${ip}`
+        title: `${vid} — ${linkUrl || '/'}`
       });
     }
 
@@ -114,47 +106,49 @@ router.get('/stats', async (req, res) => {
     const dbService = getDbService();
 
     const totalVisits = (await dbService.getQuery('SELECT COUNT(*) as c FROM visits')).c;
-    const uniqueIps = (await dbService.getQuery('SELECT COUNT(DISTINCT ip) as c FROM visits')).c;
+    const uniqueVisitors = (await dbService.getQuery('SELECT COUNT(DISTINCT ip) as c FROM visits')).c;
     const totalClicks = (await dbService.getQuery('SELECT COUNT(*) as c FROM link_clicks')).c;
     const totalLikes = (await dbService.getQuery('SELECT COUNT(*) as c FROM user_likes')).c;
     const donateClicks = (await dbService.getQuery("SELECT COUNT(*) as c FROM link_clicks WHERE type = 'donate'")).c;
 
-    const topCountries = await dbService.allQuery(
-      'SELECT country, COUNT(*) as cnt FROM visits WHERE country != \'\' GROUP BY country ORDER BY cnt DESC LIMIT 10'
+    // Браузеры
+    const browsers = await dbService.allQuery(
+      "SELECT country as browser, COUNT(*) as cnt FROM visits WHERE country LIKE '%/%' GROUP BY country ORDER BY cnt DESC LIMIT 10"
     );
 
+    // Топ проектов по кликам
     const topProjects = await dbService.allQuery(
       "SELECT entity_id, entity_name, COUNT(*) as cnt FROM link_clicks WHERE type = 'project' AND entity_id IS NOT NULL GROUP BY entity_id ORDER BY cnt DESC LIMIT 10"
     );
 
+    // Последние визиты
     const recentVisits = await dbService.allQuery(
-      'SELECT ip, country, path, created_at FROM visits ORDER BY created_at DESC LIMIT 30'
+      'SELECT ip as visitor_id, country as browser_info, path, created_at FROM visits ORDER BY created_at DESC LIMIT 30'
     );
 
-    const likesByIp = await dbService.allQuery(
-      "SELECT u.project_id, u.ip, u.country, p.title_ru FROM user_likes u LEFT JOIN projects p ON u.project_id = p.id WHERE u.ip != '' ORDER BY u.ip"
+    // Лайки по посетителям
+    const likesByVisitor = await dbService.allQuery(
+      "SELECT u.project_id, u.ip, p.title_ru FROM user_likes u LEFT JOIN projects p ON u.project_id = p.id WHERE u.ip != '' ORDER BY u.ip"
     );
 
-    // Группируем лайки по IP
-    const ipLikes = {};
-    for (const row of likesByIp) {
-      if (!ipLikes[row.ip]) ipLikes[row.ip] = { country: row.country, projects: [] };
-      ipLikes[row.ip].projects.push(row.title_ru || row.project_id);
+    const visitorLikes = {};
+    for (const row of likesByVisitor) {
+      if (!visitorLikes[row.ip]) visitorLikes[row.ip] = [];
+      visitorLikes[row.ip].push(row.title_ru || row.project_id);
     }
 
     res.json({
       totalVisits,
-      uniqueIps,
+      uniqueVisitors,
       totalClicks,
       totalLikes,
       donateClicks,
-      topCountries: topCountries || [],
+      browsers: browsers || [],
       topProjects: (topProjects || []).map(p => ({ project_id: p.entity_id, name: p.entity_name || p.entity_id, count: p.cnt })),
       recentVisits: recentVisits || [],
-      likesByIp: Object.entries(ipLikes).map(([ip, data]) => ({
-        ip,
-        country: data.country,
-        projects: data.projects
+      visitorLikes: Object.entries(visitorLikes).map(([visitorId, projects]) => ({
+        visitorId,
+        projects
       }))
     });
   } catch (error) {
