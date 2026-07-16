@@ -202,6 +202,19 @@
 
 .petCard:hover .deleteBtn { opacity: 1; }
 
+/* Form Group (labels + inputs) */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.formLabel {
+  font-size: 13px;
+  color: var(--pg-text-label);
+}
+
 /* Modal */
 .modal {
   position: fixed;

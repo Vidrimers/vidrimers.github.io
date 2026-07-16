@@ -77,18 +77,21 @@ const PetGangAdmin = () => {
 
   const createPet = async () => {
     if (!newPet.name.trim()) return;
+    const species = newPet.species === 'Другое' && newPet.customSpecies?.trim()
+      ? newPet.customSpecies.trim()
+      : newPet.species;
     try {
       const token = getToken();
       const res = await fetch('/pet-gang/api/pets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(newPet)
+        body: JSON.stringify({ ...newPet, species })
       });
       const data = await res.json();
       if (data.success) {
         setPets([data.data, ...pets]);
         setShowCreateForm(false);
-        setNewPet({ name: '', species: 'Кошка', sex: 'Мужской' });
+        setNewPet({ name: '', species: 'Кошка', sex: 'Мужской', customSpecies: '' });
       }
     } catch (e) {
       console.error('Ошибка создания питомца:', e);
@@ -160,29 +163,49 @@ const PetGangAdmin = () => {
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <h2>Новый питомец</h2>
-            <input
-              className={styles.input}
-              placeholder="Кличка"
-              value={newPet.name}
-              onChange={e => setNewPet({ ...newPet, name: e.target.value })}
-            />
-            <select
-              className={styles.select}
-              value={newPet.species}
-              onChange={e => setNewPet({ ...newPet, species: e.target.value })}
-            >
-              <option>Кошка</option>
-              <option>Собака</option>
-              <option>Другое</option>
-            </select>
-            <select
-              className={styles.select}
-              value={newPet.sex}
-              onChange={e => setNewPet({ ...newPet, sex: e.target.value })}
-            >
-              <option>Мужской</option>
-              <option>Женский</option>
-            </select>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Кличка</label>
+              <input
+                className={styles.input}
+                placeholder="Введите кличку"
+                value={newPet.name}
+                onChange={e => setNewPet({ ...newPet, name: e.target.value })}
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Вид</label>
+              <select
+                className={styles.select}
+                value={newPet.species}
+                onChange={e => setNewPet({ ...newPet, species: e.target.value })}
+              >
+                <option>Кошка</option>
+                <option>Собака</option>
+                <option>Другое</option>
+              </select>
+            </div>
+            {newPet.species === 'Другое' && (
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Название вида</label>
+                <input
+                  className={styles.input}
+                  placeholder="Введите вид животного"
+                  value={newPet.customSpecies || ''}
+                  onChange={e => setNewPet({ ...newPet, customSpecies: e.target.value })}
+                />
+              </div>
+            )}
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Пол</label>
+              <select
+                className={styles.select}
+                value={newPet.sex}
+                onChange={e => setNewPet({ ...newPet, sex: e.target.value })}
+              >
+                <option>Мужской</option>
+                <option>Женский</option>
+              </select>
+            </div>
             <div className={styles.modalActions}>
               <button className={styles.btn} onClick={() => setShowCreateForm(false)}>Отмена</button>
               <button className={styles.btnPrimary} onClick={createPet}>Создать</button>
