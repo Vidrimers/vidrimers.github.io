@@ -1,71 +1,50 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PetGangLogin from './PetGangLogin';
 import ConfirmModal from './ConfirmModal';
 import styles from './PetGang.module.css';
 
-// Определение мобильного устройства
-const isMobile = () => 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
 // Компонент карусели фото
 const PhotoCarousel = ({ photos, name }) => {
+  const scrollRef = useRef(null);
   const [current, setCurrent] = useState(0);
-  const touchStartX = useRef(0);
-  const touchMoved = useRef(false);
 
-  // Автослайд только на ПК
+  // Автослайд каждые 5 сек
   useEffect(() => {
-    if (isMobile() || photos.length <= 1) return;
+    if (photos.length <= 1) return;
     const timer = setInterval(() => {
       setCurrent(prev => (prev + 1) % photos.length);
     }, 5000);
     return () => clearInterval(timer);
   }, [photos.length]);
 
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-    touchMoved.current = false;
-  };
+  // Прокрутка к текущему фото
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    const photoWidth = scrollRef.current.offsetWidth;
+    scrollRef.current.scrollTo({ left: photoWidth * current, behavior: 'smooth' });
+  }, [current]);
 
-  const handleTouchMove = (e) => {
-    touchMoved.current = true;
-  };
-
+  // Свайп
+  const touchStartX = useRef(0);
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
   const handleTouchEnd = (e) => {
-    if (!touchMoved.current) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(dx) > 40) {
-      if (dx < 0) setCurrent(prev => (prev + 1) % photos.length);
-      else setCurrent(prev => (prev - 1 + photos.length) % photos.length);
+      if (dx < 0) setCurrent(prev => Math.min(prev + 1, photos.length - 1));
+      else setCurrent(prev => Math.max(prev - 1, 0));
     }
   };
 
-  // На ПК — автослайд, показываем одно фото
-  if (!isMobile()) {
-    return (
-      <div className={styles.petCarousel}>
-        <img src={`/uploads/pets/${photos[current]}`} alt={name} className={styles.petPhoto} />
-        {photos.length > 1 && (
-          <div className={styles.carouselDots}>
-            {photos.map((_, i) => (
-              <span key={i} className={`${styles.carouselDot} ${i === current ? styles.carouselDotActive : ''}`} />
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // На мобилке — свайп
   return (
     <div
       className={styles.petPhotosScroll}
+      ref={scrollRef}
       onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
       {photos.map((photo, i) => (
-        <img key={i} src={`/uploads/pets}/${photo}`} alt={name} className={styles.petPhoto} />
+        <img key={i} src={`/uploads/pets/${photo}`} alt={name} className={styles.petPhoto} />
       ))}
     </div>
   );
@@ -73,7 +52,6 @@ const PhotoCarousel = ({ photos, name }) => {
 
 const PetGangAdmin = () => {
   const navigate = useNavigate();
-  const petsGridRef = useRef(null);
   const [authorized, setAuthorized] = useState(false);
   const [checking, setChecking] = useState(true);
   const [pets, setPets] = useState([]);
@@ -81,7 +59,7 @@ const PetGangAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newPet, setNewPet] = useState({ name: '', species: 'Кошка', sex: 'Мужской' });
-  const [confirmDelete, setConfirmDelete] = useState(null); // pet id or null
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   useEffect(() => {
     checkAuth();
@@ -90,7 +68,7 @@ const PetGangAdmin = () => {
     return () => { document.body.style.background = ''; };
   }, []);
 
-  // Определение drag vs click на карточках
+  // Drag vs click
   const dragRef = useRef({ startX: 0, startY: 0, dragged: false });
 
   const handleMouseDown = (e) => {
@@ -103,8 +81,8 @@ const PetGangAdmin = () => {
     if (dx > 5 || dy > 5) dragRef.current.dragged = true;
   };
 
-  const handleCardClick = (petId, e) => {
-    if (dragRef.current.dragged) return;
+  const handleCardClick = (petId) => {
+    if (dragRef.current.dragged) { dragRef.current.dragged = false; return; }
     navigate(`/pet-gang/pet/${petId}`);
   };
 
@@ -112,10 +90,7 @@ const PetGangAdmin = () => {
 
   const checkAuth = async () => {
     const token = getToken();
-    if (!token) {
-      setChecking(false);
-      return;
-    }
+    if (!token) { setChecking(false); return; }
     try {
       const res = await fetch('/pet-gang/api/auth/check', {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -313,7 +288,7 @@ const PetGangAdmin = () => {
               className={styles.petCard}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
-              onClick={(e) => handleCardClick(pet.id, e)}
+              onClick={() => handleCardClick(pet.id)}
             >
               {pet.photos.length > 0 ? (
                 <PhotoCarousel photos={pet.photos} name={pet.name} />
