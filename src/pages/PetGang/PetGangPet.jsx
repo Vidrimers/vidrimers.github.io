@@ -14,6 +14,8 @@ const PetGangPet = () => {
 
   useEffect(() => {
     loadPet();
+    document.body.style.background = 'var(--pg-bg)';
+    return () => { document.body.style.background = ''; };
   }, [id]);
 
   const loadPet = async () => {

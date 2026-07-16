@@ -1,3 +1,26 @@
+/* Pet Gang — CSS Variables (тема по умолчанию) */
+:root {
+  --pg-bg: #1a1a2e;
+  --pg-surface: #16213e;
+  --pg-input: #0f3460;
+  --pg-text: #e0e0e0;
+  --pg-text-heading: #fff;
+  --pg-text-muted: #888;
+  --pg-text-label: #aaa;
+  --pg-text-dim: #ccc;
+  --pg-text-faint: #666;
+  --pg-text-placeholder: #555;
+  --pg-border: #333;
+  --pg-border-dashed: #444;
+  --pg-accent: #4ecca3;
+  --pg-accent-hover: #3dbb92;
+  --pg-danger: #ff6b6b;
+  --pg-btn-hover: #2a2a4a;
+  --pg-shadow-accent: rgba(78, 204, 163, 0.15);
+  --pg-overlay: rgba(0, 0, 0, 0.7);
+  --pg-danger-bg: rgba(255, 107, 107, 0.1);
+}
+
 /* Pet Gang — Стили */
 
 .container {
@@ -5,8 +28,7 @@
   margin: 0 auto;
   padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #e0e0e0;
-  background: #1a1a2e;
+  color: var(--pg-text);
   min-height: 100vh;
 }
 
@@ -22,12 +44,12 @@
 .title {
   font-size: 24px;
   font-weight: 700;
-  color: #fff;
+  color: var(--pg-text-heading);
   margin: 0;
 }
 
 .subtitle {
-  color: #888;
+  color: var(--pg-text-muted);
   margin: 0;
   font-size: 14px;
 }
@@ -41,7 +63,7 @@
 }
 
 .statItem {
-  background: #16213e;
+  background: var(--pg-surface);
   border-radius: 12px;
   padding: 16px;
   text-align: center;
@@ -51,49 +73,49 @@
   display: block;
   font-size: 28px;
   font-weight: 700;
-  color: #4ecca3;
+  color: var(--pg-accent);
 }
 
 .statLabel {
   display: block;
   font-size: 12px;
-  color: #888;
+  color: var(--pg-text-muted);
   margin-top: 4px;
 }
 
 /* Buttons */
 .btn {
   padding: 10px 20px;
-  border: 1px solid #333;
+  border: 1px solid var(--pg-border);
   border-radius: 8px;
   background: transparent;
-  color: #e0e0e0;
+  color: var(--pg-text);
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s;
 }
 
-.btn:hover { background: #2a2a4a; }
+.btn:hover { background: var(--pg-btn-hover); }
 
 .btnPrimary {
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
-  background: #4ecca3;
-  color: #1a1a2e;
+  background: var(--pg-accent);
+  color: var(--pg-bg);
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
   transition: all 0.2s;
 }
 
-.btnPrimary:hover { background: #3dbb92; }
+.btnPrimary:hover { background: var(--pg-accent-hover); }
 
 .backBtn {
   padding: 8px 16px;
   border: none;
   background: transparent;
-  color: #4ecca3;
+  color: var(--pg-accent);
   cursor: pointer;
   font-size: 14px;
 }
@@ -114,7 +136,7 @@
 }
 
 .petCard {
-  background: #16213e;
+  background: var(--pg-surface);
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
@@ -124,7 +146,7 @@
 
 .petCard:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(78, 204, 163, 0.15);
+  box-shadow: 0 4px 20px var(--pg-shadow-accent);
 }
 
 .petPhoto {
@@ -139,8 +161,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0f3460;
-  color: #555;
+  background: var(--pg-input);
+  color: var(--pg-text-placeholder);
   font-size: 14px;
 }
 
@@ -149,13 +171,13 @@
 .petName {
   font-size: 16px;
   font-weight: 600;
-  color: #fff;
+  color: var(--pg-text-heading);
   margin: 0 0 4px 0;
 }
 
 .petSpecies {
   font-size: 13px;
-  color: #888;
+  color: var(--pg-text-muted);
   margin: 0;
 }
 
@@ -167,8 +189,8 @@
   height: 28px;
   border-radius: 50%;
   border: none;
-  background: rgba(0,0,0,0.6);
-  color: #ff6b6b;
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--pg-danger);
   font-size: 18px;
   cursor: pointer;
   display: flex;
@@ -184,7 +206,7 @@
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: var(--pg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -192,7 +214,7 @@
 }
 
 .modalContent {
-  background: #16213e;
+  background: var(--pg-surface);
   border-radius: 16px;
   padding: 24px;
   min-width: 320px;
@@ -201,7 +223,7 @@
 
 .modalContent h2 {
   margin: 0 0 16px 0;
-  color: #fff;
+  color: var(--pg-text-heading);
 }
 
 .modalActions {
@@ -223,17 +245,17 @@
   flex-direction: column;
   gap: 6px;
   font-size: 13px;
-  color: #aaa;
+  color: var(--pg-text-label);
 }
 
 .formGrid .fullWidth { grid-column: 1 / -1; }
 
 .input, .select {
   padding: 10px 12px;
-  border: 1px solid #333;
+  border: 1px solid var(--pg-border);
   border-radius: 8px;
-  background: #0f3460;
-  color: #e0e0e0;
+  background: var(--pg-input);
+  color: var(--pg-text);
   font-size: 14px;
   width: 100%;
   box-sizing: border-box;
@@ -241,15 +263,15 @@
 
 .input:focus, .select:focus {
   outline: none;
-  border-color: #4ecca3;
+  border-color: var(--pg-accent);
 }
 
 .textarea {
   padding: 10px 12px;
-  border: 1px solid #333;
+  border: 1px solid var(--pg-border);
   border-radius: 8px;
-  background: #0f3460;
-  color: #e0e0e0;
+  background: var(--pg-input);
+  color: var(--pg-text);
   font-size: 14px;
   min-height: 80px;
   resize: vertical;
@@ -260,7 +282,7 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #e0e0e0;
+  color: var(--pg-text);
   cursor: pointer;
   grid-column: 1 / -1;
 }
@@ -268,7 +290,7 @@
 .checkboxLabel input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #4ecca3;
+  accent-color: var(--pg-accent);
 }
 
 .formActions {
@@ -291,20 +313,20 @@
 .removeBtn {
   width: 36px;
   height: 36px;
-  border: 1px solid #ff6b6b;
+  border: 1px solid var(--pg-danger);
   border-radius: 8px;
   background: transparent;
-  color: #ff6b6b;
+  color: var(--pg-danger);
   font-size: 18px;
   cursor: pointer;
 }
 
 .addPhoneBtn {
   padding: 8px 16px;
-  border: 1px dashed #444;
+  border: 1px dashed var(--pg-border-dashed);
   border-radius: 8px;
   background: transparent;
-  color: #4ecca3;
+  color: var(--pg-accent);
   cursor: pointer;
   font-size: 13px;
 }
@@ -339,8 +361,8 @@
   height: 24px;
   border-radius: 50%;
   border: none;
-  background: rgba(0,0,0,0.7);
-  color: #ff6b6b;
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--pg-danger);
   font-size: 16px;
   cursor: pointer;
 }
@@ -348,22 +370,22 @@
 .photoAdd {
   width: 150px;
   height: 150px;
-  border: 2px dashed #444;
+  border: 2px dashed var(--pg-border-dashed);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 32px;
-  color: #666;
+  color: var(--pg-text-faint);
   cursor: pointer;
   transition: border-color 0.2s;
 }
 
-.photoAdd:hover { border-color: #4ecca3; color: #4ecca3; }
+.photoAdd:hover { border-color: var(--pg-accent); color: var(--pg-accent); }
 
 .photoHint {
   font-size: 12px;
-  color: #666;
+  color: var(--pg-text-faint);
   margin-top: 8px;
 }
 
@@ -384,17 +406,17 @@
 
 .detailLabel {
   font-size: 12px;
-  color: #888;
+  color: var(--pg-text-muted);
 }
 
 .detailValue {
   font-size: 14px;
-  color: #e0e0e0;
+  color: var(--pg-text);
 }
 
 /* Visibility */
 .visibilitySection {
-  background: #16213e;
+  background: var(--pg-surface);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 24px;
@@ -403,19 +425,18 @@
 .visibilitySection h2 {
   margin: 0 0 8px 0;
   font-size: 18px;
-  color: #fff;
+  color: var(--pg-text-heading);
 }
 
 .visibilityHint {
   font-size: 13px;
-  color: #888;
+  color: var(--pg-text-muted);
   margin: 0 0 16px 0;
 }
 
 /* Scan Page */
 .scanContainer {
   min-height: 100vh;
-  background: #1a1a2e;
   padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -423,7 +444,7 @@
 .scanPetCard {
   max-width: 500px;
   margin: 0 auto;
-  background: #16213e;
+  background: var(--pg-surface);
   border-radius: 16px;
   overflow: hidden;
 }
@@ -442,7 +463,7 @@
 .scanPetName {
   font-size: 24px;
   font-weight: 700;
-  color: #fff;
+  color: var(--pg-text-heading);
   padding: 16px 20px 0;
   margin: 0;
 }
@@ -452,16 +473,16 @@
 .scanRow {
   font-size: 14px;
   margin: 6px 0;
-  color: #ccc;
+  color: var(--pg-text-dim);
 }
 
-.scanRow span { color: #888; }
+.scanRow span { color: var(--pg-text-muted); }
 
 .scanSpecial {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #333;
-  color: #ccc;
+  border-top: 1px solid var(--pg-border);
+  color: var(--pg-text-dim);
   font-size: 14px;
 }
 
@@ -469,22 +490,22 @@
 
 .scanOwner {
   padding: 16px 20px;
-  background: #0f3460;
+  background: var(--pg-input);
   margin: 12px;
   border-radius: 12px;
 }
 
 .scanOwner h2 {
   font-size: 16px;
-  color: #4ecca3;
+  color: var(--pg-accent);
   margin: 0 0 8px 0;
 }
 
-.scanOwner p { margin: 4px 0; font-size: 14px; color: #ccc; }
+.scanOwner p { margin: 4px 0; font-size: 14px; color: var(--pg-text-dim); }
 
 .scanContact {
   display: block;
-  color: #4ecca3;
+  color: var(--pg-accent);
   text-decoration: none;
   font-size: 14px;
   padding: 4px 0;
@@ -496,11 +517,11 @@
   max-width: 400px;
   margin: 80px auto;
   text-align: center;
-  color: #ccc;
+  color: var(--pg-text-dim);
 }
 
 .scanError h2, .scanUnbound h2 {
-  color: #ff6b6b;
+  color: var(--pg-danger);
   margin-bottom: 12px;
 }
 
@@ -510,13 +531,13 @@
   align-items: center;
   justify-content: center;
   min-height: 200px;
-  color: #888;
+  color: var(--pg-text-muted);
   font-size: 16px;
 }
 
 .empty {
   text-align: center;
-  color: #666;
+  color: var(--pg-text-faint);
   padding: 40px;
   grid-column: 1 / -1;
 }
@@ -527,13 +548,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1a1a2e;
   padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .loginCard {
-  background: #16213e;
+  background: var(--pg-surface);
   border-radius: 16px;
   padding: 40px;
   width: 100%;
@@ -544,12 +564,12 @@
 .loginTitle {
   font-size: 32px;
   font-weight: 700;
-  color: #4ecca3;
+  color: var(--pg-accent);
   margin: 0 0 8px 0;
 }
 
 .loginSubtitle {
-  color: #888;
+  color: var(--pg-text-muted);
   font-size: 14px;
   margin: 0 0 24px 0;
 }
@@ -561,33 +581,33 @@
 }
 
 .loginHint {
-  color: #aaa;
+  color: var(--pg-text-label);
   font-size: 14px;
   margin: 0;
 }
 
 .loginError {
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid #ff6b6b;
+  background: var(--pg-danger-bg);
+  border: 1px solid var(--pg-danger);
   border-radius: 8px;
   padding: 10px;
-  color: #ff6b6b;
+  color: var(--pg-danger);
   font-size: 13px;
   margin-bottom: 16px;
 }
 
 .logoutBtn {
   padding: 8px 16px;
-  border: 1px solid #ff6b6b;
+  border: 1px solid var(--pg-danger);
   border-radius: 8px;
   background: transparent;
-  color: #ff6b6b;
+  color: var(--pg-danger);
   cursor: pointer;
   font-size: 13px;
   margin-left: auto;
 }
 
-.logoutBtn:hover { background: rgba(255, 107, 107, 0.1); }
+.logoutBtn:hover { background: var(--pg-danger-bg); }
 
 /* Responsive */
 @media (max-width: 600px) {

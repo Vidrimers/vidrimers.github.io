@@ -14,6 +14,8 @@ const PetGangScan = () => {
       loadQrData();
       requestGeolocation();
     }
+    document.body.style.background = 'var(--pg-bg)';
+    return () => { document.body.style.background = ''; };
   }, [token]);
 
   const loadQrData = async () => {

@@ -14,6 +14,8 @@ const PetGangProfile = () => {
   useEffect(() => {
     loadProfile();
     document.title = 'Профиль — Pet Gang';
+    document.body.style.background = 'var(--pg-bg)';
+    return () => { document.body.style.background = ''; };
   }, []);
 
   const loadProfile = async () => {
