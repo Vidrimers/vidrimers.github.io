@@ -12,6 +12,10 @@ import Portfolio from './components/Portfolio/Portfolio';
 import Certificates from './components/Certificates/Certificates';
 import DonatePage from './pages/DonatePage/DonatePage';
 import SettingsPage from './pages/SettingsPage/SettingsPage';
+import PetGangAdmin from './pages/PetGang/PetGangAdmin';
+import PetGangProfile from './pages/PetGang/PetGangProfile';
+import PetGangPet from './pages/PetGang/PetGangPet';
+import PetGangScan from './pages/PetGang/PetGangScan';
 import { trackVisit } from './utils/tracking';
 
 // Главная страница
@@ -43,6 +47,10 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/donate" element={<DonatePage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/pet-gang" element={<PetGangAdmin />} />
+          <Route path="/pet-gang/profile" element={<PetGangProfile />} />
+          <Route path="/pet-gang/pet/:id" element={<PetGangPet />} />
+          <Route path="/pet-gang/scan/:token" element={<PetGangScan />} />
         </Routes>
       </AdminProvider>
     </LanguageProvider>

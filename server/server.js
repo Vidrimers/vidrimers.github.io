@@ -39,6 +39,8 @@ const donateWalletsRoutes = require('./routes/donate-wallets');
 const footerRoutes = require('./routes/footer');
 const backupRoutes = require('./routes/backup');
 const trackingRoutes = require('./routes/tracking');
+const petgangRoutes = require('./routes/petgang');
+const { initPetGangDatabase } = require('./database/petgang');
 
 const app = express();
 const PORT = process.env.PORT || 1989;
@@ -75,7 +77,9 @@ app.use(cors({
     'http://localhost:3001',
     'http://127.0.0.1:3001',
     'https://vidrimers.ru.tuna.am',
-    'http://vidrimers.ru.tuna.am'
+    'http://vidrimers.ru.tuna.am',
+    'https://pet-gang.ru',
+    'http://pet-gang.ru'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -137,6 +141,7 @@ app.use('/api/donate-wallets', apiRateLimiter, donateWalletsRoutes);
 app.use('/api/footer', apiRateLimiter, footerRoutes);
 app.use('/api/backup', apiRateLimiter, backupRoutes);
 app.use('/api/track', apiRateLimiter, trackingRoutes);
+app.use('/pet-gang/api', petgangRoutes);
 
 // Получить лайки для конкретного проекта
 app.get('/api/likes/:projectId', async (req, res) => {
@@ -463,6 +468,9 @@ app.get('/api/telegram/info', async (req, res) => {
 // Раздача статики из dist/
 app.use(express.static(path.join(__dirname, '..', 'dist')));
 
+// Раздача загруженных фото питомцев
+app.use('/uploads/pets', express.static(path.join(__dirname, '..', 'uploads', 'pets')));
+
 // SPA fallback — все не-API маршруты отдают index.html
 app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
@@ -511,6 +519,10 @@ async function startServer() {
     }
     
     await migrationService.close();
+    
+    // Инициализируем базу данных Pet Gang
+    await initPetGangDatabase();
+    console.log('🐾 Pet Gang: База данных инициализирована');
     
     // Запускаем сервер
     app.listen(PORT, () => {

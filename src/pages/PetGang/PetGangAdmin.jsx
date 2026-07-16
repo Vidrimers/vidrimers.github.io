@@ -1,0 +1,180 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styles from './PetGang.module.css';
+
+const PetGangAdmin = () => {
+  const navigate = useNavigate();
+  const [pets, setPets] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newPet, setNewPet] = useState({ name: '', species: 'Кошка', sex: 'Мужской' });
+
+  useEffect(() => {
+    loadPets();
+    loadStats();
+    document.title = 'Pet Gang — Управление питомцами';
+  }, []);
+
+  const loadPets = async () => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const res = await fetch('/pet-gang/api/pets', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) setPets(data.data);
+    } catch (e) {
+      console.error('Ошибка загрузки питомцев:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadStats = async () => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const res = await fetch('/pet-gang/api/stats', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) setStats(data.data);
+    } catch (e) {
+      console.error('Ошибка загрузки статистики:', e);
+    }
+  };
+
+  const createPet = async () => {
+    if (!newPet.name.trim()) return;
+    try {
+      const token = localStorage.getItem('auth_token');
+      const res = await fetch('/pet-gang/api/pets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(newPet)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPets([data.data, ...pets]);
+        setShowCreateForm(false);
+        setNewPet({ name: '', species: 'Кошка', sex: 'Мужской' });
+      }
+    } catch (e) {
+      console.error('Ошибка создания питомца:', e);
+    }
+  };
+
+  const deletePet = async (id) => {
+    if (!confirm('Удалить карточку питомца?')) return;
+    try {
+      const token = localStorage.getItem('auth_token');
+      await fetch(`/pet-gang/api/pets/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setPets(pets.filter(p => p.id !== id));
+    } catch (e) {
+      console.error('Ошибка удаления:', e);
+    }
+  };
+
+  if (loading) return <div className={styles.loading}>Загрузка...</div>;
+
+  return (
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Pet Gang</h1>
+        <p className={styles.subtitle}>Управление паспортами питомцев</p>
+      </header>
+
+      {stats && (
+        <div className={styles.stats}>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{stats.total_pets}</span>
+            <span className={styles.statLabel}>Питомцев</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{stats.bound_qr}</span>
+            <span className={styles.statLabel}>Активных QR</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{stats.unbound_qr}</span>
+            <span className={styles.statLabel}>Свободных QR</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{stats.total_scans}</span>
+            <span className={styles.statLabel}>Сканирований</span>
+          </div>
+        </div>
+      )}
+
+      <div className={styles.actions}>
+        <button className={styles.btn} onClick={() => navigate('/pet-gang/profile')}>Профиль</button>
+        <button className={styles.btnPrimary} onClick={() => setShowCreateForm(true)}>+ Добавить питомца</button>
+      </div>
+
+      {showCreateForm && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h2>Новый питомец</h2>
+            <input
+              className={styles.input}
+              placeholder="Кличка"
+              value={newPet.name}
+              onChange={e => setNewPet({ ...newPet, name: e.target.value })}
+            />
+            <select
+              className={styles.select}
+              value={newPet.species}
+              onChange={e => setNewPet({ ...newPet, species: e.target.value })}
+            >
+              <option>Кошка</option>
+              <option>Собака</option>
+              <option>Другое</option>
+            </select>
+            <select
+              className={styles.select}
+              value={newPet.sex}
+              onChange={e => setNewPet({ ...newPet, sex: e.target.value })}
+            >
+              <option>Мужской</option>
+              <option>Женский</option>
+            </select>
+            <div className={styles.modalActions}>
+              <button className={styles.btn} onClick={() => setShowCreateForm(false)}>Отмена</button>
+              <button className={styles.btnPrimary} onClick={createPet}>Создать</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={styles.petsGrid}>
+        {pets.length === 0 ? (
+          <p className={styles.empty}>Нет карточек питомцев. Добавьте первого!</p>
+        ) : (
+          pets.map(pet => (
+            <div key={pet.id} className={styles.petCard} onClick={() => navigate(`/pet-gang/pet/${pet.id}`)}>
+              {pet.photos.length > 0 ? (
+                <img src={`/uploads/pets/${pet.photos[0]}`} alt={pet.name} className={styles.petPhoto} />
+              ) : (
+                <div className={styles.petPhotoPlaceholder}>Нет фото</div>
+              )}
+              <div className={styles.petInfo}>
+                <h3 className={styles.petName}>{pet.name}</h3>
+                <p className={styles.petSpecies}>{pet.species}{pet.breed ? ` • ${pet.breed}` : ''}</p>
+              </div>
+              <button
+                className={styles.deleteBtn}
+                onClick={(e) => { e.stopPropagation(); deletePet(pet.id); }}
+              >
+                ×
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default PetGangAdmin;

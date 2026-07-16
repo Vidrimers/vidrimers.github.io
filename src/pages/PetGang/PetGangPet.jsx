@@ -1,0 +1,232 @@
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import styles from './PetGang.module.css';
+
+const PetGangPet = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+  const [pet, setPet] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    loadPet();
+  }, [id]);
+
+  const loadPet = async () => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const res = await fetch(`/pet-gang/api/pets/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPet(data.data.pet);
+        setForm(data.data.pet);
+      }
+    } catch (e) {
+      console.error('Ошибка загрузки:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const savePet = async () => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const res = await fetch(`/pet-gang/api/pets/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(form)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPet(data.data);
+        setForm(data.data);
+        setEditing(false);
+      }
+    } catch (e) {
+      console.error('Ошибка сохранения:', e);
+    }
+  };
+
+  const uploadPhoto = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      const formData = new FormData();
+      formData.append('photo', file);
+      const res = await fetch(`/pet-gang/api/pets/${id}/photos`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPet({ ...pet, photos: data.data.photos });
+        setForm({ ...form, photos: data.data.photos });
+      } else {
+        alert(data.error || 'Ошибка загрузки');
+      }
+    } catch (e) {
+      console.error('Ошибка загрузки фото:', e);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const deletePhoto = async (index) => {
+    if (!confirm('Удалить фото?')) return;
+    try {
+      const token = localStorage.getItem('auth_token');
+      const res = await fetch(`/pet-gang/api/pets/${id}/photos/${index}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPet({ ...pet, photos: data.data.photos });
+        setForm({ ...form, photos: data.data.photos });
+      }
+    } catch (e) {
+      console.error('Ошибка удаления фото:', e);
+    }
+  };
+
+  if (loading) return <div className={styles.loading}>Загрузка...</div>;
+  if (!pet) return <div className={styles.loading}>Питомец не найден</div>;
+
+  return (
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <button className={styles.backBtn} onClick={() => navigate('/pet-gang')}>← Назад</button>
+        <h1 className={styles.title}>{editing ? 'Редактирование' : pet.name}</h1>
+        {!editing && (
+          <button className={styles.btnPrimary} onClick={() => setEditing(true)}>Редактировать</button>
+        )}
+      </header>
+
+      {/* Фотографии */}
+      <div className={styles.photosSection}>
+        <div className={styles.photosGrid}>
+          {(editing ? form.photos : pet.photos).map((photo, i) => (
+            <div key={i} className={styles.photoWrapper}>
+              <img src={`/uploads/pets/${photo}`} alt="" className={styles.petPhoto} />
+              {editing && (
+                <button className={styles.photoDelete} onClick={() => deletePhoto(i)}>×</button>
+              )}
+            </div>
+          ))}
+          {editing && form.photos.length < 3 && (
+            <div
+              className={styles.photoAdd}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {uploading ? '...' : '+'}
+            </div>
+          )}
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={e => uploadPhoto(e.target.files[0])}
+        />
+        {editing && <p className={styles.photoHint}>Макс. 3 фото, до 5 МБ каждое</p>}
+      </div>
+
+      {/* Данные питомца */}
+      <div className={styles.detailsSection}>
+        {editing ? (
+          <div className={styles.formGrid}>
+            <label>Кличка *
+              <input className={styles.input} value={form.name || ''} onChange={e => setForm({ ...form, name: e.target.value })} />
+            </label>
+            <label>Вид *
+              <select className={styles.select} value={form.species || ''} onChange={e => setForm({ ...form, species: e.target.value })}>
+                <option>Кошка</option>
+                <option>Собака</option>
+                <option>Другое</option>
+              </select>
+            </label>
+            <label>Порода
+              <input className={styles.input} value={form.breed || ''} onChange={e => setForm({ ...form, breed: e.target.value })} />
+            </label>
+            <label>Пол *
+              <select className={styles.select} value={form.sex || ''} onChange={e => setForm({ ...form, sex: e.target.value })}>
+                <option>Мужской</option>
+                <option>Женский</option>
+              </select>
+            </label>
+            <label>Дата рождения
+              <input className={styles.input} type="date" value={form.birth_date || ''} onChange={e => setForm({ ...form, birth_date: e.target.value })} />
+            </label>
+            <label>Номер чипа
+              <input className={styles.input} value={form.chip_number || ''} onChange={e => setForm({ ...form, chip_number: e.target.value })} />
+            </label>
+            <label>Номер клейма
+              <input className={styles.input} value={form.tag_number || ''} onChange={e => setForm({ ...form, tag_number: e.target.value })} />
+            </label>
+            <label>Окрас
+              <input className={styles.input} value={form.color || ''} onChange={e => setForm({ ...form, color: e.target.value })} />
+            </label>
+            <label>Адрес проживания
+              <input className={styles.input} value={form.address || ''} onChange={e => setForm({ ...form, address: e.target.value })} />
+            </label>
+            <label className={styles.checkboxLabel}>
+              <input type="checkbox" checked={!!form.sterilized} onChange={e => setForm({ ...form, sterilized: e.target.checked })} />
+              Стерилизация
+            </label>
+            <label className={styles.checkboxLabel}>
+              <input type="checkbox" checked={!!form.free_walking} onChange={e => setForm({ ...form, free_walking: e.target.checked })} />
+              Свободный выгул
+            </label>
+            <label className={styles.fullWidth}>Особые приметы
+              <textarea className={styles.textarea} value={form.special_marks || ''} onChange={e => setForm({ ...form, special_marks: e.target.value })} />
+            </label>
+            <div className={styles.formActions}>
+              <button className={styles.btn} onClick={() => { setEditing(false); setForm(pet); }}>Отмена</button>
+              <button className={styles.btnPrimary} onClick={savePet}>Сохранить</button>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.detailsGrid}>
+            <DetailRow label="Вид" value={pet.species} />
+            <DetailRow label="Порода" value={pet.breed} />
+            <DetailRow label="Пол" value={pet.sex} />
+            <DetailRow label="Дата рождения" value={pet.birth_date} />
+            <DetailRow label="Номер чипа" value={pet.chip_number} />
+            <DetailRow label="Номер клейма" value={pet.tag_number} />
+            <DetailRow label="Стерилизация" value={pet.sterilized ? 'Да' : 'Нет'} />
+            <DetailRow label="Окрас" value={pet.color} />
+            <DetailRow label="Свободный выгул" value={pet.free_walking ? 'Да' : 'Нет'} />
+            <DetailRow label="Адрес" value={pet.address} />
+            {pet.special_marks && (
+              <div className={styles.fullWidth}>
+                <strong>Особые приметы:</strong>
+                <p>{pet.special_marks}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const DetailRow = ({ label, value }) => {
+  if (!value) return null;
+  return (
+    <div className={styles.detailRow}>
+      <span className={styles.detailLabel}>{label}</span>
+      <span className={styles.detailValue}>{value}</span>
+    </div>
+  );
+};
+
+export default PetGangPet;
