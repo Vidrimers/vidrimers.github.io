@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PetGangLogin from './PetGangLogin';
 import styles from './PetGang.module.css';
 
 const PetGangAdmin = () => {
   const navigate = useNavigate();
+  const [authorized, setAuthorized] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [pets, setPets] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -11,14 +14,40 @@ const PetGangAdmin = () => {
   const [newPet, setNewPet] = useState({ name: '', species: 'Кошка', sex: 'Мужской' });
 
   useEffect(() => {
-    loadPets();
-    loadStats();
+    checkAuth();
     document.title = 'Pet Gang — Управление питомцами';
   }, []);
 
+  const getToken = () => localStorage.getItem('petgang_token');
+
+  const checkAuth = async () => {
+    const token = getToken();
+    if (!token) {
+      setChecking(false);
+      return;
+    }
+    try {
+      const res = await fetch('/pet-gang/api/auth/check', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAuthorized(true);
+        loadPets();
+        loadStats();
+      } else {
+        localStorage.removeItem('petgang_token');
+      }
+    } catch (e) {
+      localStorage.removeItem('petgang_token');
+    } finally {
+      setChecking(false);
+    }
+  };
+
   const loadPets = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = getToken();
       const res = await fetch('/pet-gang/api/pets', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -33,7 +62,7 @@ const PetGangAdmin = () => {
 
   const loadStats = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = getToken();
       const res = await fetch('/pet-gang/api/stats', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -47,7 +76,7 @@ const PetGangAdmin = () => {
   const createPet = async () => {
     if (!newPet.name.trim()) return;
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = getToken();
       const res = await fetch('/pet-gang/api/pets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -67,7 +96,7 @@ const PetGangAdmin = () => {
   const deletePet = async (id) => {
     if (!confirm('Удалить карточку питомца?')) return;
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = getToken();
       await fetch(`/pet-gang/api/pets/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -78,6 +107,17 @@ const PetGangAdmin = () => {
     }
   };
 
+  const logout = () => {
+    localStorage.removeItem('petgang_token');
+    setAuthorized(false);
+  };
+
+  if (checking) return <div className={styles.loading}>Загрузка...</div>;
+
+  if (!authorized) {
+    return <PetGangLogin onLogin={() => { setAuthorized(true); setLoading(true); loadPets(); loadStats(); }} />;
+  }
+
   if (loading) return <div className={styles.loading}>Загрузка...</div>;
 
   return (
@@ -85,6 +125,7 @@ const PetGangAdmin = () => {
       <header className={styles.header}>
         <h1 className={styles.title}>Pet Gang</h1>
         <p className={styles.subtitle}>Управление паспортами питомцев</p>
+        <button className={styles.logoutBtn} onClick={logout}>Выйти</button>
       </header>
 
       {stats && (

@@ -521,6 +521,74 @@
   grid-column: 1 / -1;
 }
 
+/* Login */
+.loginContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a2e;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.loginCard {
+  background: #16213e;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.loginTitle {
+  font-size: 32px;
+  font-weight: 700;
+  color: #4ecca3;
+  margin: 0 0 8px 0;
+}
+
+.loginSubtitle {
+  color: #888;
+  font-size: 14px;
+  margin: 0 0 24px 0;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loginHint {
+  color: #aaa;
+  font-size: 14px;
+  margin: 0;
+}
+
+.loginError {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid #ff6b6b;
+  border-radius: 8px;
+  padding: 10px;
+  color: #ff6b6b;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.logoutBtn {
+  padding: 8px 16px;
+  border: 1px solid #ff6b6b;
+  border-radius: 8px;
+  background: transparent;
+  color: #ff6b6b;
+  cursor: pointer;
+  font-size: 13px;
+  margin-left: auto;
+}
+
+.logoutBtn:hover { background: rgba(255, 107, 107, 0.1); }
+
 /* Responsive */
 @media (max-width: 600px) {
   .stats { grid-template-columns: repeat(2, 1fr); }

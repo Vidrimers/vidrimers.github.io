@@ -8,12 +8,20 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const QRCode = require('qrcode');
-const { requireAuth } = require('../middleware/auth');
+// requireAuth импортируется для совместимости, но Pet Gang использует свою авторизацию
 const petgangDb = require('../database/petgang');
 const PetGangTelegram = require('../services/petgang-telegram');
 
 const router = express.Router();
+
+// Pet Gang авторизация — отдельный JWT-секрет
+const PETGANG_JWT_SECRET = process.env.PETGANG_JWT_SECRET || 'petgang-secret-key-change-in-production';
+const PETGANG_SESSION_EXPIRY = 24 * 60 * 60 * 1000; // 24 часа
+
+// Хранилище кодов подтверждения Pet Gang
+const petgangCodes = new Map();
 
 // Multer для загрузки фото питомцев
 const upload = multer({
@@ -43,6 +51,108 @@ function generateToken() {
   return crypto.randomBytes(16).toString('hex');
 }
 
+// ==================== АВТОРИЗАЦИЯ PET GANG ====================
+
+/**
+ * Middleware для проверки авторизации Pet Gang
+ */
+function requirePetGangAuth(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ success: false, error: 'Токен отсутствует' });
+    }
+    const token = authHeader.substring(7);
+    const decoded = jwt.verify(token, PETGANG_JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ success: false, error: 'Недействительный токен' });
+  }
+}
+
+/**
+ * POST /api/auth/request-code — запросить код подтверждения
+ */
+router.post('/auth/request-code', async (req, res) => {
+  try {
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    petgangCodes.set(code, { createdAt: Date.now(), expiresAt: Date.now() + 5 * 60 * 1000 });
+
+    // Отправляем код в Telegram
+    let telegramSent = false;
+    try {
+      const Telegram = require('../telegram');
+      const tg = new Telegram();
+      if (tg.isEnabled) {
+        const chatId = process.env.PETGANG_TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
+        await tg.bot.sendMessage(chatId, `🔐 Код для входа в Pet Gang: ${code}`);
+        telegramSent = true;
+      }
+    } catch (e) {
+      console.error('Pet Gang Auth: Ошибка Telegram:', e.message);
+    }
+
+    res.json({
+      success: true,
+      data: {
+        message: 'Код подтверждения отправлен',
+        telegramSent,
+        ...(process.env.NODE_ENV === 'development' && { code })
+      }
+    });
+  } catch (error) {
+    console.error('Pet Gang Auth: Ошибка генерации кода:', error.message);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  }
+});
+
+/**
+ * POST /api/auth/verify-code — проверить код и создать сессию
+ */
+router.post('/auth/verify-code', async (req, res) => {
+  try {
+    const { code } = req.body;
+    if (!code) {
+      return res.status(400).json({ success: false, error: 'Код обязателен' });
+    }
+
+    const codeData = petgangCodes.get(code);
+    if (!codeData || Date.now() > codeData.expiresAt) {
+      petgangCodes.delete(code);
+      return res.status(400).json({ success: false, error: 'Неверный или просроченный код' });
+    }
+
+    petgangCodes.delete(code);
+
+    // Создаём JWT сессию
+    const token = jwt.sign(
+      { userId: 'petgang_admin', role: 'admin', iat: Math.floor(Date.now() / 1000) },
+      PETGANG_JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({ success: true, data: { token, expiresIn: PETGANG_SESSION_EXPIRY } });
+  } catch (error) {
+    console.error('Pet Gang Auth: Ошибка верификации:', error.message);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  }
+});
+
+/**
+ * POST /api/auth/logout — выход
+ */
+router.post('/auth/logout', requirePetGangAuth, async (req, res) => {
+  res.json({ success: true, message: 'Вы вышли из системы' });
+});
+
+/**
+ * GET /api/auth/check — проверка авторизации
+ */
+router.get('/auth/check', requirePetGangAuth, async (req, res) => {
+  res.json({ success: true, data: { authorized: true, userId: req.user.userId } });
+});
+
 // ==================== ПРОФИЛЬ ====================
 
 /**
@@ -71,7 +181,7 @@ router.get('/profile', async (req, res) => {
 /**
  * PUT /api/profile — обновить профиль владельца
  */
-router.put('/profile', requireAuth, async (req, res) => {
+router.put('/profile', requirePetGangAuth, async (req, res) => {
   try {
     const { name, phones, country, city, instagram, telegram, email, visibility_settings } = req.body;
     const user = await petgangDb.getOrCreateUser({
@@ -89,7 +199,7 @@ router.put('/profile', requireAuth, async (req, res) => {
 /**
  * GET /api/pets — список карточек (только для админа)
  */
-router.get('/pets', requireAuth, async (req, res) => {
+router.get('/pets', requirePetGangAuth, async (req, res) => {
   try {
     const pets = await petgangDb.getAllPets();
     res.json({ success: true, data: pets });
@@ -133,7 +243,7 @@ router.get('/pets/:id', async (req, res) => {
 /**
  * POST /api/pets — создать карточку питомца
  */
-router.post('/pets', requireAuth, async (req, res) => {
+router.post('/pets', requirePetGangAuth, async (req, res) => {
   try {
     const pet = await petgangDb.createPet({ ...req.body, user_id: 1 });
     res.json({ success: true, data: pet });
@@ -146,7 +256,7 @@ router.post('/pets', requireAuth, async (req, res) => {
 /**
  * PUT /api/pets/:id — обновить карточку питомца
  */
-router.put('/pets/:id', requireAuth, async (req, res) => {
+router.put('/pets/:id', requirePetGangAuth, async (req, res) => {
   try {
     const existing = await petgangDb.getPet(req.params.id);
     if (!existing) {
@@ -163,7 +273,7 @@ router.put('/pets/:id', requireAuth, async (req, res) => {
 /**
  * DELETE /api/pets/:id — удалить карточку питомца
  */
-router.delete('/pets/:id', requireAuth, async (req, res) => {
+router.delete('/pets/:id', requirePetGangAuth, async (req, res) => {
   try {
     await petgangDb.deletePet(req.params.id);
     res.json({ success: true, deleted: true });
@@ -178,7 +288,7 @@ router.delete('/pets/:id', requireAuth, async (req, res) => {
 /**
  * POST /api/pets/:id/photos — загрузить фото (max 3, max 5 МБ)
  */
-router.post('/pets/:id/photos', requireAuth, (req, res) => {
+router.post('/pets/:id/photos', requirePetGangAuth, (req, res) => {
   upload.single('photo')(req, res, async (err) => {
     if (err) {
       const msg = err.code === 'LIMIT_FILE_SIZE' ? 'Файл слишком большой (макс 5 МБ)' : err.message;
@@ -232,7 +342,7 @@ router.post('/pets/:id/photos', requireAuth, (req, res) => {
 /**
  * DELETE /api/pets/:id/photos/:photoId — удалить фото (с сервера)
  */
-router.delete('/pets/:id/photos/:photoId', requireAuth, async (req, res) => {
+router.delete('/pets/:id/photos/:photoId', requirePetGangAuth, async (req, res) => {
   try {
     const pet = await petgangDb.getPet(req.params.id);
     if (!pet) {
@@ -265,7 +375,7 @@ router.delete('/pets/:id/photos/:photoId', requireAuth, async (req, res) => {
 /**
  * POST /api/qr/generate — сгенерировать новый QR-код
  */
-router.post('/qr/generate', requireAuth, async (req, res) => {
+router.post('/qr/generate', requirePetGangAuth, async (req, res) => {
   try {
     const token = generateToken();
     const qr = await petgangDb.createQr(token);
@@ -294,7 +404,7 @@ router.post('/qr/generate', requireAuth, async (req, res) => {
 /**
  * POST /api/qr/generate-batch — сгенерировать пакет QR-кодов
  */
-router.post('/qr/generate-batch', requireAuth, async (req, res) => {
+router.post('/qr/generate-batch', requirePetGangAuth, async (req, res) => {
   try {
     const { count = 10 } = req.body;
     if (count < 1 || count > 100) {
@@ -356,7 +466,7 @@ router.get('/qr/:token', async (req, res) => {
 /**
  * POST /api/qr/bind — привязать QR к карточке
  */
-router.post('/qr/bind', requireAuth, async (req, res) => {
+router.post('/qr/bind', requirePetGangAuth, async (req, res) => {
   try {
     const { qr_id, pet_id } = req.body;
     if (!qr_id || !pet_id) {
@@ -373,7 +483,7 @@ router.post('/qr/bind', requireAuth, async (req, res) => {
 /**
  * GET /api/qr — список всех QR-кодов (для админа)
  */
-router.get('/qr', requireAuth, async (req, res) => {
+router.get('/qr', requirePetGangAuth, async (req, res) => {
   try {
     const qrs = await petgangDb.getAllQrCodes();
     res.json({ success: true, data: qrs });
@@ -456,7 +566,7 @@ router.post('/scan', async (req, res) => {
 /**
  * GET /api/stats — статистика (для админа)
  */
-router.get('/stats', requireAuth, async (req, res) => {
+router.get('/stats', requirePetGangAuth, async (req, res) => {
   try {
     const db = petgangDb.getDb();
     const [totalQr, boundQr, totalPets, totalScans] = await Promise.all([

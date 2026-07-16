@@ -32,7 +32,7 @@ const PetGangProfile = () => {
 
   const saveProfile = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('petgang_token');
       const res = await fetch('/pet-gang/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },

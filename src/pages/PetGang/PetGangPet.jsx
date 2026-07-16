@@ -18,7 +18,7 @@ const PetGangPet = () => {
 
   const loadPet = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('petgang_token');
       const res = await fetch(`/pet-gang/api/pets/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -36,7 +36,7 @@ const PetGangPet = () => {
 
   const savePet = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('petgang_token');
       const res = await fetch(`/pet-gang/api/pets/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -57,7 +57,7 @@ const PetGangPet = () => {
     if (!file) return;
     setUploading(true);
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('petgang_token');
       const formData = new FormData();
       formData.append('photo', file);
       const res = await fetch(`/pet-gang/api/pets/${id}/photos`, {
@@ -82,7 +82,7 @@ const PetGangPet = () => {
   const deletePhoto = async (index) => {
     if (!confirm('Удалить фото?')) return;
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('petgang_token');
       const res = await fetch(`/pet-gang/api/pets/${id}/photos/${index}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
