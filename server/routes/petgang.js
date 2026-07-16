@@ -86,7 +86,11 @@ router.post('/auth/request-code', async (req, res) => {
       const tg = new Telegram();
       if (tg.isEnabled) {
         const chatId = process.env.PETGANG_TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
-        await tg.bot.sendMessage(chatId, `🔐 Код для входа в Pet Gang: ${code}`);
+        const message = `🔐 Код для входа в Pet Gang:\n\n` +
+          `<code>${code}</code>\n\n` +
+          `⏰ Код действителен 5 минут\n` +
+          `🌐 Сайт: vidrimers.site/pet-gang`;
+        await tg.bot.sendMessage(chatId, message, { parse_mode: 'HTML', disable_web_page_preview: true });
         telegramSent = true;
       }
     } catch (e) {
