@@ -26,8 +26,9 @@ const PetGangPet = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setPet(data.data.pet);
-        setForm(data.data.pet);
+        const petData = { ...data.data.pet, photos: data.data.pet.photos || [] };
+        setPet(petData);
+        setForm(petData);
       }
     } catch (e) {
       console.error('Ошибка загрузки:', e);

@@ -187,7 +187,7 @@ function createPet(data) {
       ],
       function (err) {
         if (err) reject(err);
-        else resolve({ id: this.lastID, ...data });
+        else resolve({ id: this.lastID, ...data, photos: data.photos || [] });
       }
     );
   });

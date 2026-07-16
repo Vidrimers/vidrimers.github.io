@@ -29,7 +29,8 @@ const PetGangScan = () => {
       }
 
       if (data.data.bound) {
-        setPetData(data.data.pet);
+        const pet = { ...data.data.pet, photos: data.data.pet.photos || [] };
+        setPetData(pet);
         setOwnerContact(data.data.ownerContact);
         setStatus('pet');
         // Отправляем лог сканирования

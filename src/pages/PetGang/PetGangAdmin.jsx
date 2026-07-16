@@ -89,7 +89,8 @@ const PetGangAdmin = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setPets([data.data, ...pets]);
+        const pet = { ...data.data, photos: data.data.photos || [] };
+        setPets([pet, ...pets]);
         setShowCreateForm(false);
         setNewPet({ name: '', species: 'Кошка', sex: 'Мужской', customSpecies: '' });
       }
