@@ -40,6 +40,24 @@ const PetGangAdmin = () => {
     return () => handlers.forEach(({ el, handler }) => el.removeEventListener('wheel', handler));
   }, [pets]);
 
+  // Определение drag vs click на карточках
+  const dragRef = useRef({ startX: 0, startY: 0, dragged: false });
+
+  const handleMouseDown = (e) => {
+    dragRef.current = { startX: e.clientX, startY: e.clientY, dragged: false };
+  };
+
+  const handleMouseMove = (e) => {
+    const dx = Math.abs(e.clientX - dragRef.current.startX);
+    const dy = Math.abs(e.clientY - dragRef.current.startY);
+    if (dx > 5 || dy > 5) dragRef.current.dragged = true;
+  };
+
+  const handleCardClick = (petId, e) => {
+    if (dragRef.current.dragged) return;
+    navigate(`/pet-gang/pet/${petId}`);
+  };
+
   const getToken = () => localStorage.getItem('petgang_token');
 
   const checkAuth = async () => {
@@ -240,7 +258,13 @@ const PetGangAdmin = () => {
           <p className={styles.empty}>Нет карточек питомцев. Добавьте первого!</p>
         ) : (
           pets.map(pet => (
-            <div key={pet.id} className={styles.petCard} onClick={() => navigate(`/pet-gang/pet/${pet.id}`)}>
+            <div
+              key={pet.id}
+              className={styles.petCard}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onClick={(e) => handleCardClick(pet.id, e)}
+            >
               {pet.photos.length > 0 ? (
                 <div className={styles.petPhotosScroll}>
                   {pet.photos.map((photo, i) => (
