@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PetGangLogin from './PetGangLogin';
+import ConfirmModal from './ConfirmModal';
 import styles from './PetGang.module.css';
 
 const PetGangAdmin = () => {
@@ -12,6 +13,7 @@ const PetGangAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newPet, setNewPet] = useState({ name: '', species: 'Кошка', sex: 'Мужской' });
+  const [confirmDelete, setConfirmDelete] = useState(null); // pet id or null
 
   useEffect(() => {
     checkAuth();
@@ -100,7 +102,7 @@ const PetGangAdmin = () => {
   };
 
   const deletePet = async (id) => {
-    if (!confirm('Удалить карточку питомца?')) return;
+    setConfirmDelete(null);
     try {
       const token = getToken();
       await fetch(`/pet-gang/api/pets/${id}`, {
@@ -236,7 +238,7 @@ const PetGangAdmin = () => {
               </div>
               <button
                 className={styles.deleteBtn}
-                onClick={(e) => { e.stopPropagation(); deletePet(pet.id); }}
+                onClick={(e) => { e.stopPropagation(); setConfirmDelete(pet.id); }}
               >
                 ×
               </button>
@@ -244,6 +246,15 @@ const PetGangAdmin = () => {
           ))
         )}
       </div>
+
+      {confirmDelete && (
+        <ConfirmModal
+          title="Удалить карточку?"
+          message="Питомец и все его фотографии будут удалены безвозвратно."
+          onConfirm={() => deletePet(confirmDelete)}
+          onCancel={() => setConfirmDelete(null)}
+        />
+      )}
     </div>
   );
 };

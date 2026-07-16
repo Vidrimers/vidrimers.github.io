@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import ConfirmModal from './ConfirmModal';
 import styles from './PetGang.module.css';
 
 const PetGangPet = () => {
@@ -16,6 +17,7 @@ const PetGangPet = () => {
   const [lightbox, setLightbox] = useState({ open: false, index: 0 });
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
+  const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(null); // index or null
 
   const photos = editing ? form.photos : (pet?.photos || []);
 
@@ -138,7 +140,7 @@ const PetGangPet = () => {
   };
 
   const deletePhoto = async (index) => {
-    if (!confirm('Удалить фото?')) return;
+    setConfirmDeletePhoto(null);
     try {
       const token = localStorage.getItem('petgang_token');
       const res = await fetch(`/pet-gang/api/pets/${id}/photos/${index}`, {
@@ -175,7 +177,7 @@ const PetGangPet = () => {
             <div key={i} className={styles.photoWrapper} onClick={() => openLightbox(i)}>
               <img src={`/uploads/pets/${photo}`} alt="" className={styles.petPhoto} />
               {editing && (
-                <button className={styles.photoDelete} onClick={(e) => { e.stopPropagation(); deletePhoto(i); }}>×</button>
+                <button className={styles.photoDelete} onClick={(e) => { e.stopPropagation(); setConfirmDeletePhoto(i); }}>×</button>
               )}
             </div>
           ))}
@@ -298,6 +300,15 @@ const PetGangPet = () => {
             </div>
           )}
         </div>
+      )}
+
+      {confirmDeletePhoto !== null && (
+        <ConfirmModal
+          title="Удалить фото?"
+          message="Фотография будет удалена безвозвратно."
+          onConfirm={() => deletePhoto(confirmDeletePhoto)}
+          onCancel={() => setConfirmDeletePhoto(null)}
+        />
       )}
     </div>
   );

@@ -111,6 +111,26 @@
 
 .btnPrimary:hover { background: var(--pg-accent-hover); }
 
+.btnDanger {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: var(--pg-danger);
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btnDanger:hover { background: #e55a5a; }
+
+.confirmMessage {
+  color: var(--pg-text-muted);
+  font-size: 14px;
+  margin: 0 0 20px 0;
+}
+
 .backBtn {
   padding: 8px 16px;
   border: none;
