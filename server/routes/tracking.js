@@ -59,6 +59,7 @@ router.post('/visit', async (req, res) => {
         `Браузер: ${browser || '?'}`,
         `ОС: ${os || '?'}`
       ];
+      if (visitPath && visitPath !== '/') lines.push(`Страница: ${visitPath}`);
       if (visitorName) lines.push(`Специальное имя: ${visitorName}`);
       await telegramService.sendActivityNotification(label, {
         entityType: 'Посетитель',
