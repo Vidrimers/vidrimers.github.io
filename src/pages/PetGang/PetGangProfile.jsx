@@ -4,6 +4,7 @@ import styles from './PetGang.module.css';
 
 const PetGangProfile = () => {
   const navigate = useNavigate();
+  const [authorized, setAuthorized] = useState(false);
   const [profile, setProfile] = useState({
     name: '', phones: [''], country: '', city: '', instagram: '', telegram: '', email: '',
     visibility_settings: { show_name: false, show_phones: false, show_instagram: false, show_telegram: false, show_email: false, show_city: false }
@@ -12,11 +13,27 @@ const PetGangProfile = () => {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    loadProfile();
+    const token = localStorage.getItem('petgang_token');
+    if (!token) { navigate('/pet-gang'); return; }
+    fetch('/pet-gang/api/auth/check', { headers: { 'Authorization': `Bearer ${token}` } })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setAuthorized(true);
+          loadProfile();
+        } else {
+          localStorage.removeItem('petgang_token');
+          navigate('/pet-gang');
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem('petgang_token');
+        navigate('/pet-gang');
+      });
     document.title = 'Профиль — Pet Gang';
     document.body.style.background = 'var(--pg-bg)';
     return () => { document.body.style.background = ''; };
-  }, []);
+  }, [navigate]);
 
   const loadProfile = async () => {
     try {
@@ -77,6 +94,7 @@ const PetGangProfile = () => {
     });
   };
 
+  if (!authorized) return <div className={styles.loading}>Проверка авторизации...</div>;
   if (loading) return <div className={styles.loading}>Загрузка...</div>;
 
   return (

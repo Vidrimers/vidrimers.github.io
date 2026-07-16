@@ -7,17 +7,49 @@ const PetGangPet = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const [authorized, setAuthorized] = useState(false);
   const [pet, setPet] = useState(null);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({});
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
 
+  // Проверка авторизации
+  useEffect(() => {
+    const token = localStorage.getItem('petgang_token');
+    if (!token) {
+      navigate('/pet-gang');
+      return;
+    }
+    fetch('/pet-gang/api/auth/check', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setAuthorized(true);
+        } else {
+          localStorage.removeItem('petgang_token');
+          navigate('/pet-gang');
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem('petgang_token');
+        navigate('/pet-gang');
+      });
+  }, [navigate]);
+
+  useEffect(() => {
+    if (authorized) loadPet();
+    document.body.style.background = 'var(--pg-bg)';
+    return () => { document.body.style.background = ''; };
+  }, [id, authorized]);
+
   // Lightbox
   const [lightbox, setLightbox] = useState({ open: false, index: 0 });
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
-  const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(null); // index or null
+  const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(null);
   const [qrData, setQrData] = useState(null); // { id, token, url, qr_image }
   const [qrLoading, setQrLoading] = useState(false);
 
@@ -196,6 +228,7 @@ const PetGangPet = () => {
     }
   };
 
+  if (!authorized) return <div className={styles.loading}>Проверка авторизации...</div>;
   if (loading) return <div className={styles.loading}>Загрузка...</div>;
   if (!pet) return <div className={styles.loading}>Питомец не найден</div>;
 
