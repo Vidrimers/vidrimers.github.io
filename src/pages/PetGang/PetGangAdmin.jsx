@@ -222,7 +222,11 @@ const PetGangAdmin = () => {
           pets.map(pet => (
             <div key={pet.id} className={styles.petCard} onClick={() => navigate(`/pet-gang/pet/${pet.id}`)}>
               {pet.photos.length > 0 ? (
-                <img src={`/uploads/pets/${pet.photos[0]}`} alt={pet.name} className={styles.petPhoto} />
+                <div className={styles.petPhotosScroll}>
+                  {pet.photos.map((photo, i) => (
+                    <img key={i} src={`/uploads/pets/${photo}`} alt={pet.name} className={styles.petPhoto} />
+                  ))}
+                </div>
               ) : (
                 <div className={styles.petPhotoPlaceholder}>Нет фото</div>
               )}

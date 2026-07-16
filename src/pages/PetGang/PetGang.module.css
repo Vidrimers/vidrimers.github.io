@@ -155,6 +155,20 @@
   object-fit: cover;
 }
 
+.petPhotosScroll {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.petPhotosScroll .petPhoto {
+  width: 100%;
+  min-width: 100%;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
 .petPhotoPlaceholder {
   width: 100%;
   height: 180px;
