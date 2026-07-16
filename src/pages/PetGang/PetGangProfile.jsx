@@ -21,7 +21,14 @@ const PetGangProfile = () => {
       const res = await fetch('/pet-gang/api/profile');
       const data = await res.json();
       if (data.success && data.data) {
-        setProfile(data.data);
+        const profileData = data.data;
+        // Гарантируем что phones — массив и каждый номер начинается с +
+        if (!Array.isArray(profileData.phones) || profileData.phones.length === 0) {
+          profileData.phones = ['+7'];
+        } else {
+          profileData.phones = profileData.phones.map(p => p && !p.startsWith('+') ? '+' + p : p);
+        }
+        setProfile(profileData);
       }
     } catch (e) {
       console.error('Ошибка загрузки профиля:', e);
@@ -48,11 +55,16 @@ const PetGangProfile = () => {
     }
   };
 
-  const addPhone = () => setProfile({ ...profile, phones: [...profile.phones, ''] });
+  const addPhone = () => setProfile({ ...profile, phones: [...profile.phones, '+7'] });
   const removePhone = (i) => setProfile({ ...profile, phones: profile.phones.filter((_, idx) => idx !== i) });
   const updatePhone = (i, val) => {
     const phones = [...profile.phones];
-    phones[i] = val;
+    // Если поле было пустым и пользователь вводит цифру — добавляем +7
+    if ((phones[i] === '' || phones[i] === '+') && /^\d$/.test(val)) {
+      phones[i] = '+7' + val;
+    } else {
+      phones[i] = val;
+    }
     setProfile({ ...profile, phones });
   };
 
@@ -102,7 +114,7 @@ const PetGangProfile = () => {
           <label>Телефоны</label>
           {profile.phones.map((phone, i) => (
             <div key={i} className={styles.phoneRow}>
-              <input className={styles.input} value={phone} onChange={e => updatePhone(i, e.target.value)} placeholder="+7..." />
+              <input className={styles.input} value={phone} onChange={e => updatePhone(i, e.target.value)} placeholder="+7 (999) 123-45-67" />
               {i > 0 && (
                 <button className={styles.removeBtn} onClick={() => removePhone(i)}>×</button>
               )}
