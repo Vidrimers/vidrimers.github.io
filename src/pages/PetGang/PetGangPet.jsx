@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from './PetGang.module.css';
 
@@ -11,6 +11,61 @@ const PetGangPet = () => {
   const [form, setForm] = useState({});
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+
+  // Lightbox
+  const [lightbox, setLightbox] = useState({ open: false, index: 0 });
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+
+  const photos = editing ? form.photos : (pet?.photos || []);
+
+  const openLightbox = (index) => {
+    if (editing) return;
+    setLightbox({ open: true, index });
+  };
+
+  const closeLightbox = () => setLightbox({ open: false, index: 0 });
+
+  const nextPhoto = useCallback(() => {
+    setLightbox(prev => ({
+      ...prev,
+      index: (prev.index + 1) % photos.length
+    }));
+  }, [photos.length]);
+
+  const prevPhoto = useCallback(() => {
+    setLightbox(prev => ({
+      ...prev,
+      index: (prev.index - 1 + photos.length) % photos.length
+    }));
+  }, [photos.length]);
+
+  // Клавиатура
+  useEffect(() => {
+    if (!lightbox.open) return;
+    const handleKey = (e) => {
+      if (e.key === 'ArrowRight') nextPhoto();
+      if (e.key === 'ArrowLeft') prevPhoto();
+      if (e.key === 'Escape') closeLightbox();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [lightbox.open, nextPhoto, prevPhoto]);
+
+  // Свайп
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      if (dx < 0) nextPhoto();
+      else prevPhoto();
+    }
+  };
 
   useEffect(() => {
     loadPet();
@@ -117,10 +172,10 @@ const PetGangPet = () => {
       <div className={styles.photosSection}>
         <div className={styles.photosGrid}>
           {(editing ? form.photos : pet.photos).map((photo, i) => (
-            <div key={i} className={styles.photoWrapper}>
+            <div key={i} className={styles.photoWrapper} onClick={() => openLightbox(i)}>
               <img src={`/uploads/pets/${photo}`} alt="" className={styles.petPhoto} />
               {editing && (
-                <button className={styles.photoDelete} onClick={() => deletePhoto(i)}>×</button>
+                <button className={styles.photoDelete} onClick={(e) => { e.stopPropagation(); deletePhoto(i); }}>×</button>
               )}
             </div>
           ))}
@@ -218,6 +273,32 @@ const PetGangPet = () => {
           </div>
         )}
       </div>
+
+      {/* Лайтбокс */}
+      {lightbox.open && photos.length > 0 && (
+        <div className={styles.lightbox} onClick={closeLightbox}>
+          <button className={styles.lightboxClose} onClick={closeLightbox}>×</button>
+          {photos.length > 1 && (
+            <>
+              <button className={styles.lightboxPrev} onClick={(e) => { e.stopPropagation(); prevPhoto(); }}>‹</button>
+              <button className={styles.lightboxNext} onClick={(e) => { e.stopPropagation(); nextPhoto(); }}>›</button>
+            </>
+          )}
+          <div
+            className={styles.lightboxImage}
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            <img src={`/uploads/pets/${photos[lightbox.index]}`} alt="" />
+          </div>
+          {photos.length > 1 && (
+            <div className={styles.lightboxCounter}>
+              {lightbox.index + 1} / {photos.length}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
