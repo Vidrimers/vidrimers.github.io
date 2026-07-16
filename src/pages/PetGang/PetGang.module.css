@@ -752,3 +752,51 @@
   .petsGrid { grid-template-columns: 1fr; }
   .header { flex-direction: column; align-items: flex-start; }
 }
+
+@media (max-width: 380px) {
+  .container { padding: 12px; }
+
+  .title { font-size: 20px; }
+  .subtitle { font-size: 12px; }
+
+  .stats { gap: 8px; }
+  .statItem { padding: 10px; }
+  .statValue { font-size: 22px; }
+  .statLabel { font-size: 11px; }
+
+  .actions { flex-direction: column; gap: 8px; }
+  .btn, .btnPrimary { width: 100%; text-align: center; }
+
+  .petPhotosScroll { height: 160px; }
+  .petPhotosScroll .petPhoto { height: 160px; }
+  .petPhotoPlaceholder { height: 160px; font-size: 12px; }
+  .petName { font-size: 14px; }
+
+  .modalContent { padding: 16px; min-width: auto; border-radius: 12px; }
+  .modalContent h2 { font-size: 18px; }
+
+  .formGroup { margin-bottom: 10px; }
+  .input, .select, .textarea { padding: 8px 10px; font-size: 13px; }
+
+  .photosGrid { gap: 8px; }
+  .photoWrapper { width: 100px; height: 100px; }
+  .photoAdd { width: 100px; height: 100px; font-size: 24px; }
+
+  .scanContainer { padding: 12px; }
+  .scanPetCard { border-radius: 12px; }
+  .scanPetName { font-size: 20px; padding: 12px 16px 0; }
+  .scanDetails { padding: 8px 16px; }
+  .scanOwner { margin: 8px; padding: 12px 16px; }
+
+  .loginCard { padding: 24px; border-radius: 12px; }
+  .loginTitle { font-size: 26px; }
+
+  .lightboxPrev, .lightboxNext { width: 36px; height: 36px; font-size: 24px; }
+  .lightboxPrev { left: 8px; }
+  .lightboxNext { right: 8px; }
+  .lightboxClose { width: 32px; height: 32px; font-size: 20px; top: 10px; right: 10px; }
+
+  .btn { padding: 8px 14px; font-size: 13px; }
+  .btnPrimary { padding: 8px 14px; font-size: 13px; }
+  .logoutBtn { padding: 6px 12px; font-size: 12px; }
+}
