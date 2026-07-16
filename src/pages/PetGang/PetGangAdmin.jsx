@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PetGangLogin from './PetGangLogin';
 import ConfirmModal from './ConfirmModal';
@@ -6,6 +6,7 @@ import styles from './PetGang.module.css';
 
 const PetGangAdmin = () => {
   const navigate = useNavigate();
+  const petsGridRef = useRef(null);
   const [authorized, setAuthorized] = useState(false);
   const [checking, setChecking] = useState(true);
   const [pets, setPets] = useState([]);
@@ -21,6 +22,23 @@ const PetGangAdmin = () => {
     document.body.style.background = 'var(--pg-bg)';
     return () => { document.body.style.background = ''; };
   }, []);
+
+  // Горизонтальный скролл колесом мыши на карточках
+  useEffect(() => {
+    const containers = document.querySelectorAll(`.${styles.petPhotosScroll}`);
+    const handlers = [];
+    containers.forEach(el => {
+      const handler = (e) => {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          e.preventDefault();
+          el.scrollLeft += e.deltaY;
+        }
+      };
+      el.addEventListener('wheel', handler, { passive: false });
+      handlers.push({ el, handler });
+    });
+    return () => handlers.forEach(({ el, handler }) => el.removeEventListener('wheel', handler));
+  }, [pets]);
 
   const getToken = () => localStorage.getItem('petgang_token');
 

@@ -179,8 +179,14 @@
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  cursor: grab;
+}
+
+.petPhotosScroll:active {
+  cursor: grabbing;
 }
 
 .petPhotosScroll::-webkit-scrollbar {
@@ -191,7 +197,11 @@
   width: 100%;
   min-width: 100%;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .petPhotoPlaceholder {
