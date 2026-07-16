@@ -549,7 +549,7 @@ router.post('/scan', async (req, res) => {
             await tgInstance.bot.sendMessage(chatId, message);
 
             if (latitude && longitude) {
-              await tgInstance.bot.sendMessage(chatId, `https://www.google.com/maps?q=${latitude},${longitude}`);
+              await tgInstance.bot.sendLocation(chatId, latitude, longitude);
             }
           }
         } catch (tgErr) {

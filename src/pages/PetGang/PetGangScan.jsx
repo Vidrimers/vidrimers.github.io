@@ -1,42 +1,47 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import styles from './PetGang.module.css';
 
 const PetGangScan = () => {
   const { token } = useParams();
-  const [status, setStatus] = useState('loading'); // loading | unbound | pet | error
+  const [status, setStatus] = useState('loading');
   const [petData, setPetData] = useState(null);
   const [ownerContact, setOwnerContact] = useState(null);
-  const [qrId, setQrId] = useState(null);
+
+  // Lightbox
+  const [lightbox, setLightbox] = useState({ open: false, index: 0 });
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
 
   useEffect(() => {
-    if (token) {
-      loadQrData();
-      requestGeolocation();
-    }
     document.body.style.background = 'var(--pg-bg)';
     return () => { document.body.style.background = ''; };
+  }, []);
+
+  useEffect(() => {
+    if (token) initScan();
   }, [token]);
 
-  const loadQrData = async () => {
+  const initScan = async () => {
+    // 1. Сначала запрашиваем геолокацию
+    const geo = await requestGeolocation();
+
+    // 2. Загружаем данные QR
     try {
       const res = await fetch(`/pet-gang/api/qr/${token}`);
       const data = await res.json();
 
-      if (!data.success) {
-        setStatus('error');
-        return;
-      }
+      if (!data.success) { setStatus('error'); return; }
 
       if (data.data.bound) {
         const pet = { ...data.data.pet, photos: data.data.pet.photos || [] };
         setPetData(pet);
         setOwnerContact(data.data.ownerContact);
         setStatus('pet');
-        // Отправляем лог сканирования
-        sendScanLog(token);
+
+        // 3. Отправляем лог с уже готовыми координатами
+        sendScanLog(token, geo);
       } else {
-        setQrId(data.data.qr_id);
         setStatus('unbound');
       }
     } catch (e) {
@@ -46,22 +51,18 @@ const PetGangScan = () => {
   };
 
   const requestGeolocation = () => {
-    if ('geolocation' in navigator) {
+    return new Promise((resolve) => {
+      if (!('geolocation' in navigator)) { resolve(null); return; }
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          window.__petgang_geo = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-        },
-        () => {
-          window.__petgang_geo = null;
-        },
+        (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+        () => resolve(null),
         { timeout: 5000 }
       );
-    }
+    });
   };
 
-  const sendScanLog = async (qrToken) => {
+  const sendScanLog = async (qrToken, geo) => {
     try {
-      const geo = window.__petgang_geo;
       await fetch('/pet-gang/api/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -73,6 +74,38 @@ const PetGangScan = () => {
       });
     } catch (e) {
       console.error('Ошибка логирования:', e);
+    }
+  };
+
+  // Lightbox
+  const openLightbox = (index) => setLightbox({ open: true, index });
+  const closeLightbox = () => setLightbox({ open: false, index: 0 });
+  const nextPhoto = useCallback(() => {
+    if (!petData) return;
+    setLightbox(prev => ({ ...prev, index: (prev.index + 1) % petData.photos.length }));
+  }, [petData?.photos?.length]);
+  const prevPhoto = useCallback(() => {
+    if (!petData) return;
+    setLightbox(prev => ({ ...prev, index: (prev.index - 1 + petData.photos.length) % petData.photos.length }));
+  }, [petData?.photos?.length]);
+
+  useEffect(() => {
+    if (!lightbox.open) return;
+    const handleKey = (e) => {
+      if (e.key === 'ArrowRight') nextPhoto();
+      if (e.key === 'ArrowLeft') prevPhoto();
+      if (e.key === 'Escape') closeLightbox();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [lightbox.open, nextPhoto, prevPhoto]);
+
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 50) {
+      if (dx < 0) nextPhoto();
+      else prevPhoto();
     }
   };
 
@@ -100,11 +133,13 @@ const PetGangScan = () => {
   return (
     <div className={styles.scanContainer}>
       <div className={styles.scanPetCard}>
-        {/* Фото */}
+        {/* Фото — миниатюры */}
         {petData.photos.length > 0 && (
-          <div className={styles.scanPhotos}>
+          <div className={styles.scanPhotosGrid}>
             {petData.photos.map((photo, i) => (
-              <img key={i} src={`/uploads/pets/${photo}`} alt={petData.name} className={styles.scanPhoto} />
+              <div key={i} className={styles.scanPhotoThumb} onClick={() => openLightbox(i)}>
+                <img src={`/uploads/pets/${photo}`} alt={petData.name} />
+              </div>
             ))}
           </div>
         )}
@@ -155,6 +190,32 @@ const PetGangScan = () => {
           </div>
         )}
       </div>
+
+      {/* Лайтбокс */}
+      {lightbox.open && petData.photos.length > 0 && (
+        <div className={styles.lightbox} onClick={closeLightbox}>
+          <button className={styles.lightboxClose} onClick={closeLightbox}>×</button>
+          {petData.photos.length > 1 && (
+            <>
+              <button className={styles.lightboxPrev} onClick={(e) => { e.stopPropagation(); prevPhoto(); }}>‹</button>
+              <button className={styles.lightboxNext} onClick={(e) => { e.stopPropagation(); nextPhoto(); }}>›</button>
+            </>
+          )}
+          <div
+            className={styles.lightboxImage}
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            <img src={`/uploads/pets/${petData.photos[lightbox.index]}`} alt="" />
+          </div>
+          {petData.photos.length > 1 && (
+            <div className={styles.lightboxCounter}>
+              {lightbox.index + 1} / {petData.photos.length}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

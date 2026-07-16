@@ -612,14 +612,26 @@
   overflow: hidden;
 }
 
-.scanPhotos {
-  display: flex;
-  overflow-x: auto;
+.scanPhotosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 4px;
+  padding: 4px;
 }
 
-.scanPhoto {
+.scanPhotoThumb {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.scanPhotoThumb:hover { transform: scale(1.03); }
+
+.scanPhotoThumb img {
   width: 100%;
-  max-height: 300px;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -902,6 +914,7 @@
 
   .scanContainer { padding: 12px; }
   .scanPetCard { border-radius: 12px; }
+  .scanPhotosGrid { grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; }
   .scanPetName { font-size: 20px; padding: 12px 16px 0; }
   .scanDetails { padding: 8px 16px; }
   .scanOwner { margin: 8px; padding: 12px 16px; }
