@@ -52,6 +52,8 @@ const PetGangPet = () => {
   const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(null);
   const [qrData, setQrData] = useState(null); // { id, token, url, qr_image }
   const [qrLoading, setQrLoading] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const generateQr = async () => {
     setQrLoading(true);
@@ -88,6 +90,25 @@ const PetGangPet = () => {
     link.href = qrData.qr_image;
     link.download = `qr_${pet.name}.png`;
     link.click();
+  };
+
+  const copyQrUrl = async () => {
+    if (!qrData) return;
+    try {
+      await navigator.clipboard.writeText(qrData.url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = qrData.url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const photos = editing ? form.photos : (pet?.photos || []);
@@ -275,16 +296,28 @@ const PetGangPet = () => {
       {/* QR-код */}
       {!editing && (
         <div className={styles.qrSection}>
-          {qrData ? (
+          <button className={styles.qrToggle} onClick={() => setQrOpen(!qrOpen)}>
+            {qrOpen ? 'Скрыть QR-код ▲' : 'QR-код ▼'}
+          </button>
+          {qrOpen && (
             <div className={styles.qrCard}>
-              <img src={qrData.qr_image} alt="QR-код" className={styles.qrImage} />
-              <p className={styles.qrUrl}>{qrData.url}</p>
-              <button className={styles.btnPrimary} onClick={downloadQr}>Скачать QR-код</button>
+              {qrData ? (
+                <>
+                  <img src={qrData.qr_image} alt="QR-код" className={styles.qrImage} />
+                  <p className={styles.qrUrl} onClick={copyQrUrl} title="Нажмите чтобы скопировать">
+                    {copied ? 'Скопировано!' : qrData.url}
+                  </p>
+                  <div className={styles.qrActions}>
+                    <button className={styles.btnPrimary} onClick={downloadQr}>Скачать</button>
+                    <button className={styles.btn} onClick={copyQrUrl}>{copied ? 'Скопировано!' : 'Копировать ссылку'}</button>
+                  </div>
+                </>
+              ) : (
+                <button className={styles.btnPrimary} onClick={generateQr} disabled={qrLoading}>
+                  {qrLoading ? 'Генерация...' : 'Создать QR-код'}
+                </button>
+              )}
             </div>
-          ) : (
-            <button className={styles.btn} onClick={generateQr} disabled={qrLoading}>
-              {qrLoading ? 'Генерация...' : 'Создать QR-код'}
-            </button>
           )}
         </div>
       )}

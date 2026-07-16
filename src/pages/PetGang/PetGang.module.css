@@ -162,7 +162,36 @@
   color: var(--pg-text-muted);
   word-break: break-all;
   margin: 0;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
 }
+
+.qrUrl:hover {
+  background: var(--pg-btn-hover);
+  color: var(--pg-accent);
+}
+
+.qrActions {
+  display: flex;
+  gap: 8px;
+}
+
+.qrToggle {
+  padding: 8px 16px;
+  border: 1px solid var(--pg-border);
+  border-radius: 8px;
+  background: var(--pg-surface);
+  color: var(--pg-text);
+  cursor: pointer;
+  font-size: 13px;
+  width: 100%;
+  text-align: center;
+  transition: background 0.2s;
+}
+
+.qrToggle:hover { background: var(--pg-btn-hover); }
 
 .backBtn {
   padding: 8px 16px;
