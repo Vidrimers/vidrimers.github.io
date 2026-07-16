@@ -18,6 +18,45 @@ const PetGangPet = () => {
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
   const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(null); // index or null
+  const [qrData, setQrData] = useState(null); // { id, token, url, qr_image }
+  const [qrLoading, setQrLoading] = useState(false);
+
+  const generateQr = async () => {
+    setQrLoading(true);
+    try {
+      const token = localStorage.getItem('petgang_token');
+      // Генерируем QR
+      const genRes = await fetch('/pet-gang/api/qr/generate', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const genData = await genRes.json();
+      if (!genData.success) { alert(genData.error); return; }
+
+      // Привязываем к питомцу
+      const bindRes = await fetch('/pet-gang/api/qr/bind', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ qr_id: genData.data.id, pet_id: parseInt(id) })
+      });
+      const bindData = await bindRes.json();
+      if (bindData.success) {
+        setQrData(genData.data);
+      }
+    } catch (e) {
+      console.error('Ошибка генерации QR:', e);
+    } finally {
+      setQrLoading(false);
+    }
+  };
+
+  const downloadQr = () => {
+    if (!qrData) return;
+    const link = document.createElement('a');
+    link.href = qrData.qr_image;
+    link.download = `qr_${pet.name}.png`;
+    link.click();
+  };
 
   const photos = editing ? form.photos : (pet?.photos || []);
 
@@ -199,6 +238,23 @@ const PetGangPet = () => {
         />
         {editing && <p className={styles.photoHint}>Макс. 3 фото, до 5 МБ каждое</p>}
       </div>
+
+      {/* QR-код */}
+      {!editing && (
+        <div className={styles.qrSection}>
+          {qrData ? (
+            <div className={styles.qrCard}>
+              <img src={qrData.qr_image} alt="QR-код" className={styles.qrImage} />
+              <p className={styles.qrUrl}>{qrData.url}</p>
+              <button className={styles.btnPrimary} onClick={downloadQr}>Скачать QR-код</button>
+            </div>
+          ) : (
+            <button className={styles.btn} onClick={generateQr} disabled={qrLoading}>
+              {qrLoading ? 'Генерация...' : 'Создать QR-код'}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Данные питомца */}
       <div className={styles.detailsSection}>
