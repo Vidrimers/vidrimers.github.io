@@ -1,8 +1,75 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PetGangLogin from './PetGangLogin';
 import ConfirmModal from './ConfirmModal';
 import styles from './PetGang.module.css';
+
+// Определение мобильного устройства
+const isMobile = () => 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+// Компонент карусели фото
+const PhotoCarousel = ({ photos, name }) => {
+  const [current, setCurrent] = useState(0);
+  const touchStartX = useRef(0);
+  const touchMoved = useRef(false);
+
+  // Автослайд только на ПК
+  useEffect(() => {
+    if (isMobile() || photos.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrent(prev => (prev + 1) % photos.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [photos.length]);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchMoved.current = false;
+  };
+
+  const handleTouchMove = (e) => {
+    touchMoved.current = true;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchMoved.current) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) setCurrent(prev => (prev + 1) % photos.length);
+      else setCurrent(prev => (prev - 1 + photos.length) % photos.length);
+    }
+  };
+
+  // На ПК — автослайд, показываем одно фото
+  if (!isMobile()) {
+    return (
+      <div className={styles.petCarousel}>
+        <img src={`/uploads/pets/${photos[current]}`} alt={name} className={styles.petPhoto} />
+        {photos.length > 1 && (
+          <div className={styles.carouselDots}>
+            {photos.map((_, i) => (
+              <span key={i} className={`${styles.carouselDot} ${i === current ? styles.carouselDotActive : ''}`} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // На мобилке — свайп
+  return (
+    <div
+      className={styles.petPhotosScroll}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {photos.map((photo, i) => (
+        <img key={i} src={`/uploads/pets}/${photo}`} alt={name} className={styles.petPhoto} />
+      ))}
+    </div>
+  );
+};
 
 const PetGangAdmin = () => {
   const navigate = useNavigate();
@@ -22,23 +89,6 @@ const PetGangAdmin = () => {
     document.body.style.background = 'var(--pg-bg)';
     return () => { document.body.style.background = ''; };
   }, []);
-
-  // Горизонтальный скролл колесом мыши на карточках
-  useEffect(() => {
-    const containers = document.querySelectorAll(`.${styles.petPhotosScroll}`);
-    const handlers = [];
-    containers.forEach(el => {
-      const handler = (e) => {
-        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-          e.preventDefault();
-          el.scrollLeft += e.deltaY;
-        }
-      };
-      el.addEventListener('wheel', handler, { passive: false });
-      handlers.push({ el, handler });
-    });
-    return () => handlers.forEach(({ el, handler }) => el.removeEventListener('wheel', handler));
-  }, [pets]);
 
   // Определение drag vs click на карточках
   const dragRef = useRef({ startX: 0, startY: 0, dragged: false });
@@ -266,11 +316,7 @@ const PetGangAdmin = () => {
               onClick={(e) => handleCardClick(pet.id, e)}
             >
               {pet.photos.length > 0 ? (
-                <div className={styles.petPhotosScroll}>
-                  {pet.photos.map((photo, i) => (
-                    <img key={i} src={`/uploads/pets/${photo}`} alt={pet.name} className={styles.petPhoto} />
-                  ))}
-                </div>
+                <PhotoCarousel photos={pet.photos} name={pet.name} />
               ) : (
                 <div className={styles.petPhotoPlaceholder}>Нет фото</div>
               )}
