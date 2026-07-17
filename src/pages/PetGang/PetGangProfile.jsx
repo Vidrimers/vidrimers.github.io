@@ -295,7 +295,6 @@ const PetGangProfile = () => {
                         <button
                           className={styles.btnPrimary}
                           onClick={() => setBindModal(qr.id)}
-                          disabled={petsWithoutQr.length === 0}
                         >
                           Привязать
                         </button>
@@ -318,8 +317,20 @@ const PetGangProfile = () => {
         <div className={styles.modal} onClick={() => setBindModal(null)}>
           <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
             <h2>Привязать QR к питомцу</h2>
-            {petsWithoutQr.length === 0 ? (
-              <p className={styles.empty}>Все питомцы уже имеют QR-код</p>
+            {pets.length === 0 ? (
+              <>
+                <p className={styles.empty}>Нет карточек животных</p>
+                <button className={styles.btnPrimary} onClick={() => { setBindModal(null); navigate('/pet-gang'); }}>
+                  Создать карточку
+                </button>
+              </>
+            ) : petsWithoutQr.length === 0 ? (
+              <>
+                <p className={styles.empty}>У всех карточек уже есть QR-код</p>
+                <button className={styles.btnPrimary} onClick={() => { setBindModal(null); navigate('/pet-gang'); }}>
+                  Создать новую карточку
+                </button>
+              </>
             ) : (
               <div className={styles.bindList}>
                 {petsWithoutQr.map(pet => (
