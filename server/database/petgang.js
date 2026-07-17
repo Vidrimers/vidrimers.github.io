@@ -91,6 +91,13 @@ function initPetGangDatabase() {
             return;
           }
           console.log('Pet Gang: Таблицы готовы');
+
+          // Очистка: отвязать QR от удалённых питомцев
+          db.run(`
+            UPDATE qr_codes SET pet_id = NULL, is_bound = 0
+            WHERE is_bound = 1 AND pet_id NOT IN (SELECT id FROM pets)
+          `);
+
           resolve(db);
         });
       });
