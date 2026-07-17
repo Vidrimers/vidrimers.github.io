@@ -462,7 +462,9 @@ const PetGangPet = () => {
           {scanHistory.map((scan, i) => (
             <div key={scan.id || i} className={styles.scanHistoryItem}>
               <div className={styles.scanHistoryInfo}>
-                <span className={styles.scanHistoryDate}>{scan.scanned_at}</span>
+                <span className={styles.scanHistoryDate}>
+                  {new Date(scan.scanned_at + 'Z').toLocaleString('ru-RU', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone })}
+                </span>
                 <span className={styles.scanHistoryIp}>IP: {scan.ip_address || 'не определён'}</span>
                 {scan.latitude && scan.longitude && (
                   <span className={styles.scanHistoryGps}>GPS: {scan.latitude}, {scan.longitude}</span>
