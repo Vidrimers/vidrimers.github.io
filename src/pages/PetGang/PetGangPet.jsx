@@ -68,10 +68,12 @@ const PetGangPet = () => {
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
   const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(null);
-  const [qrData, setQrData] = useState(null); // { id, token, url, qr_image }
+  const [qrData, setQrData] = useState(null);
   const [qrLoading, setQrLoading] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [pendingDeletes, setPendingDeletes] = useState([]); // индексы фото для удаления
+  const [confirmLeave, setConfirmLeave] = useState(false);
 
   const generateQr = async () => {
     setQrLoading(true);
@@ -207,6 +209,16 @@ const PetGangPet = () => {
   const savePet = async () => {
     try {
       const token = localStorage.getItem('petgang_token');
+
+      // Сначала удаляем помеченные фото (с сервера)
+      for (const index of pendingDeletes) {
+        await fetch(`/pet-gang/api/pets/${id}/photos/${index}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+
+      // Затем сохраняем карточку
       const res = await fetch(`/pet-gang/api/pets/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -217,6 +229,7 @@ const PetGangPet = () => {
         setPet(data.data);
         setForm(data.data);
         setEditing(false);
+        setPendingDeletes([]);
       }
     } catch (e) {
       console.error('Ошибка сохранения:', e);
@@ -249,22 +262,35 @@ const PetGangPet = () => {
     }
   };
 
-  const deletePhoto = async (index) => {
+  const deletePhoto = (index) => {
     setConfirmDeletePhoto(null);
-    try {
-      const token = localStorage.getItem('petgang_token');
-      const res = await fetch(`/pet-gang/api/pets/${id}/photos/${index}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) {
-        setPet({ ...pet, photos: data.data.photos });
-        setForm({ ...form, photos: data.data.photos });
-      }
-    } catch (e) {
-      console.error('Ошибка удаления фото:', e);
+    // Помечаем для удаления (удалится при сохранении)
+    setPendingDeletes(prev => [...prev, index]);
+    // Убираем из form.photos
+    const newPhotos = form.photos.filter((_, i) => i !== index);
+    setForm({ ...form, photos: newPhotos });
+  };
+
+  const hasChanges = JSON.stringify(form) !== JSON.stringify(pet);
+
+  const handleBack = () => {
+    if (editing && hasChanges) {
+      setConfirmLeave(true);
+    } else {
+      navigate('/pet-gang');
     }
+  };
+
+  const confirmLeaveAction = () => {
+    setConfirmLeave(false);
+    setEditing(false);
+    setForm(pet);
+    setPendingDeletes([]);
+    navigate('/pet-gang');
+  };
+
+  const cancelLeave = () => {
+    setConfirmLeave(false);
   };
 
   if (!authorized) return <div className={styles.loading}>Проверка авторизации...</div>;
@@ -274,7 +300,7 @@ const PetGangPet = () => {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <button className={styles.backBtn} onClick={() => navigate('/pet-gang')}>← Назад</button>
+        <button className={styles.backBtn} onClick={handleBack}>← Назад</button>
         <h1 className={styles.title}>{editing ? 'Редактирование' : pet.name}</h1>
         {!editing && (
           <button className={styles.btnPrimary} onClick={() => setEditing(true)}>Редактировать</button>
@@ -388,7 +414,7 @@ const PetGangPet = () => {
               <textarea className={styles.textarea} value={form.special_marks || ''} onChange={e => setForm({ ...form, special_marks: e.target.value })} />
             </label>
             <div className={styles.formActions}>
-              <button className={styles.btn} onClick={() => { setEditing(false); setForm(pet); }}>Отмена</button>
+              <button className={styles.btn} onClick={() => { setEditing(false); setForm(pet); setPendingDeletes([]); }}>Отмена</button>
               <button className={styles.btnPrimary} onClick={savePet}>Сохранить</button>
             </div>
           </div>
@@ -443,9 +469,18 @@ const PetGangPet = () => {
       {confirmDeletePhoto !== null && (
         <ConfirmModal
           title="Удалить фото?"
-          message="Фотография будет удалена безвозвратно."
+          message="Фотография будет удалена после сохранения."
           onConfirm={() => deletePhoto(confirmDeletePhoto)}
           onCancel={() => setConfirmDeletePhoto(null)}
+        />
+      )}
+
+      {confirmLeave && (
+        <ConfirmModal
+          title="Выйти без сохранения?"
+          message="У вас есть несохранённые изменения. Выйти?"
+          onConfirm={confirmLeaveAction}
+          onCancel={cancelLeave}
         />
       )}
     </div>
