@@ -19,6 +19,8 @@ const PetGangProfile = () => {
   const [qrLoading, setQrLoading] = useState(false);
   const [bindModal, setBindModal] = useState(null); // qr id or null
   const [qrSaved, setQrSaved] = useState(false);
+  const [showCreatePet, setShowCreatePet] = useState(false);
+  const [newPet, setNewPet] = useState({ name: '', species: 'Кошка', sex: 'Мужской', customSpecies: '' });
 
   useEffect(() => {
     const token = localStorage.getItem('petgang_token');
@@ -157,6 +159,36 @@ const PetGangProfile = () => {
       if (data.success) loadQrList();
     } catch (e) {
       console.error('Ошибка отвязки QR:', e);
+    }
+  };
+
+  const createPet = async () => {
+    if (!newPet.name.trim()) return;
+    const species = newPet.species === 'Другое' && newPet.customSpecies?.trim()
+      ? newPet.customSpecies.trim()
+      : newPet.species;
+    try {
+      const token = localStorage.getItem('petgang_token');
+      const res = await fetch('/pet-gang/api/pets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ ...newPet, species })
+      });
+      const data = await res.json();
+      if (data.success) {
+        const pet = { ...data.data, photos: data.data.photos || [] };
+        setPets([pet, ...pets]);
+        setShowCreatePet(false);
+        setNewPet({ name: '', species: 'Кошка', sex: 'Мужской', customSpecies: '' });
+
+        // Если был QR для привязки — привязываем к новому питомцу
+        if (bindModal) {
+          await bindQr(bindModal, data.data.id);
+          setBindModal(null);
+        }
+      }
+    } catch (e) {
+      console.error('Ошибка создания питомца:', e);
     }
   };
 
@@ -320,14 +352,14 @@ const PetGangProfile = () => {
             {pets.length === 0 ? (
               <>
                 <p className={styles.empty}>Нет карточек животных</p>
-                <button className={styles.btnPrimary} onClick={() => { setBindModal(null); navigate('/pet-gang'); }}>
+                <button className={styles.btnPrimary} onClick={() => { setShowCreatePet(true); }}>
                   Создать карточку
                 </button>
               </>
             ) : petsWithoutQr.length === 0 ? (
               <>
                 <p className={styles.empty}>У всех карточек уже есть QR-код</p>
-                <button className={styles.btnPrimary} onClick={() => { setBindModal(null); navigate('/pet-gang'); }}>
+                <button className={styles.btnPrimary} onClick={() => { setShowCreatePet(true); }}>
                   Создать новую карточку
                 </button>
               </>
@@ -343,6 +375,45 @@ const PetGangProfile = () => {
             )}
             <div className={styles.modalActions}>
               <button className={styles.btn} onClick={() => setBindModal(null)}>Отмена</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Модалка создания питомца (для привязки QR) */}
+      {showCreatePet && (
+        <div className={styles.modal} onClick={() => setShowCreatePet(false)}>
+          <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+            <h2>Новый питомец</h2>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Кличка</label>
+              <input className={styles.input} placeholder="Введите кличку" value={newPet.name}
+                onChange={e => setNewPet({ ...newPet, name: e.target.value })} />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Вид</label>
+              <select className={styles.select} value={newPet.species}
+                onChange={e => setNewPet({ ...newPet, species: e.target.value })}>
+                <option>Кошка</option><option>Собака</option><option>Другое</option>
+              </select>
+            </div>
+            {newPet.species === 'Другое' && (
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Название вида</label>
+                <input className={styles.input} placeholder="Введите вид" value={newPet.customSpecies || ''}
+                  onChange={e => setNewPet({ ...newPet, customSpecies: e.target.value })} />
+              </div>
+            )}
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Пол</label>
+              <select className={styles.select} value={newPet.sex}
+                onChange={e => setNewPet({ ...newPet, sex: e.target.value })}>
+                <option>Мужской</option><option>Женский</option>
+              </select>
+            </div>
+            <div className={styles.modalActions}>
+              <button className={styles.btn} onClick={() => setShowCreatePet(false)}>Отмена</button>
+              <button className={styles.btnPrimary} onClick={createPet}>Создать и привязать</button>
             </div>
           </div>
         </div>
