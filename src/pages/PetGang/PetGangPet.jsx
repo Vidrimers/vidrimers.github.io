@@ -470,6 +470,7 @@ const PetGangPet = () => {
         <ConfirmModal
           title="Удалить фото?"
           message="Фотография будет удалена после сохранения."
+          confirmText="Ок"
           onConfirm={() => deletePhoto(confirmDeletePhoto)}
           onCancel={() => setConfirmDeletePhoto(null)}
         />
@@ -479,6 +480,7 @@ const PetGangPet = () => {
         <ConfirmModal
           title="Выйти без сохранения?"
           message="У вас есть несохранённые изменения. Выйти?"
+          confirmText="Выйти"
           onConfirm={confirmLeaveAction}
           onCancel={cancelLeave}
         />
