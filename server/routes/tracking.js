@@ -31,8 +31,10 @@ async function getCountry(ip) {
 // POST /api/track/visit — логирование визита
 router.post('/visit', async (req, res) => {
   try {
-    const { path: visitPath, visitorId, browser, os, isAdmin } = req.body;
+    const { path: visitPath, visitorId, browser, os, isAdmin, client_ip } = req.body;
     const vid = visitorId || 'unknown';
+    const serverIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+    const realIp = (serverIp && serverIp !== '127.0.0.1' && serverIp !== '::1') ? serverIp : (client_ip || serverIp);
 
     // Полностью пропускаем исключённых и админов
     if (isAdmin || (await isVisitorExcluded(vid))) {
@@ -55,7 +57,7 @@ router.post('/visit', async (req, res) => {
       const isNew = existing && existing.cnt === 0;
       const label = isNew ? '🌐 Новый посетитель' : '🔄 Повторный визит';
       const visitorName = await getVisitorName(vid);
-      const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+      const clientIp = realIp;
       const lines = [
         `Браузер: ${browser || '?'}`,
         `ОС: ${os || '?'}`,

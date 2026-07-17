@@ -1,5 +1,24 @@
 // Клиентский трекер визитов и кликов
 
+// Определение IP через внешний API (с кэшированием)
+let cachedIp = null;
+async function getClientIp() {
+  if (cachedIp) return cachedIp;
+  try {
+    const res = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(3000) });
+    const data = await res.json();
+    if (data.ip) {
+      cachedIp = data.ip;
+      localStorage.setItem('vidrimers_ip', data.ip);
+      return data.ip;
+    }
+  } catch {}
+  // Fallback из кэша
+  const stored = localStorage.getItem('vidrimers_ip');
+  if (stored) { cachedIp = stored; return stored; }
+  return null;
+}
+
 // Генерация уникального ID посетителя на основе User-Agent
 function getVisitorId() {
   const key = 'vidrimers_visitor_id';
@@ -40,11 +59,12 @@ function getVisitorInfo() {
 }
 
 // Логирование визита
-export function trackVisit() {
+export async function trackVisit() {
   try {
     const visitorId = getVisitorId();
     const info = getVisitorInfo();
     const isAdmin = !!localStorage.getItem('admin_token');
+    const clientIp = await getClientIp();
     fetch('/api/track/visit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -54,7 +74,8 @@ export function trackVisit() {
         browser: info.browser,
         os: info.os,
         userAgent: info.ua,
-        isAdmin
+        isAdmin,
+        client_ip: clientIp
       }),
       keepalive: true
     }).catch(() => {});
