@@ -307,6 +307,7 @@ const PetGangProfile = () => {
                       </div>
                       <div className={styles.qrItemActions}>
                         <a href={qr.url} target="_blank" rel="noreferrer" className={styles.btn}>Открыть</a>
+                        <button className={styles.btn} onClick={() => navigate(`/pet-gang/pet/${qr.pet_id}`)}>Редактировать</button>
                         <button className={styles.btnDangerSmall} onClick={() => unbindQr(qr.id)}>Отвязать</button>
                       </div>
                     </div>
