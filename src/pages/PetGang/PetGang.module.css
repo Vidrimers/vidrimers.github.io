@@ -135,7 +135,9 @@
 .qrSection {
   margin-bottom: 24px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .qrCard {
