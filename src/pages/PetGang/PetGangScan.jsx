@@ -23,8 +23,11 @@ const PetGangScan = () => {
   }, [token]);
 
   const initScan = async () => {
-    // 1. Сначала запрашиваем геолокацию
-    const geo = await requestGeolocation();
+    // 1. Параллельно: геолокация + IP
+    const [geo, clientIp] = await Promise.all([
+      requestGeolocation(),
+      getClientIp()
+    ]);
 
     // 2. Загружаем данные QR
     try {
@@ -39,8 +42,8 @@ const PetGangScan = () => {
         setOwnerContact(data.data.ownerContact);
         setStatus('pet');
 
-        // 3. Отправляем лог с уже готовыми координатами
-        sendScanLog(token, geo);
+        // 3. Отправляем лог с координатами и IP
+        sendScanLog(token, geo, clientIp);
       } else {
         setStatus('unbound');
       }
@@ -61,7 +64,17 @@ const PetGangScan = () => {
     });
   };
 
-  const sendScanLog = async (qrToken, geo) => {
+  const getClientIp = async () => {
+    try {
+      const res = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(3000) });
+      const data = await res.json();
+      return data.ip || null;
+    } catch {
+      return null;
+    }
+  };
+
+  const sendScanLog = async (qrToken, geo, clientIp) => {
     try {
       await fetch('/pet-gang/api/scan', {
         method: 'POST',
@@ -69,7 +82,8 @@ const PetGangScan = () => {
         body: JSON.stringify({
           qr_token: qrToken,
           latitude: geo?.lat || null,
-          longitude: geo?.lon || null
+          longitude: geo?.lon || null,
+          client_ip: clientIp || null
         })
       });
     } catch (e) {

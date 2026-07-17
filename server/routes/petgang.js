@@ -534,8 +534,9 @@ router.get('/qr', requirePetGangAuth, async (req, res) => {
  */
 router.post('/scan', async (req, res) => {
   try {
-    const { qr_token, latitude, longitude } = req.body;
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+    const { qr_token, latitude, longitude, client_ip } = req.body;
+    const serverIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+    const ip = (serverIp && serverIp !== '127.0.0.1' && serverIp !== '::1') ? serverIp : (client_ip || serverIp);
     const userAgent = req.headers['user-agent'] || '';
 
     const qr = await petgangDb.getQrByToken(qr_token);
