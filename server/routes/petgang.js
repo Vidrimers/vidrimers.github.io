@@ -485,6 +485,36 @@ router.post('/qr/bind', requirePetGangAuth, async (req, res) => {
 });
 
 /**
+ * GET /api/qr/pet/:petId — получить QR-код питомца
+ */
+router.get('/qr/pet/:petId', requirePetGangAuth, async (req, res) => {
+  try {
+    const db = petgangDb.getDb();
+    const row = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM qr_codes WHERE pet_id = ? AND is_bound = 1', [req.params.petId], (err, row) => {
+        err ? reject(err) : resolve(row);
+      });
+    });
+
+    if (!row) {
+      return res.json({ success: true, data: null });
+    }
+
+    const baseUrl = process.env.PETGANG_SITE_URL || 'https://vidrimers.site/pet-gang';
+    const qrUrl = `${baseUrl}/scan/${row.qr_token}`;
+    const qrImage = await QRCode.toDataURL(qrUrl, { width: 300, margin: 2 });
+
+    res.json({
+      success: true,
+      data: { id: row.id, token: row.qr_token, url: qrUrl, qr_image: qrImage }
+    });
+  } catch (error) {
+    console.error('Pet Gang: Ошибка получения QR:', error.message);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  }
+});
+
+/**
  * GET /api/qr — список всех QR-кодов (для админа)
  */
 router.get('/qr', requirePetGangAuth, async (req, res) => {

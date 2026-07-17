@@ -40,10 +40,29 @@ const PetGangPet = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (authorized) loadPet();
+    if (authorized) {
+      loadPet();
+      loadQr();
+    }
     document.body.style.background = 'var(--pg-bg)';
     return () => { document.body.style.background = ''; };
   }, [id, authorized]);
+
+  const loadQr = async () => {
+    try {
+      const token = localStorage.getItem('petgang_token');
+      const res = await fetch(`/pet-gang/api/qr/pet/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        setQrData(data.data);
+        setQrOpen(true);
+      }
+    } catch (e) {
+      console.error('Ошибка загрузки QR:', e);
+    }
+  };
 
   // Lightbox
   const [lightbox, setLightbox] = useState({ open: false, index: 0 });
@@ -76,6 +95,7 @@ const PetGangPet = () => {
       const bindData = await bindRes.json();
       if (bindData.success) {
         setQrData(genData.data);
+        setQrOpen(true);
       }
     } catch (e) {
       console.error('Ошибка генерации QR:', e);
