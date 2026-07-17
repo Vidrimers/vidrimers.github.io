@@ -1,4 +1,28 @@
+User-agent: Yandex
+Disallow: /
+
+User-agent: YandexBot
+Disallow: /
+
+User-agent: YandexRenderResourcesBot
+Disallow: /
+
+User-agent: YandexImages
+Disallow: /
+
+User-agent: YandexVideo
+Disallow: /
+
+User-agent: YandexFavicons
+Disallow: /
+
+User-agent: YandexWebmaster
+Disallow: /
+
+User-agent: YandexPageChecker
+Disallow: /
+
 User-agent: *
 Allow: /
 
-Sitemap: https://vidrimers.github.io/sitemap.xml
+Sitemap: https://vidrimers.site/sitemap.xml
