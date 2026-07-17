@@ -5,12 +5,20 @@ import styles from './PetGang.module.css';
 const PetGangProfile = () => {
   const navigate = useNavigate();
   const [authorized, setAuthorized] = useState(false);
+  const [activeTab, setActiveTab] = useState('visibility');
   const [profile, setProfile] = useState({
     name: '', phones: [''], country: '', city: '', instagram: '', telegram: '', email: '',
     visibility_settings: { show_name: false, show_phones: false, show_instagram: false, show_telegram: false, show_email: false, show_city: false }
   });
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
+
+  // QR codes state
+  const [qrList, setQrList] = useState([]);
+  const [pets, setPets] = useState([]);
+  const [qrLoading, setQrLoading] = useState(false);
+  const [bindModal, setBindModal] = useState(null); // qr id or null
+  const [qrSaved, setQrSaved] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('petgang_token');
@@ -41,7 +49,6 @@ const PetGangProfile = () => {
       const data = await res.json();
       if (data.success && data.data) {
         const profileData = data.data;
-        // Гарантируем что phones — массив и каждый номер начинается с +
         if (!Array.isArray(profileData.phones) || profileData.phones.length === 0) {
           profileData.phones = ['+7'];
         } else {
@@ -78,7 +85,6 @@ const PetGangProfile = () => {
   const removePhone = (i) => setProfile({ ...profile, phones: profile.phones.filter((_, idx) => idx !== i) });
   const updatePhone = (i, val) => {
     const phones = [...profile.phones];
-    // Если поле было пустым и пользователь вводит цифру — добавляем +7
     if ((phones[i] === '' || phones[i] === '+') && /^\d$/.test(val)) {
       phones[i] = '+7' + val;
     } else {
@@ -94,8 +100,71 @@ const PetGangProfile = () => {
     });
   };
 
+  // === QR TAB ===
+
+  const loadQrList = async () => {
+    setQrLoading(true);
+    try {
+      const token = localStorage.getItem('petgang_token');
+      const [qrRes, petsRes] = await Promise.all([
+        fetch('/pet-gang/api/qr', { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch('/pet-gang/api/pets', { headers: { 'Authorization': `Bearer ${token}` } })
+      ]);
+      const qrData = await qrRes.json();
+      const petsData = await petsRes.json();
+      if (qrData.success) setQrList(qrData.data);
+      if (petsData.success) setPets(petsData.data);
+    } catch (e) {
+      console.error('Ошибка загрузки QR:', e);
+    } finally {
+      setQrLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (authorized && activeTab === 'qr') loadQrList();
+  }, [authorized, activeTab]);
+
+  const bindQr = async (qrId, petId) => {
+    try {
+      const token = localStorage.getItem('petgang_token');
+      const res = await fetch('/pet-gang/api/qr/bind', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ qr_id: qrId, pet_id: petId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBindModal(null);
+        setQrSaved(true);
+        setTimeout(() => setQrSaved(false), 2000);
+        loadQrList();
+      }
+    } catch (e) {
+      console.error('Ошибка привязки QR:', e);
+    }
+  };
+
+  const unbindQr = async (qrId) => {
+    try {
+      const token = localStorage.getItem('petgang_token');
+      const res = await fetch('/pet-gang/api/qr/unbind', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ qr_id: qrId })
+      });
+      const data = await res.json();
+      if (data.success) loadQrList();
+    } catch (e) {
+      console.error('Ошибка отвязки QR:', e);
+    }
+  };
+
   if (!authorized) return <div className={styles.loading}>Проверка авторизации...</div>;
   if (loading) return <div className={styles.loading}>Загрузка...</div>;
+
+  // Питомцы без QR
+  const petsWithoutQr = pets.filter(p => !qrList.some(q => q.is_bound && q.pet_id === p.id));
 
   return (
     <div className={styles.container}>
@@ -104,67 +173,36 @@ const PetGangProfile = () => {
         <h1 className={styles.title}>Профиль владельца</h1>
       </header>
 
+      {/* Форма профиля */}
       <div className={styles.formGrid}>
         <label>Имя
           <input className={styles.input} value={profile.name} onChange={e => setProfile({ ...profile, name: e.target.value })} />
         </label>
-
         <label>Страна
           <input className={styles.input} value={profile.country} onChange={e => setProfile({ ...profile, country: e.target.value })} />
         </label>
-
         <label>Город
           <input className={styles.input} value={profile.city} onChange={e => setProfile({ ...profile, city: e.target.value })} />
         </label>
-
         <label>Instagram
           <input className={styles.input} value={profile.instagram} onChange={e => setProfile({ ...profile, instagram: e.target.value })} placeholder="username" />
         </label>
-
         <label>Telegram
           <input className={styles.input} value={profile.telegram} onChange={e => setProfile({ ...profile, telegram: e.target.value })} placeholder="username" />
         </label>
-
         <label>Электронная почта
           <input className={styles.input} type="email" value={profile.email} onChange={e => setProfile({ ...profile, email: e.target.value })} />
         </label>
-
-        {/* Телефоны */}
         <div className={styles.fullWidth}>
           <label>Телефоны</label>
           {profile.phones.map((phone, i) => (
             <div key={i} className={styles.phoneRow}>
               <input className={styles.input} value={phone} onChange={e => updatePhone(i, e.target.value)} placeholder="+7 (999) 123-45-67" />
-              {i > 0 && (
-                <button className={styles.removeBtn} onClick={() => removePhone(i)}>×</button>
-              )}
+              {i > 0 && <button className={styles.removeBtn} onClick={() => removePhone(i)}>×</button>}
             </div>
           ))}
           <button className={styles.addPhoneBtn} onClick={addPhone}>+ Добавить телефон</button>
         </div>
-      </div>
-
-      {/* Настройки видимости */}
-      <div className={styles.visibilitySection}>
-        <h2>Настройки видимости</h2>
-        <p className={styles.visibilityHint}>Выберите, какие данные будут видны при сканировании QR-кода</p>
-        {[
-          ['show_name', 'Имя владельца'],
-          ['show_phones', 'Телефон(ы)'],
-          ['show_instagram', 'Instagram'],
-          ['show_telegram', 'Telegram'],
-          ['show_email', 'Электронная почта'],
-          ['show_city', 'Город']
-        ].map(([key, label]) => (
-          <label key={key} className={styles.checkboxLabel}>
-            <input
-              type="checkbox"
-              checked={!!profile.visibility_settings[key]}
-              onChange={() => toggleVisibility(key)}
-            />
-            {label}
-          </label>
-        ))}
       </div>
 
       <div className={styles.formActions}>
@@ -172,6 +210,132 @@ const PetGangProfile = () => {
           {saved ? 'Сохранено!' : 'Сохранить'}
         </button>
       </div>
+
+      {/* Табы */}
+      <div className={styles.tabs}>
+        <button
+          className={`${styles.tab} ${activeTab === 'visibility' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('visibility')}
+        >
+          Настройки видимости
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'qr' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('qr')}
+        >
+          Мои QR-коды
+        </button>
+      </div>
+
+      {/* Таб: Настройки видимости */}
+      {activeTab === 'visibility' && (
+        <div className={styles.visibilitySection}>
+          <p className={styles.visibilityHint}>Выберите, какие данные будут видны при сканировании QR-кода</p>
+          {[
+            ['show_name', 'Имя владельца'],
+            ['show_phones', 'Телефон(ы)'],
+            ['show_instagram', 'Instagram'],
+            ['show_telegram', 'Telegram'],
+            ['show_email', 'Электронная почта'],
+            ['show_city', 'Город']
+          ].map(([key, label]) => (
+            <label key={key} className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={!!profile.visibility_settings[key]}
+                onChange={() => toggleVisibility(key)}
+              />
+              {label}
+            </label>
+          ))}
+          <div className={styles.formActions}>
+            <button className={styles.btnPrimary} onClick={saveProfile}>
+              {saved ? 'Сохранено!' : 'Сохранить'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Таб: Мои QR-коды */}
+      {activeTab === 'qr' && (
+        <div className={styles.qrTabSection}>
+          {qrLoading ? (
+            <div className={styles.loading}>Загрузка...</div>
+          ) : (
+            <>
+              {/* Привязанные QR */}
+              {qrList.filter(q => q.is_bound).length > 0 && (
+                <div className={styles.qrGroup}>
+                  <h3 className={styles.qrGroupTitle}>Привязанные к питомцам</h3>
+                  {qrList.filter(q => q.is_bound).map(qr => (
+                    <div key={qr.id} className={styles.qrItem}>
+                      <div className={styles.qrItemInfo}>
+                        <span className={styles.qrItemPet}>{qr.pet_name} ({qr.pet_species})</span>
+                        <span className={styles.qrItemToken}>{qr.token.slice(0, 12)}...</span>
+                      </div>
+                      <div className={styles.qrItemActions}>
+                        <a href={qr.url} target="_blank" rel="noreferrer" className={styles.btn}>Открыть</a>
+                        <button className={styles.btnDangerSmall} onClick={() => unbindQr(qr.id)}>Отвязать</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Свободные QR */}
+              {qrList.filter(q => !q.is_bound).length > 0 && (
+                <div className={styles.qrGroup}>
+                  <h3 className={styles.qrGroupTitle}>Свободные (не привязаны)</h3>
+                  {qrList.filter(q => !q.is_bound).map(qr => (
+                    <div key={qr.id} className={styles.qrItem}>
+                      <div className={styles.qrItemInfo}>
+                        <span className={styles.qrItemToken}>{qr.token.slice(0, 16)}...</span>
+                      </div>
+                      <div className={styles.qrItemActions}>
+                        <button
+                          className={styles.btnPrimary}
+                          onClick={() => setBindModal(qr.id)}
+                          disabled={petsWithoutQr.length === 0}
+                        >
+                          Привязать
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {qrList.length === 0 && (
+                <p className={styles.empty}>Нет QR-кодов. Создайте в карточке питомца.</p>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Модалка привязки */}
+      {bindModal && (
+        <div className={styles.modal} onClick={() => setBindModal(null)}>
+          <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+            <h2>Привязать QR к питомцу</h2>
+            {petsWithoutQr.length === 0 ? (
+              <p className={styles.empty}>Все питомцы уже имеют QR-код</p>
+            ) : (
+              <div className={styles.bindList}>
+                {petsWithoutQr.map(pet => (
+                  <button key={pet.id} className={styles.bindItem} onClick={() => bindQr(bindModal, pet.id)}>
+                    <span>{pet.name}</span>
+                    <span className={styles.bindItemSpecies}>{pet.species}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className={styles.modalActions}>
+              <button className={styles.btn} onClick={() => setBindModal(null)}>Отмена</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

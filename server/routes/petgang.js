@@ -485,6 +485,28 @@ router.post('/qr/bind', requirePetGangAuth, async (req, res) => {
 });
 
 /**
+ * POST /api/qr/unbind — отвязать QR от карточки
+ */
+router.post('/qr/unbind', requirePetGangAuth, async (req, res) => {
+  try {
+    const { qr_id } = req.body;
+    if (!qr_id) {
+      return res.status(400).json({ success: false, error: 'qr_id обязателен' });
+    }
+    const db = petgangDb.getDb();
+    await new Promise((resolve, reject) => {
+      db.run('UPDATE qr_codes SET pet_id = NULL, is_bound = 0 WHERE id = ?', [qr_id], (err) => {
+        err ? reject(err) : resolve();
+      });
+    });
+    res.json({ success: true, unbound: true });
+  } catch (error) {
+    console.error('Pet Gang: Ошибка отвязки QR:', error.message);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  }
+});
+
+/**
  * GET /api/qr/pet/:petId — получить QR-код питомца
  */
 router.get('/qr/pet/:petId', requirePetGangAuth, async (req, res) => {
@@ -515,12 +537,33 @@ router.get('/qr/pet/:petId', requirePetGangAuth, async (req, res) => {
 });
 
 /**
- * GET /api/qr — список всех QR-кодов (для админа)
+ * GET /api/qr — список всех QR-кодов с данными питомцев
  */
 router.get('/qr', requirePetGangAuth, async (req, res) => {
   try {
-    const qrs = await petgangDb.getAllQrCodes();
-    res.json({ success: true, data: qrs });
+    const db = petgangDb.getDb();
+    const rows = await new Promise((resolve, reject) => {
+      db.all(`
+        SELECT q.*, p.name as pet_name, p.species as pet_species
+        FROM qr_codes q
+        LEFT JOIN pets p ON q.pet_id = p.id
+        ORDER BY q.created_at DESC
+      `, [], (err, rows) => err ? reject(err) : resolve(rows));
+    });
+
+    const baseUrl = process.env.PETGANG_SITE_URL || 'https://vidrimers.site/pet-gang';
+    const data = rows.map(row => ({
+      id: row.id,
+      token: row.qr_token,
+      url: `${baseUrl}/scan/${row.qr_token}`,
+      is_bound: !!row.is_bound,
+      pet_id: row.pet_id,
+      pet_name: row.pet_name || null,
+      pet_species: row.pet_species || null,
+      created_at: row.created_at
+    }));
+
+    res.json({ success: true, data });
   } catch (error) {
     console.error('Pet Gang: Ошибка получения QR:', error.message);
     res.status(500).json({ success: false, error: 'Ошибка сервера' });

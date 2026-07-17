@@ -238,7 +238,11 @@ function deletePet(id) {
 
       db.run('DELETE FROM pets WHERE id = ?', [id], function (err) {
         if (err) reject(err);
-        else resolve({ deleted: true });
+        else {
+          // Отвязываем QR-коды удалённого питомца
+          db.run('UPDATE qr_codes SET pet_id = NULL, is_bound = 0 WHERE pet_id = ?', [id]);
+          resolve({ deleted: true });
+        }
       });
     });
   });
