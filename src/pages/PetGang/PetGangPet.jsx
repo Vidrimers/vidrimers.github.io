@@ -57,7 +57,6 @@ const PetGangPet = () => {
       const data = await res.json();
       if (data.success && data.data) {
         setQrData(data.data);
-        setQrOpen(true);
       }
     } catch (e) {
       console.error('Ошибка загрузки QR:', e);
@@ -95,7 +94,6 @@ const PetGangPet = () => {
       const bindData = await bindRes.json();
       if (bindData.success) {
         setQrData(genData.data);
-        setQrOpen(true);
       }
     } catch (e) {
       console.error('Ошибка генерации QR:', e);
@@ -319,8 +317,7 @@ const PetGangPet = () => {
           <button className={styles.qrToggle} onClick={() => setQrOpen(!qrOpen)}>
             {qrOpen ? 'Скрыть QR-код ▲' : 'QR-код ▼'}
           </button>
-          {qrOpen && (
-            <div className={styles.qrCard}>
+          <div className={`${styles.qrCard} ${qrOpen ? styles.qrCardOpen : ''}`}>
               {qrData ? (
                 <>
                   <img src={qrData.qr_image} alt="QR-код" className={styles.qrImage} />
@@ -338,7 +335,6 @@ const PetGangPet = () => {
                 </button>
               )}
             </div>
-          )}
         </div>
       )}
 
