@@ -557,15 +557,10 @@ router.post('/scan', async (req, res) => {
           hour: '2-digit', minute: '2-digit'
         });
 
-        const telegramService = new PetGangTelegram(
-          require('../telegram')?.isEnabled ? { isEnabled: true, bot: require('../telegram') } : null
-        );
-
-        // Попробуем использовать глобальный экземпляр Telegram
         try {
           const Telegram = require('../telegram');
-          const tgInstance = new Telegram();
-          if (tgInstance.isEnabled) {
+          const tg = new Telegram();
+          if (tg.isEnabled) {
             const chatId = process.env.PETGANG_TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
             const geoText = (latitude && longitude)
               ? `GPS координаты: ${latitude}, ${longitude}`
@@ -575,16 +570,19 @@ router.post('/scan', async (req, res) => {
               `‼️ Паспорт питомца «${pet.name}» был отсканирован.\n` +
               `Дата и время: ${dateTime}\n` +
               `${geoText}\n` +
-              `IP адрес: ${ip}`;
+              `IP адрес: ${ip || 'не определён'}`;
 
-            await tgInstance.bot.sendMessage(chatId, message);
+            console.log(`[PetGang Scan] ${pet.name} | IP: ${ip} | GPS: ${latitude},${longitude}`);
+            await tg.bot.sendMessage(chatId, message);
 
             if (latitude && longitude) {
-              await tgInstance.bot.sendLocation(chatId, latitude, longitude);
+              await tg.bot.sendLocation(chatId, latitude, longitude);
             }
+          } else {
+            console.warn('[PetGang Scan] Telegram не инициализирован');
           }
         } catch (tgErr) {
-          console.error('Pet Gang: Ошибка Telegram:', tgErr.message);
+          console.error('[PetGang Scan] Ошибка Telegram:', tgErr.message);
         }
       }
     }

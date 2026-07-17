@@ -55,9 +55,11 @@ router.post('/visit', async (req, res) => {
       const isNew = existing && existing.cnt === 0;
       const label = isNew ? '🌐 Новый посетитель' : '🔄 Повторный визит';
       const visitorName = await getVisitorName(vid);
+      const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
       const lines = [
         `Браузер: ${browser || '?'}`,
-        `ОС: ${os || '?'}`
+        `ОС: ${os || '?'}`,
+        `IP: ${clientIp}`
       ];
       if (visitPath && visitPath !== '/') lines.push(`Страница: ${visitPath}`);
       if (visitorName) lines.push(`Специальное имя: ${visitorName}`);
