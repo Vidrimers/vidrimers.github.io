@@ -43,6 +43,7 @@ const PetGangPet = () => {
     if (authorized) {
       loadPet();
       loadQr();
+      loadScanHistory();
     }
     document.body.style.background = 'var(--pg-bg)';
     return () => { document.body.style.background = ''; };
@@ -63,6 +64,19 @@ const PetGangPet = () => {
     }
   };
 
+  const loadScanHistory = async () => {
+    try {
+      const token = localStorage.getItem('petgang_token');
+      const res = await fetch(`/pet-gang/api/pets/${id}/scans`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) setScanHistory(data.data);
+    } catch (e) {
+      console.error('Ошибка загрузки истории:', e);
+    }
+  };
+
   // Lightbox
   const [lightbox, setLightbox] = useState({ open: false, index: 0 });
   const touchStartX = useRef(0);
@@ -72,8 +86,9 @@ const PetGangPet = () => {
   const [qrLoading, setQrLoading] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [pendingDeletes, setPendingDeletes] = useState([]); // индексы фото для удаления
+  const [pendingDeletes, setPendingDeletes] = useState([]);
   const [confirmLeave, setConfirmLeave] = useState(false);
+  const [scanHistory, setScanHistory] = useState([]);
 
   const generateQr = async () => {
     setQrLoading(true);
@@ -439,6 +454,34 @@ const PetGangPet = () => {
           </div>
         )}
       </div>
+
+      {/* История считывания */}
+      {!editing && scanHistory.length > 0 && (
+        <div className={styles.scanHistorySection}>
+          <h2 className={styles.scanHistoryTitle}>История считывания</h2>
+          {scanHistory.map((scan, i) => (
+            <div key={scan.id || i} className={styles.scanHistoryItem}>
+              <div className={styles.scanHistoryInfo}>
+                <span className={styles.scanHistoryDate}>{scan.scanned_at}</span>
+                <span className={styles.scanHistoryIp}>IP: {scan.ip_address || 'не определён'}</span>
+                {scan.latitude && scan.longitude && (
+                  <span className={styles.scanHistoryGps}>GPS: {scan.latitude}, {scan.longitude}</span>
+                )}
+              </div>
+              {scan.latitude && scan.longitude && (
+                <a
+                  href={`https://www.google.com/maps?q=${scan.latitude},${scan.longitude}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.btn}
+                >
+                  На карте
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Лайтбокс */}
       {lightbox.open && photos.length > 0 && (

@@ -637,6 +637,28 @@ router.post('/scan', async (req, res) => {
   }
 });
 
+// ==================== ИСТОРИЯ СКАНИРОВАНИЙ ====================
+
+/**
+ * GET /api/pets/:id/scans — история сканирований питомца
+ */
+router.get('/pets/:id/scans', requirePetGangAuth, async (req, res) => {
+  try {
+    const db = petgangDb.getDb();
+    const scans = await new Promise((resolve, reject) => {
+      db.all(
+        'SELECT * FROM scan_logs WHERE pet_id = ? ORDER BY scanned_at DESC',
+        [req.params.id],
+        (err, rows) => err ? reject(err) : resolve(rows)
+      );
+    });
+    res.json({ success: true, data: scans });
+  } catch (error) {
+    console.error('Pet Gang: Ошибка получения истории:', error.message);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  }
+});
+
 // ==================== СТАТИСТИКА ====================
 
 /**

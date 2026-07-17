@@ -331,6 +331,51 @@
   color: var(--pg-text-muted);
 }
 
+/* Scan History */
+.scanHistorySection {
+  margin-bottom: 24px;
+}
+
+.scanHistoryTitle {
+  font-size: 18px;
+  color: var(--pg-text-heading);
+  margin: 0 0 12px 0;
+}
+
+.scanHistoryItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--pg-surface);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.scanHistoryInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.scanHistoryDate {
+  font-size: 14px;
+  color: var(--pg-text);
+  font-weight: 500;
+}
+
+.scanHistoryIp {
+  font-size: 12px;
+  color: var(--pg-text-muted);
+}
+
+.scanHistoryGps {
+  font-size: 12px;
+  color: var(--pg-text-muted);
+}
+
 .backBtn {
   padding: 8px 16px;
   border: none;
