@@ -141,12 +141,13 @@ app.use('/api/track', apiRateLimiter, trackingRoutes);
 // Telegram forwarding для pet-gang.ru (prod может достучаться до Telegram)
 app.post('/api/telegram-forward', async (req, res) => {
   try {
-    const { method, chat_id, text, parse_mode, latitude, longitude } = req.body;
+    const { method, chat_id, text, parse_mode, latitude, longitude, bot_token } = req.body;
     if (!method || !chat_id) {
       return res.status(400).json({ error: 'method and chat_id required' });
     }
     const TelegramBot = require('node-telegram-bot-api');
-    const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
+    const token = bot_token || process.env.TELEGRAM_BOT_TOKEN;
+    const bot = new TelegramBot(token, { polling: false });
     let result;
     if (method === 'sendMessage') {
       result = await bot.sendMessage(chat_id, text, { parse_mode });
