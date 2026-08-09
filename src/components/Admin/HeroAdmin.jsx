@@ -360,6 +360,7 @@ const HeroAdmin = ({ isOpen, onClose }) => {
   };
 
   const handleEditorSave = async (editedFile) => {
+    const oldPhotoId = currentPhoto?.id;
     setEditorOpen(false);
     setUploading(true);
     setError(null);
@@ -381,9 +382,8 @@ const HeroAdmin = ({ isOpen, onClose }) => {
       }
 
       const data = await response.json();
-      setAllImages((prev) => [data.data, ...prev]);
 
-      // Автоматически устанавливаем как текущее
+      // Устанавливаем как текущее
       const setResponse = await fetch(`/api/hero/photo/${data.data.id}`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
@@ -391,6 +391,17 @@ const HeroAdmin = ({ isOpen, onClose }) => {
 
       if (setResponse.ok) {
         setCurrentPhoto(data.data);
+      }
+
+      // Удаляем старое фото (заменяем, а не копим)
+      if (oldPhotoId) {
+        await fetch(`/api/hero/images/${oldPhotoId}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAllImages((prev) => [data.data, ...prev.filter((img) => img.id !== oldPhotoId)]);
+      } else {
+        setAllImages((prev) => [data.data, ...prev]);
       }
 
       setSuccessMsg('Отредактированное изображение сохранено');
