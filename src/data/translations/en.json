@@ -8,10 +8,10 @@
     "contacts": "Contacts"
   },
   "hero": {
-    "title": "Yaroslav Shiryakov",
-    "subtitle": "Frontend Developer",
-    "greeting": "Hello! I'm Yaroslav",
-    "description": "Frontend Developer",
+    "title": "Nickname",
+    "subtitle": "Profession",
+    "greeting": "Hello!",
+    "description": "Profession",
     "language": {
       "ru": "RUS",
       "en": "ENG"

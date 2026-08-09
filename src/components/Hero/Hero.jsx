@@ -7,7 +7,6 @@ import AdminLogout from '../Admin/AdminLogout';
 import AdminIndicator from '../Admin/AdminIndicator';
 import HeroAdmin from '../Admin/HeroAdmin';
 import styles from './Hero.module.css';
-import photoImg from '../../assets/img/photo.jpg';
 
 const Hero = () => {
   const { language, translations, changeLanguage } = useContext(LanguageContext);
@@ -61,12 +60,12 @@ const Hero = () => {
     return heroData.languages.filter((l) => l.enabled);
   }, [heroData]);
 
-  // Фото из API, fallback на статический импорт
+  // Фото из API, fallback — null (белый фон)
   const heroPhotoUrl = useMemo(() => {
     if (heroData && heroData.currentPhoto) {
       return `/uploads/hero/${heroData.currentPhoto.filename}`;
     }
-    return photoImg;
+    return null;
   }, [heroData]);
 
   // Определяем текущий брейкпоинт
@@ -82,11 +81,12 @@ const Hero = () => {
 
   // Responsive crop стили
   const heroPhotoStyle = useMemo(() => {
+    if (!heroPhotoUrl) return { background: '#f5f5f5' };
+
     const isApiPhoto = !!heroData?.currentPhoto;
-    // Grayscale только для хардкод-фото, не для фото из API
     const base = {
       backgroundImage: `url(${heroPhotoUrl})`,
-      filter: isApiPhoto ? 'none' : 'grayscale(0.8)',
+      filter: 'none',
     };
     if (!isApiPhoto || !heroData.currentPhoto.responsive_crops_json) return base;
 
@@ -149,7 +149,7 @@ const Hero = () => {
         <div className={styles.wrapper}>
           <div className={styles.container}>
             <div className={styles.heroInner}>
-              <div className={styles.heroPhoto} style={{ backgroundImage: `url(${photoImg})` }}></div>
+              <div className={styles.heroPhoto} style={{ background: '#f5f5f5' }}></div>
             </div>
           </div>
         </div>

@@ -8,10 +8,10 @@
     "contacts": "Контакты"
   },
   "hero": {
-    "title": "Ярослав Ширяков",
-    "subtitle": "Frontend разработчик",
-    "greeting": "Привет! Я Ярослав",
-    "description": "Frontend-разработчик",
+    "title": "Никнейм",
+    "subtitle": "Профессия",
+    "greeting": "Привет!",
+    "description": "Профессия",
     "language": {
       "ru": "РУС",
       "en": "АНГ"
