@@ -270,6 +270,18 @@ router.post('/upload', requireAuth, (req, res) => {
         });
       }
 
+      // Проверка дубликата имени
+      const existingByName = await dbService.getQuery(
+        'SELECT id FROM hero_images WHERE original_name = ?',
+        [req.file.originalname]
+      );
+      if (existingByName) {
+        return res.status(409).json({
+          success: false,
+          error: { code: 'DUPLICATE_NAME', message: 'Изображение с таким именем уже существует' },
+        });
+      }
+
       // Генерируем уникальное имя
       const filename = fileService.generateUniqueFilename(req.file.originalname);
       const filePath = path.join(HERO_UPLOADS_DIR, filename);
