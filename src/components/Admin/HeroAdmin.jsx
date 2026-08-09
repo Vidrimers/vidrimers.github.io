@@ -59,6 +59,10 @@ const HeroAdmin = ({ isOpen, onClose }) => {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editorImageUrl, setEditorImageUrl] = useState(null);
 
+  // Диалог дубликата имени
+  const [duplicateDialog, setDuplicateDialog] = useState(null); // { file, originalName }
+  const [newImageName, setNewImageName] = useState('');
+
   // Refs
   const fileInputRef = useRef(null);
 
@@ -359,14 +363,13 @@ const HeroAdmin = ({ isOpen, onClose }) => {
     setEditorOpen(true);
   };
 
-  const handleEditorSave = async (editedFile) => {
-    setEditorOpen(false);
+  const uploadEditedImage = async (file) => {
     setUploading(true);
     setError(null);
 
     try {
       const formData = new FormData();
-      formData.append('image', editedFile);
+      formData.append('image', file);
 
       const token = localStorage.getItem('admin_token');
       const response = await fetch('/api/hero/upload', {
@@ -383,7 +386,6 @@ const HeroAdmin = ({ isOpen, onClose }) => {
       const data = await response.json();
       setAllImages((prev) => [data.data, ...prev]);
 
-      // Автоматически устанавливаем как текущее
       const setResponse = await fetch(`/api/hero/photo/${data.data.id}`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
@@ -400,6 +402,88 @@ const HeroAdmin = ({ isOpen, onClose }) => {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleEditorSave = async (editedFile) => {
+    setEditorOpen(false);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('image', editedFile);
+
+      const token = localStorage.getItem('admin_token');
+      const response = await fetch('/api/hero/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      if (response.status === 409) {
+        // Дубликат имени — показываем диалог
+        setDuplicateDialog({ file: editedFile, originalName: editedFile.name });
+        setNewImageName(editedFile.name.replace(/\.[^.]+$/, ''));
+        return;
+      }
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || 'Ошибка загрузки');
+      }
+
+      const data = await response.json();
+      setAllImages((prev) => [data.data, ...prev]);
+
+      const setResponse = await fetch(`/api/hero/photo/${data.data.id}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (setResponse.ok) {
+        setCurrentPhoto(data.data);
+      }
+
+      setSuccessMsg('Отредактированное изображение сохранено');
+      setTimeout(() => setSuccessMsg(null), 3000);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // Перезаписать существующее изображение
+  const handleOverwrite = async () => {
+    if (!duplicateDialog) return;
+    const { file } = duplicateDialog;
+    setDuplicateDialog(null);
+
+    // Находим старое изображение по имени и удаляем
+    const oldImage = allImages.find((img) => img.original_name === file.name);
+    if (oldImage) {
+      const token = localStorage.getItem('admin_token');
+      await fetch(`/api/hero/images/${oldImage.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAllImages((prev) => prev.filter((img) => img.id !== oldImage.id));
+    }
+
+    await uploadEditedImage(file);
+  };
+
+  // Сохранить с новым именем
+  const handleSaveWithNewName = async () => {
+    if (!duplicateDialog || !newImageName.trim()) return;
+    const ext = duplicateDialog.originalName.split('.').pop() || 'png';
+    const newName = `${newImageName.trim()}.${ext}`;
+    const renamedFile = new File([duplicateDialog.file], newName, { type: duplicateDialog.file.type });
+    setDuplicateDialog(null);
+    await uploadEditedImage(renamedFile);
+  };
+
+  // Отмена диалога дубликата
+  const handleDuplicateCancel = () => {
+    setDuplicateDialog(null);
+    setNewImageName('');
   };
 
   const handleEditorCancel = () => {
@@ -988,6 +1072,39 @@ const HeroAdmin = ({ isOpen, onClose }) => {
             onSave={handleEditorSave}
             onCancel={handleEditorCancel}
           />
+        </div>
+      )}
+
+      {/* Диалог дубликата имени */}
+      {duplicateDialog && (
+        <div className={styles.duplicateOverlay}>
+          <div className={styles.duplicateDialog}>
+            <h3 className={styles.duplicateTitle}>Изображение с таким именем уже существует</h3>
+            <p className={styles.duplicateName}>"{duplicateDialog.originalName}"</p>
+
+            <div className={styles.duplicateActions}>
+              <button className={styles.duplicateBtnOverwrite} onClick={handleOverwrite}>
+                Перезаписать
+              </button>
+              <button className={styles.duplicateBtnNewName} onClick={handleSaveWithNewName}>
+                Сохранить с новым именем
+              </button>
+              <button className={styles.duplicateBtnCancel} onClick={handleDuplicateCancel}>
+                Отмена
+              </button>
+            </div>
+
+            <div className={styles.duplicateNewName}>
+              <input
+                className={styles.input}
+                type="text"
+                value={newImageName}
+                onChange={(e) => setNewImageName(e.target.value)}
+                placeholder="Новое имя файла"
+                maxLength={100}
+              />
+            </div>
+          </div>
         </div>
       )}
     </AdminModal>
