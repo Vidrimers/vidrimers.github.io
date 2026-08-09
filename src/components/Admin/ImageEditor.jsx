@@ -56,6 +56,14 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
           showBackButton
           defaultSavedImageName="hero-edited"
           defaultSavedImageType="png"
+          Rotate={{ angle: 90, componentType: 'slider' }}
+          Crop={{
+            presetsItems: [
+              { titleKey: 'classicTv', descriptionKey: '4:3', ratio: 4 / 3 },
+              { titleKey: 'cinemascope', descriptionKey: '21:9', ratio: 21 / 9 },
+              { titleKey: 'square', descriptionKey: '1:1', ratio: 1 },
+            ],
+          }}
         />
       </div>
     </EditorErrorBoundary>
