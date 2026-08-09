@@ -950,6 +950,14 @@ const HeroAdmin = ({ isOpen, onClose }) => {
                                   <div className={styles.previewSubtitle}>
                                     {form.subtitleRu || 'Специальность'}
                                   </div>
+                                  <div className={styles.previewHeroLang}>
+                                    {languages.filter(l => l.enabled).map((lang, idx) => (
+                                      <React.Fragment key={lang.code}>
+                                        {idx > 0 && <span>|</span>}
+                                        <span>{lang.labelRu}</span>
+                                      </React.Fragment>
+                                    ))}
+                                  </div>
                                 </div>
                                 <div
                                   className={styles.previewHeroPhoto}
