@@ -51,17 +51,28 @@ class EditorErrorBoundary extends React.Component {
  * onSave получает File — готовое отредактированное изображение.
  */
 const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
-  const [ready, setReady] = useState(false);
+  const [imageSrc, setImageSrc] = useState(null);
 
-  // Предзагрузка изображения
+  // Загрузка изображения как base64 data URL
   useEffect(() => {
     if (!imageUrl) return;
-    setReady(false);
-    const img = new Image();
-    img.onload = () => setReady(true);
-    img.onerror = () => setReady(true); // всё равно пробуем открыть
-    img.src = imageUrl;
-  }, [imageUrl]);
+    setImageSrc(null);
+
+    const loadImage = async () => {
+      try {
+        const response = await fetch(imageUrl);
+        if (!response.ok) throw new Error('Failed to fetch image');
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => setImageSrc(reader.result);
+        reader.onerror = () => onCancel();
+        reader.readAsDataURL(blob);
+      } catch {
+        onCancel();
+      }
+    };
+    loadImage();
+  }, [imageUrl, onCancel]);
 
   const handleSave = useCallback(
     (editedImageObject) => {
@@ -84,7 +95,7 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
     [onSave]
   );
 
-  if (!ready) {
+  if (!imageSrc) {
     return (
       <div style={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: '#fff' }}>
         Загрузка редактора...
@@ -96,7 +107,7 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
     <EditorErrorBoundary onCancel={onCancel}>
       <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
         <FilerobotImageEditor
-          source={imageUrl}
+          source={imageSrc}
         onSave={handleSave}
         onClose={onCancel}
         annotationsCommon={{
