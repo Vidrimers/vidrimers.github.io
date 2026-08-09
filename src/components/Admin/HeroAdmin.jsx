@@ -363,7 +363,7 @@ const HeroAdmin = ({ isOpen, onClose }) => {
     setEditorOpen(true);
   };
 
-  const uploadEditedImage = async (file) => {
+  const uploadEditedImage = async (file, showDialogOnDuplicate = true) => {
     setUploading(true);
     setError(null);
 
@@ -377,6 +377,14 @@ const HeroAdmin = ({ isOpen, onClose }) => {
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
+
+      // Дубликат имени — показываем диалог
+      if (response.status === 409 && showDialogOnDuplicate) {
+        setUploading(false);
+        setDuplicateDialog({ file, originalName: file.name });
+        setNewImageName(file.name);
+        return;
+      }
 
       if (!response.ok) {
         const errData = await response.json();
@@ -406,48 +414,7 @@ const HeroAdmin = ({ isOpen, onClose }) => {
 
   const handleEditorSave = async (editedFile) => {
     setEditorOpen(false);
-    setError(null);
-
-    try {
-      const formData = new FormData();
-      formData.append('image', editedFile);
-
-      const token = localStorage.getItem('admin_token');
-      const response = await fetch('/api/hero/upload', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-
-      if (response.status === 409) {
-        // Дубликат имени — показываем диалог
-        setDuplicateDialog({ file: editedFile, originalName: editedFile.name });
-        setNewImageName(editedFile.name);
-        return;
-      }
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error?.message || 'Ошибка загрузки');
-      }
-
-      const data = await response.json();
-      setAllImages((prev) => [data.data, ...prev]);
-
-      const setResponse = await fetch(`/api/hero/photo/${data.data.id}`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (setResponse.ok) {
-        setCurrentPhoto(data.data);
-      }
-
-      setSuccessMsg('Отредактированное изображение сохранено');
-      setTimeout(() => setSuccessMsg(null), 3000);
-    } catch (err) {
-      setError(err.message);
-    }
+    await uploadEditedImage(editedFile, true);
   };
 
   // Перезаписать существующее изображение
