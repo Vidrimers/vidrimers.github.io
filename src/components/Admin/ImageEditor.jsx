@@ -52,6 +52,10 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
           onSave={handleSave}
           onClose={onCancel}
           useBackendTranslations={false}
+          avoidChangesNotSavedAlertOnLeave
+          showBackButton
+          defaultSavedImageName="hero-edited"
+          defaultSavedImageType="png"
         />
       </div>
     </EditorErrorBoundary>
