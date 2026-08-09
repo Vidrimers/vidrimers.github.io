@@ -470,14 +470,14 @@ const HeroAdmin = ({ isOpen, onClose }) => {
     await uploadEditedImage(file);
   };
 
-  // Сохранить с новым именем (или перезаписать, если имя совпадает)
+  // Сохранить с новым именем
   const handleSaveWithNewName = async () => {
     if (!duplicateDialog || !newImageName.trim()) return;
     const newName = newImageName.trim();
 
-    // Если имя совпадает — перезаписываем (удаляем старое)
+    // Если имя не изменилось — показываем ошибку
     if (newName === duplicateDialog.originalName) {
-      await handleOverwrite();
+      setError('Введите другое имя или нажмите "Перезаписать"');
       return;
     }
 
