@@ -422,7 +422,7 @@ const HeroAdmin = ({ isOpen, onClose }) => {
       if (response.status === 409) {
         // Дубликат имени — показываем диалог
         setDuplicateDialog({ file: editedFile, originalName: editedFile.name });
-        setNewImageName(editedFile.name.replace(/\.[^.]+$/, ''));
+        setNewImageName('');
         return;
       }
 
@@ -1086,7 +1086,7 @@ const HeroAdmin = ({ isOpen, onClose }) => {
               <button className={styles.duplicateBtnOverwrite} onClick={handleOverwrite}>
                 Перезаписать
               </button>
-              <button className={styles.duplicateBtnNewName} onClick={handleSaveWithNewName}>
+              <button className={styles.duplicateBtnNewName} onClick={handleSaveWithNewName} disabled={!newImageName.trim()}>
                 Сохранить с новым именем
               </button>
               <button className={styles.duplicateBtnCancel} onClick={handleDuplicateCancel}>
@@ -1100,7 +1100,7 @@ const HeroAdmin = ({ isOpen, onClose }) => {
                 type="text"
                 value={newImageName}
                 onChange={(e) => setNewImageName(e.target.value)}
-                placeholder="Новое имя файла"
+                placeholder="Введите новое имя файла"
                 maxLength={100}
               />
             </div>

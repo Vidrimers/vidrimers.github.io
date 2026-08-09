@@ -751,8 +751,14 @@
   color: white;
 }
 
-.duplicateBtnNewName:hover {
+.duplicateBtnNewName:hover:not(:disabled) {
   background: #0056b3;
+}
+
+.duplicateBtnNewName:disabled {
+  background: #ccc;
+  color: #888;
+  cursor: not-allowed;
 }
 
 .duplicateBtnCancel {
