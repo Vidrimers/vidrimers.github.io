@@ -1,6 +1,23 @@
 import React, { useCallback } from 'react';
 import FilerobotImageEditor, { TABS } from 'react-filerobot-image-editor';
 
+// Генерация SVG data URL для стикера из emoji
+const emojiToDataUrl = (emoji, size = 128) => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"><text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="${size * 0.8}">${emoji}</text></svg>`;
+  return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+};
+
+const STICKER_EMOJIS = [
+  '⭐', '❤️', '🔥', '👍', '🎯', '💡', '🚀', '✅',
+  '❌', '⚡', '🎨', '📌', '💎', '🏆', '🎵', '📸',
+  '🌈', '💫', '✨', '🎉', '👑', '💪', '🧠', '💻',
+];
+
+const stickerGallery = STICKER_EMOJIS.map((emoji) => {
+  const url = emojiToDataUrl(emoji, 128);
+  return { originalUrl: url, previewUrl: url };
+});
+
 class EditorErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
