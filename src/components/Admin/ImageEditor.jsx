@@ -1,4 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
+// Filerobot ожидает React в глобальной области
+if (typeof window !== 'undefined') window.React = React;
 import FilerobotImageEditor, { TABS, TOOLS } from 'react-filerobot-image-editor';
 
 // Генерация SVG data URL для стикера из emoji
