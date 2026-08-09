@@ -71,7 +71,6 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
           useBackendTranslations={false}
           annotationsCommon={{ fill: '#ffffff' }}
           Text={{ text: 'Текст', fontFamily: 'Roboto, Arial', fontSize: 32 }}
-          Image={{ gallery: stickerGallery, disableUpload: false }}
           Rotate={{ angle: 90, componentType: 'slider' }}
           Crop={{
             presetsItems: [
