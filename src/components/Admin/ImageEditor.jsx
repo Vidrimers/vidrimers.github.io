@@ -1,5 +1,4 @@
 import React, { useCallback, useState, useEffect } from 'react';
-// Filerobot ожидает React в глобальной области
 if (typeof window !== 'undefined') window.React = React;
 import FilerobotImageEditor, { TABS, TOOLS } from 'react-filerobot-image-editor';
 
@@ -47,27 +46,55 @@ class EditorErrorBoundary extends React.Component {
 const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
   const [imageSrc, setImageSrc] = useState(null);
 
+  // Загрузка, ресайз и конвертация в base64
   useEffect(() => {
     if (!imageUrl) return;
     setImageSrc(null);
     let cancelled = false;
 
-    const loadImage = async () => {
+    const loadAndResize = async () => {
       try {
         const response = await fetch(imageUrl);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const blob = await response.blob();
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (!cancelled) setImageSrc(reader.result);
+
+        const img = new Image();
+        const objUrl = URL.createObjectURL(blob);
+
+        img.onload = () => {
+          URL.revokeObjectURL(objUrl);
+          if (cancelled) return;
+
+          // Ресайз до MAX_SIZE если слишком большое
+          const MAX = 2000;
+          let w = img.naturalWidth;
+          let h = img.naturalHeight;
+          if (w > MAX || h > MAX) {
+            const r = Math.min(MAX / w, MAX / h);
+            w = Math.round(w * r);
+            h = Math.round(h * r);
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+          if (!cancelled) setImageSrc(canvas.toDataURL('image/jpeg', 0.92));
         };
-        reader.onerror = () => { if (!cancelled) onCancel(); };
-        reader.readAsDataURL(blob);
-      } catch (e) {
+
+        img.onerror = () => {
+          URL.revokeObjectURL(objUrl);
+          if (!cancelled) onCancel();
+        };
+
+        img.src = objUrl;
+      } catch {
         if (!cancelled) onCancel();
       }
     };
-    loadImage();
+
+    loadAndResize();
     return () => { cancelled = true; };
   }, [imageUrl, onCancel]);
 
