@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import FilerobotImageEditor, { TABS, TOOLS } from 'react-filerobot-image-editor';
 
 // Генерация SVG data URL для стикера из emoji
@@ -25,6 +25,22 @@ const stickerGallery = STICKER_EMOJIS.map((emoji) => {
  * onSave получает File — готовое отредактированное изображение.
  */
 const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
+  const [imageElement, setImageElement] = useState(null);
+  const [loadError, setLoadError] = useState(null);
+
+  // Предзагрузка изображения как HTMLImageElement
+  useEffect(() => {
+    if (!imageUrl) return;
+    setLoadError(null);
+    setImageElement(null);
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => setImageElement(img);
+    img.onerror = () => setLoadError('Не удалось загрузить изображение');
+    img.src = imageUrl;
+  }, [imageUrl]);
+
   const handleSave = useCallback(
     (editedImageObject) => {
       const { imageBase64, fullName, mimeType } = editedImageObject;
@@ -46,10 +62,31 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
     [onSave]
   );
 
+  if (loadError) {
+    return (
+      <div style={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: '#fff' }}>
+        <div style={{ textAlign: 'center' }}>
+          <p>{loadError}</p>
+          <button onClick={onCancel} style={{ marginTop: 16, padding: '8px 24px', background: '#fc285b', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}>
+            Закрыть
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!imageElement) {
+    return (
+      <div style={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: '#fff' }}>
+        Загрузка редактора...
+      </div>
+    );
+  }
+
   return (
     <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
       <FilerobotImageEditor
-        source={imageUrl}
+        source={imageElement}
         onSave={handleSave}
         onClose={onCancel}
         annotationsCommon={{

@@ -353,7 +353,9 @@ const HeroAdmin = ({ isOpen, onClose }) => {
   // === РЕДАКТОР ИЗОБРАЖЕНИЙ ===
   const handleOpenEditor = () => {
     if (!currentPhoto) return;
-    setEditorImageUrl(`/uploads/hero/${currentPhoto.filename}`);
+    // Filerobot требует абсолютный URL или HTMLImageElement
+    const absoluteUrl = `${window.location.origin}/uploads/hero/${currentPhoto.filename}`;
+    setEditorImageUrl(absoluteUrl);
     setEditorOpen(true);
   };
 
