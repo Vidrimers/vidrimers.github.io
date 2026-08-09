@@ -74,8 +74,6 @@
   align-items: center;
   gap: 0.5rem;
   vertical-align: middle;
-  transform: rotate(-90deg) translate(50%, -100%);
-  transform-origin: right top;
   flex-shrink: 0;
 }
 
