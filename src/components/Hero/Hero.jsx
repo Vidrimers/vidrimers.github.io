@@ -79,8 +79,13 @@ const Hero = () => {
 
   // Responsive crop стили
   const heroPhotoStyle = useMemo(() => {
-    const base = { backgroundImage: `url(${heroPhotoUrl})` };
-    if (!heroData?.currentPhoto?.responsive_crops_json) return base;
+    const isApiPhoto = !!heroData?.currentPhoto;
+    // Grayscale только для хардкод-фото, не для фото из API
+    const base = {
+      backgroundImage: `url(${heroPhotoUrl})`,
+      filter: isApiPhoto ? 'none' : 'grayscale(0.8)',
+    };
+    if (!isApiPhoto || !heroData.currentPhoto.responsive_crops_json) return base;
 
     try {
       const crops = JSON.parse(heroData.currentPhoto.responsive_crops_json);

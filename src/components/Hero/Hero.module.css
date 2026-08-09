@@ -106,9 +106,10 @@
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  filter: grayscale(0.8);
+  /* filter управляется динамически в Hero.jsx */
   border-radius: 1rem;
   box-sizing: border-box;
+  transition: filter 0.3s ease;
 }
 
 /* Responsive Design */
