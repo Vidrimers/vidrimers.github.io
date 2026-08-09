@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import FilerobotImageEditor, { TABS, TOOLS } from 'react-filerobot-image-editor';
+import FilerobotImageEditor, { TABS } from 'react-filerobot-image-editor';
 
 class EditorErrorBoundary extends React.Component {
   constructor(props) {
@@ -57,6 +57,9 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
           defaultSavedImageName="hero-edited"
           defaultSavedImageType="png"
           defaultTabId={TABS.ADJUST}
+          annotationsCommon={{ fill: '#ffffff' }}
+          Text={{ text: 'Текст', fontFamily: 'Roboto, Arial', fontSize: 32 }}
+          Image={{ gallery: stickerGallery, disableUpload: false }}
           Rotate={{ angle: 90, componentType: 'slider' }}
           Crop={{
             presetsItems: [
