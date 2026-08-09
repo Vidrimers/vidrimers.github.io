@@ -56,8 +56,7 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
           showBackButton
           defaultSavedImageName="hero-edited"
           defaultSavedImageType="png"
-          tabsIds={[TABS.ADJUST, TABS.FINETUNE, TABS.FILTERS, TABS.ANNOTATE, TABS.WATERMARK, TABS.RESIZE]}
-          defaultTabId={TABS.FILTERS}
+          defaultTabId={TABS.ADJUST}
           Rotate={{ angle: 90, componentType: 'slider' }}
           Crop={{
             presetsItems: [
