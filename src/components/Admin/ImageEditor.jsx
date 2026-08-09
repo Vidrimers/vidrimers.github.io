@@ -19,25 +19,47 @@ const stickerGallery = STICKER_EMOJIS.map((emoji) => {
   return { originalUrl: url, previewUrl: url };
 });
 
+// Error Boundary для Filerobot
+class EditorErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: '#fff' }}>
+          <div style={{ textAlign: 'center' }}>
+            <p>Ошибка загрузки редактора</p>
+            <button onClick={this.props.onCancel} style={{ marginTop: 16, padding: '8px 24px', background: '#fc285b', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}>
+              Закрыть
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 /**
  * Обёртка над Filerobot Image Editor.
  * Принимает imageUrl (string) и колбэки onSave / onCancel.
  * onSave получает File — готовое отредактированное изображение.
  */
 const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
-  const [imageElement, setImageElement] = useState(null);
-  const [loadError, setLoadError] = useState(null);
+  const [ready, setReady] = useState(false);
 
-  // Предзагрузка изображения как HTMLImageElement
+  // Предзагрузка изображения
   useEffect(() => {
     if (!imageUrl) return;
-    setLoadError(null);
-    setImageElement(null);
-
+    setReady(false);
     const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => setImageElement(img);
-    img.onerror = () => setLoadError('Не удалось загрузить изображение');
+    img.onload = () => setReady(true);
+    img.onerror = () => setReady(true); // всё равно пробуем открыть
     img.src = imageUrl;
   }, [imageUrl]);
 
@@ -62,20 +84,7 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
     [onSave]
   );
 
-  if (loadError) {
-    return (
-      <div style={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: '#fff' }}>
-        <div style={{ textAlign: 'center' }}>
-          <p>{loadError}</p>
-          <button onClick={onCancel} style={{ marginTop: 16, padding: '8px 24px', background: '#fc285b', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}>
-            Закрыть
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!imageElement) {
+  if (!ready) {
     return (
       <div style={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: '#fff' }}>
         Загрузка редактора...
@@ -84,9 +93,10 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
   }
 
   return (
-    <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
-      <FilerobotImageEditor
-        source={imageElement}
+    <EditorErrorBoundary onCancel={onCancel}>
+      <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+        <FilerobotImageEditor
+          source={imageUrl}
         onSave={handleSave}
         onClose={onCancel}
         annotationsCommon={{
@@ -136,7 +146,8 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
         language="ru"
         useBackendTranslations
       />
-    </div>
+      </div>
+    </EditorErrorBoundary>
   );
 };
 
