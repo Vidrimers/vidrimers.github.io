@@ -565,12 +565,42 @@ class MigrationService {
   }
 
   /**
+   * Мигрировать начальные данные Hero-секции
+   */
+  async migrateHeroContent() {
+    console.log('🔄 Миграция контента Hero...');
+
+    const existing = await this.dbService.getQuery('SELECT id FROM hero_content WHERE id = 1');
+
+    const defaultLanguages = JSON.stringify([
+      { code: 'ru', labelRu: 'РУС', labelEn: 'RUS', enabled: true },
+      { code: 'en', labelRu: 'АНГ', labelEn: 'ENG', enabled: true },
+    ]);
+
+    if (!existing) {
+      await this.dbService.runQuery(`
+        INSERT INTO hero_content (id, title_ru, title_en, subtitle_ru, subtitle_en, languages_json)
+        VALUES (1, ?, ?, ?, ?, ?)
+      `, [
+        'Ярослав Ширяков',
+        'Yaroslav Shiryakov',
+        'Frontend разработчик',
+        'Frontend Developer',
+        defaultLanguages,
+      ]);
+      console.log('✅ Контент Hero добавлен');
+    } else {
+      console.log('⚠️ Контент Hero уже существует');
+    }
+  }
+
+  /**
    * Выполнить полную миграцию данных
    * @returns {Promise<void>}
    */
   async migrateAllData() {
     console.log('🚀 Начинаем полную миграцию данных...');
-    
+
     try {
       await this.dbService.transaction(async () => {
         await this.migrateCategories();
@@ -581,6 +611,7 @@ class MigrationService {
         await this.migrateContacts();
         await this.migrateDonateWallets();
         await this.migrateFooterContent();
+        await this.migrateHeroContent();
       });
       
       console.log('✅ Миграция данных завершена успешно!');
@@ -842,13 +873,45 @@ async function migrateContacts(db) {
 }
 
 /**
+ * Мигрировать начальные данные Hero-секции (standalone)
+ * @param {sqlite3.Database} db - Экземпляр базы данных
+ * @returns {Promise<void>}
+ */
+async function migrateHeroContent(db) {
+  console.log('🔄 Миграция контента Hero...');
+
+  const existing = await getOne(db, 'SELECT id FROM hero_content WHERE id = 1');
+
+  const defaultLanguages = JSON.stringify([
+    { code: 'ru', labelRu: 'РУС', labelEn: 'RUS', enabled: true },
+    { code: 'en', labelRu: 'АНГ', labelEn: 'ENG', enabled: true },
+  ]);
+
+  if (!existing) {
+    await runQuery(db, `
+      INSERT INTO hero_content (id, title_ru, title_en, subtitle_ru, subtitle_en, languages_json)
+      VALUES (1, ?, ?, ?, ?, ?)
+    `, [
+      'Ярослав Ширяков',
+      'Yaroslav Shiryakov',
+      'Frontend разработчик',
+      'Frontend Developer',
+      defaultLanguages,
+    ]);
+    console.log('✅ Контент Hero добавлен');
+  } else {
+    console.log('⚠️ Контент Hero уже существует');
+  }
+}
+
+/**
  * Выполнить полную миграцию данных
  * @param {sqlite3.Database} db - Экземпляр базы данных
  * @returns {Promise<void>}
  */
 async function runFullMigration(db) {
   console.log('🚀 Начинаем полную миграцию данных...');
-  
+
   try {
     await transaction(db, async (db) => {
       await migrateCategories(db);
@@ -857,6 +920,7 @@ async function runFullMigration(db) {
       await migrateCertificates(db);
       await migrateAboutContent(db);
       await migrateContacts(db);
+      await migrateHeroContent(db);
     });
     
     console.log('✅ Миграция данных завершена успешно!');
@@ -1084,7 +1148,7 @@ async function migrateContacts(db) {
  */
 async function runFullMigration(db) {
   console.log('🚀 Начинаем полную миграцию данных...');
-  
+
   try {
     await transaction(db, async (db) => {
       await migrateCategories(db);
@@ -1093,8 +1157,9 @@ async function runFullMigration(db) {
       await migrateCertificates(db);
       await migrateAboutContent(db);
       await migrateContacts(db);
+      await migrateHeroContent(db);
     });
-    
+
     console.log('✅ Миграция данных завершена успешно!');
   } catch (error) {
     console.error('❌ Ошибка при миграции данных:', error.message);
@@ -1132,3 +1197,4 @@ module.exports.migrateSkills = migrateSkills;
 module.exports.migrateCertificates = migrateCertificates;
 module.exports.migrateAboutContent = migrateAboutContent;
 module.exports.migrateContacts = migrateContacts;
+module.exports.migrateHeroContent = migrateHeroContent;

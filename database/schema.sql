@@ -223,3 +223,35 @@ CREATE TRIGGER IF NOT EXISTS update_contacts_timestamp
   BEGIN
     UPDATE contacts SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
   END;
+
+-- Таблица контента Hero-секции
+CREATE TABLE IF NOT EXISTS hero_content (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  title_ru TEXT NOT NULL DEFAULT '',
+  title_en TEXT NOT NULL DEFAULT '',
+  subtitle_ru TEXT NOT NULL DEFAULT '',
+  subtitle_en TEXT NOT NULL DEFAULT '',
+  languages_json TEXT NOT NULL DEFAULT '[{"code":"ru","labelRu":"РУС","labelEn":"RUS","enabled":true},{"code":"en","labelRu":"АНГ","labelEn":"ENG","enabled":true}]',
+  current_photo_id INTEGER,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Таблица изображений Hero
+CREATE TABLE IF NOT EXISTS hero_images (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  filename TEXT NOT NULL,
+  original_name TEXT NOT NULL,
+  size INTEGER NOT NULL,
+  width INTEGER,
+  height INTEGER,
+  responsive_crops_json TEXT DEFAULT '{"synced":true}',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_hero_images_created ON hero_images(created_at);
+
+CREATE TRIGGER IF NOT EXISTS update_hero_content_timestamp
+  AFTER UPDATE ON hero_content
+  BEGIN
+    UPDATE hero_content SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+  END;

@@ -1,0 +1,906 @@
+.container {
+  padding: 20px;
+}
+
+/* Сообщения */
+.error {
+  background-color: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid #fcc;
+}
+
+.success {
+  background-color: #efe;
+  color: #363;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid #cfc;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Главные вкладки */
+.mainTabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0;
+}
+
+.mainTab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: #f8f9fa;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  position: relative;
+  bottom: -2px;
+}
+
+.mainTab:hover {
+  background: #e9ecef;
+}
+
+.mainTabActive {
+  background: white;
+  color: #fc285b;
+  border-color: #f0f0f0;
+  border-bottom: 2px solid white;
+  font-weight: 600;
+}
+
+.tabBadge {
+  background: #fc285b;
+  color: white;
+  font-size: 0.7rem;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.tabContent {
+  min-height: 200px;
+}
+
+/* Вкладки языков контента */
+.langTabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 12px;
+}
+
+.langTab {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px 6px 0 0;
+  background: #f8f9fa;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.langTab:hover {
+  background: #e9ecef;
+}
+
+.langTabActive {
+  background: white;
+  border-bottom-color: white;
+  color: #fc285b;
+  border-color: #fc285b;
+  font-weight: 600;
+}
+
+/* Поля ввода */
+.fieldsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.fieldLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.input {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #fc285b;
+  box-shadow: 0 0 0 2px rgba(252, 40, 91, 0.1);
+}
+
+/* Секция управления языками */
+.langManager {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.sectionTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.sectionHint {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 0 0 16px 0;
+}
+
+.langList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.langItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.langToggle {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.langToggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.langCheckmark {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 20px;
+  transition: 0.3s;
+}
+
+.langCheckmark::before {
+  content: '';
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.langToggle input:checked + .langCheckmark {
+  background-color: #fc285b;
+}
+
+.langToggle input:checked + .langCheckmark::before {
+  transform: translateX(16px);
+}
+
+.langCode {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #333;
+  min-width: 30px;
+}
+
+.langLabelInput {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  width: 70px;
+  text-align: center;
+}
+
+.langLabelInput:focus {
+  outline: none;
+  border-color: #fc285b;
+}
+
+.langRemoveBtn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #999;
+  font-size: 1rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.langRemoveBtn:hover {
+  background: #fee;
+  color: #c33;
+  border-color: #fcc;
+}
+
+.addLangWrapper {
+  margin-top: 8px;
+}
+
+.addLangSelect {
+  padding: 8px 12px;
+  border: 1px dashed #ccc;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #555;
+  width: 100%;
+}
+
+.addLangSelect:hover {
+  border-color: #fc285b;
+  color: #fc285b;
+}
+
+/* ====== Изображения ====== */
+
+/* Текущее фото */
+.currentPhotoSection {
+  margin-bottom: 24px;
+}
+
+.currentPhotoCard {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border: 2px solid #fc285b;
+  border-radius: 8px;
+}
+
+.currentPhotoPreview {
+  width: 200px;
+  height: 120px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #e0e0e0;
+}
+
+.currentPhotoPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.currentPhotoInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.photoName {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+  word-break: break-all;
+}
+
+.photoMeta {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* Загрузка */
+.uploadSection {
+  margin-bottom: 24px;
+}
+
+.qualityControl {
+  margin-bottom: 16px;
+}
+
+.qualityLabel {
+  display: block;
+  font-size: 0.85rem;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.qualitySlider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e0e0e0;
+  border-radius: 3px;
+  outline: none;
+}
+
+.qualitySlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fc285b;
+  cursor: pointer;
+}
+
+.qualityHints {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: 4px;
+}
+
+/* Drop Zone */
+.dropZone {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fafafa;
+}
+
+.dropZone:hover {
+  border-color: #fc285b;
+  background: #fff5f7;
+}
+
+.dropZoneActive {
+  border-color: #fc285b;
+  background: #fff0f3;
+}
+
+.dropZoneUploading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.dropZoneContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.dropZoneIcon {
+  font-size: 2rem;
+}
+
+.dropZoneText {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.dropZoneHint {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.uploadProgress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e0e0e0;
+  border-top: 3px solid #fc285b;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Галерея */
+.gallerySection {
+  margin-bottom: 24px;
+}
+
+.galleryCount {
+  background: #e9ecef;
+  color: #555;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  font-weight: 500;
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.galleryItem {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.galleryItemActive {
+  border-color: #fc285b;
+  box-shadow: 0 0 0 2px rgba(252, 40, 91, 0.2);
+}
+
+.galleryThumb {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.galleryThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+
+.galleryThumb:hover img {
+  transform: scale(1.05);
+}
+
+.galleryOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.galleryThumb:hover .galleryOverlay {
+  opacity: 1;
+}
+
+.galleryBtnSet,
+.galleryBtnDelete {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 700;
+  transition: transform 0.15s;
+}
+
+.galleryBtnSet {
+  background: #28a745;
+  color: white;
+}
+
+.galleryBtnSet:hover {
+  transform: scale(1.15);
+}
+
+.galleryBtnDelete {
+  background: #dc3545;
+  color: white;
+}
+
+.galleryBtnDelete:hover {
+  transform: scale(1.15);
+}
+
+.galleryInfo {
+  padding: 6px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gallerySize {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.galleryDimensions {
+  font-size: 0.7rem;
+  color: #999;
+}
+
+.emptyGallery {
+  text-align: center;
+  padding: 30px;
+  color: #999;
+  font-style: italic;
+}
+
+/* Кнопки действий */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.resetButton,
+.cancelButton,
+.saveButton {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.resetButton {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.resetButton:hover:not(:disabled) {
+  background: #ffe69c;
+}
+
+.cancelButton {
+  background: #6c757d;
+  color: white;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: #545b62;
+}
+
+.saveButton {
+  background: #fc285b;
+  color: white;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: #e02350;
+}
+
+.saveButton:disabled,
+.cancelButton:disabled,
+.resetButton:disabled {
+  background: #ccc;
+  color: #888;
+  cursor: not-allowed;
+  border-color: transparent;
+}
+
+/* ====== Editor Overlay ====== */
+.editorOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #1a1a2e;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editorOverlay > div {
+  width: 100%;
+  height: 100%;
+}
+
+.editPhotoBtn {
+  margin-top: 8px;
+  padding: 6px 14px;
+  border: 1px solid #fc285b;
+  border-radius: 6px;
+  background: white;
+  color: #fc285b;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  align-self: flex-start;
+}
+
+.editPhotoBtn:hover {
+  background: #fc285b;
+  color: white;
+}
+
+/* ====== Preview Tab ====== */
+.breakpointTabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 12px;
+}
+
+.breakpointTab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 20px;
+  border: 1px solid #ddd;
+  border-radius: 6px 6px 0 0;
+  background: #f8f9fa;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.breakpointTab:hover {
+  background: #e9ecef;
+}
+
+.breakpointTabActive {
+  background: white;
+  border-bottom-color: white;
+  color: #fc285b;
+  border-color: #fc285b;
+  font-weight: 600;
+}
+
+.breakpointWidth {
+  font-size: 0.7rem;
+  color: #999;
+}
+
+.previewFramesRow {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.previewFrameWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.previewFrameLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.previewFrame {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f5f5;
+  max-width: 400px;
+}
+
+.previewHeroInner {
+  width: 100%;
+  min-height: 140px;
+  background-repeat: no-repeat;
+  background-color: #e8e8e8;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.previewHeroTop {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.previewTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.previewSubtitle {
+  font-size: 0.6rem;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cropControls {
+  padding: 16px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.syncedBadge {
+  background: #d4edda;
+  color: #155724;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  font-weight: 500;
+}
+
+.cropToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #444;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+.cropToggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: #fc285b;
+}
+
+.cropSliders {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cropLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.cropSlider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e0e0e0;
+  border-radius: 3px;
+  outline: none;
+}
+
+.cropSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fc285b;
+  cursor: pointer;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .container {
+    padding: 14px;
+  }
+
+  .mainTabs {
+    flex-wrap: wrap;
+  }
+
+  .mainTab {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .langTabs {
+    flex-wrap: wrap;
+  }
+
+  .currentPhotoCard {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .currentPhotoPreview {
+    width: 100%;
+    height: 160px;
+  }
+
+  .galleryGrid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .previewFramesRow {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .previewFrame {
+    max-width: 100%;
+  }
+
+  .formActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resetButton,
+  .cancelButton,
+  .saveButton {
+    text-align: center;
+  }
+}
