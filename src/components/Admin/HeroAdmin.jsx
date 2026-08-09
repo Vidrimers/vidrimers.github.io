@@ -18,6 +18,7 @@ const AVAILABLE_LANGUAGES = [
   { code: 'tr', labelRu: 'ТУР', labelEn: 'TUR' },
   { code: 'pl', labelRu: 'ПОЛ', labelEn: 'POL' },
   { code: 'uk', labelRu: 'УКР', labelEn: 'UKR' },
+  { code: 'ka', labelRu: 'ГРУ', labelEn: 'GEO' },
 ];
 
 const formatSize = (bytes) => {

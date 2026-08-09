@@ -577,8 +577,9 @@ class MigrationService {
       { code: 'en', labelRu: 'АНГ', labelEn: 'ENG', enabled: true },
     ]);
 
+    let heroId;
     if (!existing) {
-      await this.dbService.runQuery(`
+      const result = await this.dbService.runQuery(`
         INSERT INTO hero_content (id, title_ru, title_en, subtitle_ru, subtitle_en, languages_json)
         VALUES (1, ?, ?, ?, ?, ?)
       `, [
@@ -588,10 +589,80 @@ class MigrationService {
         'Frontend Developer',
         defaultLanguages,
       ]);
+      heroId = 1;
       console.log('✅ Контент Hero добавлен');
     } else {
+      heroId = existing.id;
       console.log('⚠️ Контент Hero уже существует');
     }
+
+    // Миграция photo.jpg в uploads/hero/ и hero_images
+    await this._migrateHeroPhoto(heroId);
+  }
+
+  /**
+   * Копирует photo.jpg в uploads/hero/ и создаёт запись в hero_images
+   */
+  async _migrateHeroPhoto(heroId) {
+    const fs = require('fs');
+    const path = require('path');
+
+    const srcPhoto = path.join(__dirname, '..', '..', 'src', 'assets', 'img', 'photo.jpg');
+    const heroDir = path.join(__dirname, '..', '..', 'uploads', 'hero');
+
+    if (!fs.existsSync(srcPhoto)) {
+      console.log('⚠️ photo.jpg не найден, пропускаем миграцию фото');
+      return;
+    }
+
+    // Проверяем, есть ли уже текущее фото
+    const heroContent = await this.dbService.getQuery('SELECT current_photo_id FROM hero_content WHERE id = ?', [heroId]);
+    if (heroContent && heroContent.current_photo_id) {
+      console.log('⚠️ У Hero уже есть текущее фото, пропускаем');
+      return;
+    }
+
+    // Проверяем, нет ли уже photo.jpg в галерее
+    const existingPhoto = await this.dbService.getQuery("SELECT id FROM hero_images WHERE original_name = 'photo.jpg'");
+    if (existingPhoto) {
+      // Просто устанавливаем как текущее
+      await this.dbService.runQuery('UPDATE hero_content SET current_photo_id = ? WHERE id = ?', [existingPhoto.id, heroId]);
+      console.log('✅ photo.jpg уже в галерее, установлена как текущая');
+      return;
+    }
+
+    // Создаём папку если нет
+    if (!fs.existsSync(heroDir)) {
+      fs.mkdirSync(heroDir, { recursive: true });
+    }
+
+    // Копируем файл
+    const destFilename = `migrated-photo-${Date.now()}.jpg`;
+    const destPath = path.join(heroDir, destFilename);
+    fs.copyFileSync(srcPhoto, destPath);
+
+    const stats = fs.statSync(srcPhoto);
+
+    // Получаем размеры
+    let width = null;
+    let height = null;
+    try {
+      const sharp = require('sharp');
+      const metadata = await sharp(srcPhoto).metadata();
+      width = metadata.width || null;
+      height = metadata.height || null;
+    } catch {}
+
+    // Записываем в БД
+    const result = await this.dbService.runQuery(
+      'INSERT INTO hero_images (filename, original_name, size, width, height) VALUES (?, ?, ?, ?, ?)',
+      [destFilename, 'photo.jpg', stats.size, width, height]
+    );
+
+    // Устанавливаем как текущее
+    await this.dbService.runQuery('UPDATE hero_content SET current_photo_id = ? WHERE id = ?', [result.lastID, heroId]);
+
+    console.log('✅ photo.jpg мигрирована в галерею Hero');
   }
 
   /**
@@ -887,8 +958,9 @@ async function migrateHeroContent(db) {
     { code: 'en', labelRu: 'АНГ', labelEn: 'ENG', enabled: true },
   ]);
 
+  let heroId;
   if (!existing) {
-    await runQuery(db, `
+    const result = await runQuery(db, `
       INSERT INTO hero_content (id, title_ru, title_en, subtitle_ru, subtitle_en, languages_json)
       VALUES (1, ?, ?, ?, ?, ?)
     `, [
@@ -898,10 +970,65 @@ async function migrateHeroContent(db) {
       'Frontend Developer',
       defaultLanguages,
     ]);
+    heroId = 1;
     console.log('✅ Контент Hero добавлен');
   } else {
+    heroId = existing.id;
     console.log('⚠️ Контент Hero уже существует');
   }
+
+  // Миграция photo.jpg в uploads/hero/ и hero_images
+  const fs = require('fs');
+  const path = require('path');
+
+  const srcPhoto = path.join(__dirname, '..', '..', 'src', 'assets', 'img', 'photo.jpg');
+  const heroDir = path.join(__dirname, '..', '..', 'uploads', 'hero');
+
+  if (!fs.existsSync(srcPhoto)) {
+    console.log('⚠️ photo.jpg не найден, пропускаем миграцию фото');
+    return;
+  }
+
+  const heroContent = await getOne(db, 'SELECT current_photo_id FROM hero_content WHERE id = ?', [heroId]);
+  if (heroContent && heroContent.current_photo_id) {
+    console.log('⚠️ У Hero уже есть текущее фото, пропускаем');
+    return;
+  }
+
+  const existingPhoto = await getOne(db, "SELECT id FROM hero_images WHERE original_name = 'photo.jpg'");
+  if (existingPhoto) {
+    await runQuery(db, 'UPDATE hero_content SET current_photo_id = ? WHERE id = ?', [existingPhoto.id, heroId]);
+    console.log('✅ photo.jpg уже в галерее, установлена как текущая');
+    return;
+  }
+
+  if (!fs.existsSync(heroDir)) {
+    fs.mkdirSync(heroDir, { recursive: true });
+  }
+
+  const destFilename = `migrated-photo-${Date.now()}.jpg`;
+  const destPath = path.join(heroDir, destFilename);
+  fs.copyFileSync(srcPhoto, destPath);
+
+  const stats = fs.statSync(srcPhoto);
+
+  let width = null;
+  let height = null;
+  try {
+    const sharp = require('sharp');
+    const metadata = await sharp(srcPhoto).metadata();
+    width = metadata.width || null;
+    height = metadata.height || null;
+  } catch {}
+
+  const insertResult = await runQuery(db,
+    'INSERT INTO hero_images (filename, original_name, size, width, height) VALUES (?, ?, ?, ?, ?)',
+    [destFilename, 'photo.jpg', stats.size, width, height]
+  );
+
+  await runQuery(db, 'UPDATE hero_content SET current_photo_id = ? WHERE id = ?', [insertResult.lastID, heroId]);
+
+  console.log('✅ photo.jpg мигрирована в галерею Hero');
 }
 
 /**
