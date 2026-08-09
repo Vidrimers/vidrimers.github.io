@@ -56,8 +56,6 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
           showBackButton
           defaultSavedImageName="hero-edited"
           defaultSavedImageType="png"
-          annotationsCommon={{ fill: '#ffffff' }}
-          Text={{ text: 'Текст', fontFamily: 'Roboto, Arial', fontSize: 32 }}
           tabsIds={[TABS.ADJUST, TABS.FINETUNE, TABS.FILTERS, TABS.ANNOTATE, TABS.WATERMARK, TABS.RESIZE]}
           defaultTabId={TABS.FILTERS}
           Rotate={{ angle: 90, componentType: 'slider' }}
