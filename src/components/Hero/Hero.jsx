@@ -18,6 +18,7 @@ const Hero = () => {
 
   // Данные Hero из API
   const [heroData, setHeroData] = useState(null);
+  const [heroLoading, setHeroLoading] = useState(true);
 
   const loadHeroData = useCallback(async () => {
     try {
@@ -29,6 +30,8 @@ const Hero = () => {
       }
     } catch {
       // fallback на статические переводы — heroData останется null
+    } finally {
+      setHeroLoading(false);
     }
   }, []);
 
@@ -138,6 +141,21 @@ const Hero = () => {
       changeLanguage(langCode);
     }
   };
+
+  // Пока грузятся данные с API — не показываем контент (чтобы не было flash)
+  if (heroLoading) {
+    return (
+      <section className={styles.hero} id="home">
+        <div className={styles.wrapper}>
+          <div className={styles.container}>
+            <div className={styles.heroInner}>
+              <div className={styles.heroPhoto} style={{ backgroundImage: `url(${photoImg})` }}></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className={styles.hero} id="home">
