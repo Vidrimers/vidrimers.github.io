@@ -942,14 +942,7 @@ const HeroAdmin = ({ isOpen, onClose }) => {
                               className={styles.previewFrame}
                               style={{ width: Math.min(bp.width, 400) }}
                             >
-                              <div
-                                className={styles.previewHeroInner}
-                                style={{
-                                  backgroundImage: `url(/uploads/hero/${currentPhoto.filename})`,
-                                  backgroundPosition: `${bgPosX}% ${bgPosY}%`,
-                                  backgroundSize: `${bgSize}%`,
-                                }}
-                              >
+                              <div className={styles.previewHeroInner}>
                                 <div className={styles.previewHeroTop}>
                                   <div className={styles.previewTitle}>
                                     {form.titleRu || 'Имя'}
@@ -958,6 +951,14 @@ const HeroAdmin = ({ isOpen, onClose }) => {
                                     {form.subtitleRu || 'Специальность'}
                                   </div>
                                 </div>
+                                <div
+                                  className={styles.previewHeroPhoto}
+                                  style={{
+                                    backgroundImage: `url(/uploads/hero/${currentPhoto.filename})`,
+                                    backgroundPosition: `${bgPosX}% ${bgPosY}%`,
+                                    backgroundSize: `${bgSize}%`,
+                                  }}
+                                ></div>
                               </div>
                             </div>
                           </div>
