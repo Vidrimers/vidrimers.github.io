@@ -1,5 +1,4 @@
 import React, { useCallback, useState, useEffect } from 'react';
-if (typeof window !== 'undefined') window.React = React;
 import FilerobotImageEditor, { TABS, TOOLS } from 'react-filerobot-image-editor';
 
 // Генерация SVG data URL для стикера из emoji
@@ -45,56 +44,40 @@ class EditorErrorBoundary extends React.Component {
 
 const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
   const [imageSrc, setImageSrc] = useState(null);
+  const [imageElement, setImageElement] = useState(null);
 
-  // Загрузка, ресайз и конвертация в base64
+  // Загрузка изображения
   useEffect(() => {
     if (!imageUrl) return;
     setImageSrc(null);
+    setImageElement(null);
     let cancelled = false;
 
-    const loadAndResize = async () => {
+    const load = async () => {
       try {
         const response = await fetch(imageUrl);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const blob = await response.blob();
-
-        const img = new Image();
         const objUrl = URL.createObjectURL(blob);
 
+        const img = new Image();
         img.onload = () => {
           URL.revokeObjectURL(objUrl);
           if (cancelled) return;
-
-          // Ресайз до MAX_SIZE если слишком большое
-          const MAX = 2000;
-          let w = img.naturalWidth;
-          let h = img.naturalHeight;
-          if (w > MAX || h > MAX) {
-            const r = Math.min(MAX / w, MAX / h);
-            w = Math.round(w * r);
-            h = Math.round(h * r);
-          }
-
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-
-          if (!cancelled) setImageSrc(canvas.toDataURL('image/jpeg', 0.92));
+          // Передаём готовый HTMLImageElement
+          setImageElement(img);
+          setImageSrc(imageUrl);
         };
-
         img.onerror = () => {
           URL.revokeObjectURL(objUrl);
           if (!cancelled) onCancel();
         };
-
         img.src = objUrl;
       } catch {
         if (!cancelled) onCancel();
       }
     };
-
-    loadAndResize();
+    load();
     return () => { cancelled = true; };
   }, [imageUrl, onCancel]);
 
@@ -114,7 +97,7 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
     [onSave]
   );
 
-  if (!imageSrc) {
+  if (!imageSrc || !imageElement) {
     return (
       <div style={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: '#fff' }}>
         Загрузка...
@@ -126,7 +109,7 @@ const ImageEditor = ({ imageUrl, onSave, onCancel }) => {
     <EditorErrorBoundary onCancel={onCancel}>
       <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
         <FilerobotImageEditor
-          source={imageSrc}
+          source={imageElement}
           onSave={handleSave}
           onClose={onCancel}
           annotationsCommon={{ fill: '#ffffff' }}

@@ -1,4 +1,6 @@
 import React from 'react';
+// Filerobot Image Editor ожидает React в глобальной области
+window.React = React;
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
