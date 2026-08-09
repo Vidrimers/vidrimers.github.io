@@ -422,7 +422,7 @@ const HeroAdmin = ({ isOpen, onClose }) => {
       if (response.status === 409) {
         // Дубликат имени — показываем диалог
         setDuplicateDialog({ file: editedFile, originalName: editedFile.name });
-        setNewImageName(editedFile.name.replace(/\.[^.]+$/, ''));
+        setNewImageName(editedFile.name);
         return;
       }
 
@@ -473,8 +473,7 @@ const HeroAdmin = ({ isOpen, onClose }) => {
   // Сохранить с новым именем (или перезаписать, если имя совпадает)
   const handleSaveWithNewName = async () => {
     if (!duplicateDialog || !newImageName.trim()) return;
-    const ext = duplicateDialog.originalName.split('.').pop() || 'png';
-    const newName = `${newImageName.trim()}.${ext}`;
+    const newName = newImageName.trim();
 
     // Если имя совпадает — перезаписываем (удаляем старое)
     if (newName === duplicateDialog.originalName) {
