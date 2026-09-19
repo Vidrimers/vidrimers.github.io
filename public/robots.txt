@@ -25,4 +25,4 @@ Disallow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://vidrimers.site/sitemap.xml
+Sitemap: https://vidrimers.su/sitemap.xml

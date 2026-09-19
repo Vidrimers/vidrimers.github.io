@@ -84,7 +84,7 @@ npm run test:watch
 
 Скрипт делает `git pull origin master`, `npm install`, `npm run build` и перезапускает PM2.
 
-Сайт доступен по адресу: [https://vidrimers.site](https://vidrimers.site)
+Сайт доступен по адресу: [https://vidrimers.su](https://vidrimers.su)
 
 ## 📱 Адаптивность
 

@@ -51,9 +51,9 @@ module.exports = {
       host: '89.124.70.156',
       ref: 'origin/master',
       repo: 'git@github.com:Vidrimers/vidrimers.github.io.git',
-      path: '/home/vidrimers.site',
+      path: '/home/vidrimers.su',
       'post-deploy': 'npm install && npm run build && pm2 reload ecosystem.config.js --env production',
-      'pre-setup': 'mkdir -p /home/vidrimers.site/logs && mkdir -p /home/vidrimers.site/database'
+      'pre-setup': 'mkdir -p /home/vidrimers.su/logs && mkdir -p /home/vidrimers.su/database'
     }
   }
 };

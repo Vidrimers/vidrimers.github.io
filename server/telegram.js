@@ -204,7 +204,7 @@ class Telegram {
     }
 
     try {
-      const message = '🧪 Тестовое сообщение от vidrimers.site\n\nСистема уведомлений работает!';
+      const message = '🧪 Тестовое сообщение от vidrimers.su\n\nСистема уведомлений работает!';
       
       await this.bot.sendMessage(this.chatId, message);
       

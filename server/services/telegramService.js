@@ -32,7 +32,7 @@ class TelegramService {
       const message = `🔐 Код подтверждения для входа в админ-панель:\n\n` +
                      `<code>${verificationCode}</code>\n\n` +
                      `⏰ Код действителен 5 минут\n` +
-                     `🌐 Сайт: vidrimers.site`;
+                     `🌐 Сайт: vidrimers.su`;
 
       await this.bot.sendMessage(this.adminChatId, message, {
         parse_mode: 'HTML',
@@ -61,7 +61,7 @@ class TelegramService {
                      `🕐 Время: ${timestamp}\n` +
                      `🌐 IP: ${sessionInfo.ip || 'неизвестен'}\n` +
                      `🖥️ User-Agent: ${sessionInfo.userAgent ? sessionInfo.userAgent.substring(0, 50) + '...' : 'неизвестен'}\n` +
-                     `🔗 Сайт: vidrimers.site`;
+                     `🔗 Сайт: vidrimers.su`;
 
       await this.bot.sendMessage(this.adminChatId, message, {
         parse_mode: 'HTML',
@@ -91,7 +91,7 @@ class TelegramService {
                      `🌐 IP: ${attemptInfo.ip || 'неизвестен'}\n` +
                      `🔢 Введенный код: ${attemptInfo.code ? attemptInfo.code.substring(0, 2) + '****' : 'неизвестен'}\n` +
                      `🖥️ User-Agent: ${attemptInfo.userAgent ? attemptInfo.userAgent.substring(0, 50) + '...' : 'неизвестен'}\n` +
-                     `🔗 Сайт: vidrimers.site`;
+                     `🔗 Сайт: vidrimers.su`;
 
       await this.bot.sendMessage(this.adminChatId, message, {
         parse_mode: 'HTML',
@@ -120,7 +120,7 @@ class TelegramService {
                      `🕐 Время: ${timestamp}\n` +
                      `🌐 IP: ${sessionInfo.ip || 'неизвестен'}\n` +
                      `🖥️ User-Agent: ${sessionInfo.userAgent ? sessionInfo.userAgent.substring(0, 50) + '...' : 'неизвестен'}\n` +
-                     `🔗 Сайт: vidrimers.site`;
+                     `🔗 Сайт: vidrimers.su`;
 
       await this.bot.sendMessage(this.adminChatId, message, {
         parse_mode: 'HTML',
@@ -166,7 +166,7 @@ class TelegramService {
         message += `📄 Название: ${details.title}\n`;
       }
 
-      message += `🔗 Сайт: vidrimers.site`;
+      message += `🔗 Сайт: vidrimers.su`;
 
       await this.bot.sendMessage(this.adminChatId, message, {
         parse_mode: 'HTML',
@@ -211,7 +211,7 @@ class TelegramService {
       const message = `🧪 Тестовое сообщение от админ-панели\n\n` +
                      `✅ Telegram интеграция работает корректно\n` +
                      `🕐 ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}\n` +
-                     `🔗 Сайт: vidrimers.site`;
+                     `🔗 Сайт: vidrimers.su`;
 
       await this.bot.sendMessage(this.adminChatId, message, {
         parse_mode: 'HTML',

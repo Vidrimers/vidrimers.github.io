@@ -52,8 +52,8 @@ async function runTests() {
   console.log('🧪 Тестирование CORS настроек для API лайков...\n');
   
   const tests = [
-    { origin: 'https://vidrimers.site', expected: 200 },
-    { origin: 'https://www.vidrimers.site', expected: 200 },
+    { origin: 'https://vidrimers.su', expected: 200 },
+    { origin: 'https://www.vidrimers.su', expected: 200 },
     { origin: 'http://localhost:3000', expected: 200 },
     { origin: 'https://malicious-site.com', expected: 403 },
     { origin: 'https://example.com', expected: 403 }

@@ -2,7 +2,7 @@
 
 ## Обзор
 
-API лайков настроен для работы с доменом `vidrimers.site` через CORS (Cross-Origin Resource Sharing). Это позволяет frontend приложению делать запросы к API, размещенному на том же домене, но на другом порту.
+API лайков настроен для работы с доменом `vidrimers.su` через CORS (Cross-Origin Resource Sharing). Это позволяет frontend приложению делать запросы к API, размещенному на том же домене, но на другом порту.
 
 ## Настройки CORS
 
@@ -11,7 +11,7 @@ API лайков настроен для работы с доменом `vidrime
 В файле `.env` настроена переменная `ALLOWED_ORIGINS`:
 
 ```env
-ALLOWED_ORIGINS=http://localhost:3000,https://vidrimers.site,https://www.vidrimers.site
+ALLOWED_ORIGINS=http://localhost:3000,https://vidrimers.su,https://www.vidrimers.su
 ```
 
 ### Конфигурация в server.js
@@ -21,7 +21,7 @@ const corsOptions = {
   origin: function (origin, callback) {
     const allowedOrigins = process.env.ALLOWED_ORIGINS 
       ? process.env.ALLOWED_ORIGINS.split(',')
-      : ['http://localhost:3000', 'https://vidrimers.site', 'https://www.vidrimers.site'];
+      : ['http://localhost:3000', 'https://vidrimers.su', 'https://www.vidrimers.su'];
     
     // Разрешаем запросы без origin (например, мобильные приложения)
     if (!origin) return callback(null, true);
@@ -41,8 +41,8 @@ const corsOptions = {
 ## Разрешенные домены
 
 1. **http://localhost:3000** - для разработки
-2. **https://vidrimers.site** - production домен
-3. **https://www.vidrimers.site** - production домен с www
+2. **https://vidrimers.su** - production домен
+3. **https://www.vidrimers.su** - production домен с www
 
 ## Разрешенные методы
 
@@ -76,12 +76,12 @@ node server/test-cors.js
 #### Разрешенный домен (должен работать):
 
 ```bash
-curl -v -H "Origin: https://vidrimers.site" http://localhost:1989/api/health
+curl -v -H "Origin: https://vidrimers.su" http://localhost:1989/api/health
 ```
 
 Ожидаемый результат:
 - Статус: 200 OK
-- Заголовок: `Access-Control-Allow-Origin: https://vidrimers.site`
+- Заголовок: `Access-Control-Allow-Origin: https://vidrimers.su`
 
 #### Неразрешенный домен (должен блокироваться):
 
@@ -97,7 +97,7 @@ curl -v -H "Origin: https://malicious-site.com" http://localhost:1989/api/health
 
 ```bash
 curl -v -X OPTIONS \
-  -H "Origin: https://vidrimers.site" \
+  -H "Origin: https://vidrimers.su" \
   -H "Access-Control-Request-Method: POST" \
   -H "Access-Control-Request-Headers: Content-Type" \
   http://localhost:1989/api/likes/1
@@ -106,7 +106,7 @@ curl -v -X OPTIONS \
 Ожидаемый результат:
 - Статус: 204 No Content
 - Заголовки:
-  - `Access-Control-Allow-Origin: https://vidrimers.site`
+  - `Access-Control-Allow-Origin: https://vidrimers.su`
   - `Access-Control-Allow-Methods: GET,POST,PUT,DELETE,OPTIONS`
   - `Access-Control-Allow-Headers: Content-Type,Authorization`
 
@@ -123,7 +123,7 @@ curl -v -X OPTIONS \
 
 1. Обновите переменную `ALLOWED_ORIGINS` в `.env`:
    ```env
-   ALLOWED_ORIGINS=http://localhost:3000,https://vidrimers.site,https://www.vidrimers.site,https://new-domain.com
+   ALLOWED_ORIGINS=http://localhost:3000,https://vidrimers.su,https://www.vidrimers.su,https://new-domain.com
    ```
 
 2. Перезапустите сервер
@@ -139,7 +139,7 @@ curl -v -X OPTIONS \
 
 **Симптомы:**
 ```
-Access to fetch at 'http://localhost:1989/api/likes/1' from origin 'https://vidrimers.site' has been blocked by CORS policy
+Access to fetch at 'http://localhost:1989/api/likes/1' from origin 'https://vidrimers.su' has been blocked by CORS policy
 ```
 
 **Решение:**

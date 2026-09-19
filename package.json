@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "description": "React Portfolio Website - Modern portfolio built with React and Vite and CMS",
   "author": "Yaroslav Shiryakov",
-  "homepage": "https://vidrimers.site",
+  "homepage": "https://vidrimers.su",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"node scripts/start-frontend.js\"",
     "dev:frontend": "vite",
